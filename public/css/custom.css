@@ -1,0 +1,286 @@
+.faded-bg{
+  background: rgba(200, 200, 200, 0.5);
+
+}
+
+
+td>img {
+  max-width: 35px;
+}
+
+.hidden-xs {
+  display: none !important
+}
+
+.app-container .content-container .side-menu .navbar-nav li.dropdown li.dropdown div>ul>li>a {
+  padding: 0 2.0em;
+}
+
+ul.radio li label {
+  height: auto !important;
+}
+
+.widget {
+  -webkit-box-shadow: 0px 0px 10px 0px rgba(195, 195, 195, 1);
+  -moz-box-shadow: 0px 0px 10px 0px rgba(195, 195, 195, 1);
+  box-shadow: 0px 0px 10px 0px rgba(195, 195, 195, 1);
+  border-radius: calc(1rem - 10px);
+  margin-bottom: 20px;
+}
+
+.row1>.widget{
+  min-height: calc(100% - 20px);
+}
+.row1_2>.widget{
+  min-height: calc(100% - 20px);
+}
+.row1_5>.widget{
+  min-height: calc(100% - 20px);
+}
+
+
+
+.mb-o {
+  margin-bottom: 0px !important;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 0;
+
+}
+
+.widget-header {
+  border-radius: calc(1rem - 10px) calc(1rem - 10px) 0 0;
+  padding: 2px 15px;
+  background-color: rgba(255, 255, 255, 0.7);
+  ;
+  border-bottom: none;
+  -webkit-box-shadow: 0 0.125rem 0.8rem rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.125rem 0.8rem rgba(0, 0, 0, 0.1);
+}
+
+.widget-header span {
+  margin-bottom: .5rem;
+  font-family: "Poppins", sans-serif;
+  font-weight: 800;
+  line-height: 1.2;
+  color: inherit;
+}
+
+.widget-tools {
+  min-height: 100%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+    display: grid;
+}
+
+.addRow {
+  text-align: center;
+  border-radius: calc(1rem - 10px) calc(1rem - 10px) 0 0;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  opacity: 0.20;
+  filter: alpha(opacity=20);
+}
+
+.addRow:hover {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+
+.addRow i {
+  font-size: 50px;
+  color: #e2e2e2;
+}
+
+.tool_data>[class*=col-] {
+  margin-bottom: 0px !important;
+}
+
+.tool_data {
+  height: 100%;
+  margin: 0px;
+  overflow: auto;
+  position: initial;
+  min-height: 35px;
+}
+
+.tool_data_title {
+  font-weight: bold;
+}
+
+.tool_data_data {
+  font-family: 'Quantico', sans-serif;
+  font-size: 15px;
+}
+
+.tool_indicator {
+  box-shadow: 1px 1px 12px 1px #000000;
+  background-color: #000000;
+  border-radius: 256px;
+  width: 0px;
+  justify-content: center;
+  display: flex;
+  margin: 8px auto;
+}
+
+.indicator {
+  background: url('/storage/widget/indicator.png');
+  background-size: cover;
+  width: 0px;
+  height: 0px;
+}
+.devicealarm {
+  background: url('/storage/widget/alarmoff.png');
+  background-size: cover;
+  width: 0px;
+  height: 0px;
+}
+
+.indicator_title {
+text-align: center;
+font-weight: bold;
+padding: 0 5px;
+}
+
+
+
+
+.toolSettings {
+  position: absolute;
+  z-index: 10000;
+  text-shadow: 0px 0px 1px #F50;
+  color: #00f;
+  font-size: 15px;
+}
+
+
+
+.hide_tool {
+  opacity: 0.05;
+  filter: alpha(opacity=5);
+}
+
+.hide_tool:hover {
+  opacity: 1;
+  filter: alpha(opacity=100);
+}
+
+.chart_row {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropbtn {
+  border: none;
+}
+
+.dropdown {
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+input[type="radio"]+.form-check-label {
+  border-style: solid;
+  border-width: 5px;
+}
+
+input[type="radio"]:checked+.form-check-label {
+  border-color: #fa2a00;
+}
+
+input[type="radio"]+.form-check-label img {
+  max-width: 100%;
+}
+
+input[name="row_type"] {
+  display: none;
+}
+
+.deviceTypeList {
+width: 128px;
+height:  128px;
+    background-size: cover!important;
+  list-style-type: none;
+  margin: 1px;
+  border-style: solid;
+  cursor: pointer;
+}
+
+.deviceTypeList:hover {
+  border-color: #fa2a00;
+}
+
+
+.row.display-flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+.row.display-flex > [class*='col-'] {
+  display: flex;
+  flex-direction: column;
+}
+#device_info {
+    font-size: 24px;
+}
+
+[class*=col-] > .toolSettings {
+    left: unset!important;
+}
+
+.btn-kck{
+  font-size: 10px;
+  padding: 2px 2px 0px 3px;
+  margin: 0px 5px
+}
+
+.page-title{
+  height: fit-content;
+  line-height: unset;
+}
+
+
+/*data table */
+.dt-buttons , .dt-button{
+  float: right!important;
+      font-weight: bolder;
+        color: #f9f9f9!important;
+  }
+  .buttons-excel{
+        background-image: linear-gradient(to bottom, #89ff00 0%, #03940e 100%)!important;
+  }
+.buttons-print{
+      background-image: linear-gradient(to bottom, #ff3a1a 0%, #ba2a00 100%)!important;
+
+
+}
+
+.page-title{
+  padding-top:50px!important;
+}
+.panel-bordered>.panel-body{
+      padding: 30px 12px 1px!important;
+}
