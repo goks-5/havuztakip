@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use App\Device;
 use App\CompanySetting;
 
-use TCG\Voyager\Http\Controllers\VoyagerBaseController;
+use App\Http\Controllers\VoyagerBaseController;
 
 class CompanySettings extends VoyagerBaseController
 {

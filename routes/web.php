@@ -9,7 +9,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-URL::forceScheme('https');
+//URL::forceScheme('https');
 
 Route::get('/test', function () {
     App\Device::dosabData();

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Device;
 use Carbon\Carbon;
-use TCG\Voyager\Http\Controllers\VoyagerBaseController;
+use App\Http\Controllers\VoyagerBaseController;
 
 use TCG\Voyager\Facades\Voyager;
 use Illuminate\Http\Request;

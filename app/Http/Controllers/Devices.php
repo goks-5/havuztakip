@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use App\Device;
 use App\DeviceData;
-use TCG\Voyager\Http\Controllers\VoyagerBaseController;
+use App\Http\Controllers\VoyagerBaseController;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\DeviceDatasExport;

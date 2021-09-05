@@ -7,7 +7,7 @@ use App\User;
 
 use App\Company;
 
-use TCG\Voyager\Http\Controllers\VoyagerBaseController;
+use App\Http\Controllers\VoyagerBaseController;
 class Companies extends VoyagerBaseController
 {
 

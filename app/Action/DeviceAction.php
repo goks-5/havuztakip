@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Actions;
+namespace app\Actions;
 
 use TCG\Voyager\Actions\AbstractAction;
 

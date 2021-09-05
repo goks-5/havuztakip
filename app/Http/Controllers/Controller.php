@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use TCG\Voyager\Http\Controllers\VoyagerBaseController;
+use App\Http\Controllers\VoyagerBaseController;
 class Controller extends VoyagerBaseController
 {
   public function index(Request $request)

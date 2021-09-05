@@ -1,0 +1,154 @@
+[2021-09-05 13:09:05] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:192)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(118): Illuminate\\Log\\LogManager->resolve()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(98): Illuminate\\Log\\LogManager->get()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(547): Illuminate\\Log\\LogManager->driver()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(124): Illuminate\\Log\\LogManager->error()
+#4 /home/bora/Projeler/enerjiyonetim/app/Exceptions/Handler.php(37): Illuminate\\Foundation\\Exceptions\\Handler->report()
+#5 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(376): App\\Exceptions\\Handler->report()
+#6 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(141): Illuminate\\Foundation\\Console\\Kernel->reportException()
+#7 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#8 {main}
+"} 
+[2021-09-05 13:09:05] laravel.ERROR: Class 'Maatwebsite\Excel\Excel' not found {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): Class 'Maatwebsite\\Excel\\Excel' not found at /home/bora/Projeler/enerjiyonetim/config/excel.php:91)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(72): require()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(39): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->loadConfigurationFiles()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(219): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->bootstrap()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(320): Illuminate\\Foundation\\Application->bootstrapWith()
+#4 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(129): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#5 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#6 {main}
+"} 
+[2021-09-05 13:09:36] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:192)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(118): Illuminate\\Log\\LogManager->resolve()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(98): Illuminate\\Log\\LogManager->get()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(547): Illuminate\\Log\\LogManager->driver()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(124): Illuminate\\Log\\LogManager->error()
+#4 /home/bora/Projeler/enerjiyonetim/app/Exceptions/Handler.php(37): Illuminate\\Foundation\\Exceptions\\Handler->report()
+#5 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(376): App\\Exceptions\\Handler->report()
+#6 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(141): Illuminate\\Foundation\\Console\\Kernel->reportException()
+#7 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#8 {main}
+"} 
+[2021-09-05 13:09:36] laravel.ERROR: Class 'Maatwebsite\Excel\Excel' not found {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): Class 'Maatwebsite\\Excel\\Excel' not found at /home/bora/Projeler/enerjiyonetim/config/excel.php:91)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(72): require()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(39): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->loadConfigurationFiles()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(219): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->bootstrap()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(320): Illuminate\\Foundation\\Application->bootstrapWith()
+#4 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(129): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#5 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#6 {main}
+"} 
+[2021-09-05 13:09:51] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:192)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(118): Illuminate\\Log\\LogManager->resolve()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(98): Illuminate\\Log\\LogManager->get()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(547): Illuminate\\Log\\LogManager->driver()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(124): Illuminate\\Log\\LogManager->error()
+#4 /home/bora/Projeler/enerjiyonetim/app/Exceptions/Handler.php(37): Illuminate\\Foundation\\Exceptions\\Handler->report()
+#5 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(376): App\\Exceptions\\Handler->report()
+#6 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(141): Illuminate\\Foundation\\Console\\Kernel->reportException()
+#7 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#8 {main}
+"} 
+[2021-09-05 13:09:51] laravel.ERROR: Class 'Maatwebsite\Excel\Excel' not found {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): Class 'Maatwebsite\\Excel\\Excel' not found at /home/bora/Projeler/enerjiyonetim/config/excel.php:91)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(72): require()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(39): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->loadConfigurationFiles()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(219): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->bootstrap()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(320): Illuminate\\Foundation\\Application->bootstrapWith()
+#4 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(129): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#5 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#6 {main}
+"} 
+[2021-09-05 13:10:55] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:192)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(118): Illuminate\\Log\\LogManager->resolve()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(98): Illuminate\\Log\\LogManager->get()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(547): Illuminate\\Log\\LogManager->driver()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(124): Illuminate\\Log\\LogManager->error()
+#4 /home/bora/Projeler/enerjiyonetim/app/Exceptions/Handler.php(37): Illuminate\\Foundation\\Exceptions\\Handler->report()
+#5 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(376): App\\Exceptions\\Handler->report()
+#6 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(141): Illuminate\\Foundation\\Console\\Kernel->reportException()
+#7 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#8 {main}
+"} 
+[2021-09-05 13:10:55] laravel.ERROR: Class 'Maatwebsite\Excel\Excel' not found {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): Class 'Maatwebsite\\Excel\\Excel' not found at /home/bora/Projeler/enerjiyonetim/config/excel.php:91)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(72): require()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(39): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->loadConfigurationFiles()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(219): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->bootstrap()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(320): Illuminate\\Foundation\\Application->bootstrapWith()
+#4 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(129): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#5 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#6 {main}
+"} 
+[2021-09-05 13:12:29] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:192)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(118): Illuminate\\Log\\LogManager->resolve()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(98): Illuminate\\Log\\LogManager->get()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(547): Illuminate\\Log\\LogManager->driver()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(124): Illuminate\\Log\\LogManager->error()
+#4 /home/bora/Projeler/enerjiyonetim/app/Exceptions/Handler.php(37): Illuminate\\Foundation\\Exceptions\\Handler->report()
+#5 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(376): App\\Exceptions\\Handler->report()
+#6 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(141): Illuminate\\Foundation\\Console\\Kernel->reportException()
+#7 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#8 {main}
+"} 
+[2021-09-05 13:12:29] laravel.ERROR: Class 'Maatwebsite\Excel\Excel' not found {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): Class 'Maatwebsite\\Excel\\Excel' not found at /home/bora/Projeler/enerjiyonetim/config/excel.php:91)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(72): require()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(39): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->loadConfigurationFiles()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(219): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->bootstrap()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(320): Illuminate\\Foundation\\Application->bootstrapWith()
+#4 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(129): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#5 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#6 {main}
+"} 
+[2021-09-05 13:12:37] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:192)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(118): Illuminate\\Log\\LogManager->resolve()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(98): Illuminate\\Log\\LogManager->get()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(547): Illuminate\\Log\\LogManager->driver()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(124): Illuminate\\Log\\LogManager->error()
+#4 /home/bora/Projeler/enerjiyonetim/app/Exceptions/Handler.php(37): Illuminate\\Foundation\\Exceptions\\Handler->report()
+#5 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(376): App\\Exceptions\\Handler->report()
+#6 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(141): Illuminate\\Foundation\\Console\\Kernel->reportException()
+#7 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#8 {main}
+"} 
+[2021-09-05 13:12:37] laravel.ERROR: Class 'Maatwebsite\Excel\Excel' not found {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): Class 'Maatwebsite\\Excel\\Excel' not found at /home/bora/Projeler/enerjiyonetim/config/excel.php:91)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(72): require()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(39): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->loadConfigurationFiles()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(219): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->bootstrap()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(320): Illuminate\\Foundation\\Application->bootstrapWith()
+#4 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(129): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#5 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#6 {main}
+"} 
+[2021-09-05 13:38:54] laravel.EMERGENCY: Unable to create configured logger. Using emergency logger. {"exception":"[object] (InvalidArgumentException(code: 0): Log [] is not defined. at /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php:192)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(118): Illuminate\\Log\\LogManager->resolve()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(98): Illuminate\\Log\\LogManager->get()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Log/LogManager.php(547): Illuminate\\Log\\LogManager->driver()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Exceptions/Handler.php(124): Illuminate\\Log\\LogManager->error()
+#4 /home/bora/Projeler/enerjiyonetim/app/Exceptions/Handler.php(37): Illuminate\\Foundation\\Exceptions\\Handler->report()
+#5 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(376): App\\Exceptions\\Handler->report()
+#6 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(141): Illuminate\\Foundation\\Console\\Kernel->reportException()
+#7 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#8 {main}
+"} 
+[2021-09-05 13:38:54] laravel.ERROR: Class 'Maatwebsite\Excel\Excel' not found {"exception":"[object] (Symfony\\Component\\Debug\\Exception\\FatalThrowableError(code: 0): Class 'Maatwebsite\\Excel\\Excel' not found at /home/bora/Projeler/enerjiyonetim/config/excel.php:91)
+[stacktrace]
+#0 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(72): require()
+#1 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Bootstrap/LoadConfiguration.php(39): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->loadConfigurationFiles()
+#2 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(219): Illuminate\\Foundation\\Bootstrap\\LoadConfiguration->bootstrap()
+#3 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(320): Illuminate\\Foundation\\Application->bootstrapWith()
+#4 /home/bora/Projeler/enerjiyonetim/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(129): Illuminate\\Foundation\\Console\\Kernel->bootstrap()
+#5 /home/bora/Projeler/enerjiyonetim/artisan(37): Illuminate\\Foundation\\Console\\Kernel->handle()
+#6 {main}
+"} 

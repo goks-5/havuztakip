@@ -19,7 +19,7 @@
                  style="background-image:url({{ Voyager::image( Voyager::setting('admin.bg_image'), voyager_asset('images/bg.jpg') ) }}); background-size: cover; background-position: 0px;">
                 <div class="dimmer"></div>
                 <div class="panel-content">
-                    <img src="{{ $company_avatar }}" class="avatar" alt="{{ Auth::user()->company->name }} avatar" onclick="document.location='{{ route('switch_company') }}';return false;">
+                    <img src="@if( !filter_var(Auth::user()->company->avatar, FILTER_VALIDATE_URL)){{ Voyager::image( Auth::user()->company->avatar ) }}@else{{ Auth::user()->company->avatar }}@endif" class="avatar" alt="{{ Auth::user()->company->name }} avatar" onclick="document.location='{{ route('switch_company') }}';return false;">
                     <h4>{{ ucwords(Auth::user()->company->name) }}</h4>
                     <p>{{ Auth::user()->company->telefon }}</p>
                     <a href="{{ route('switch_company') }}" class="btn btn-primary">Firma Değiştir</a>

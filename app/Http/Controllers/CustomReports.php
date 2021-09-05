@@ -11,7 +11,7 @@ use TCG\Voyager\Events\BreadDataUpdated;
 
 use App\Device;
 use App\CustomReport;
-use TCG\Voyager\Http\Controllers\VoyagerBaseController;
+use App\Http\Controllers\VoyagerBaseController;
 
 use TCG\Voyager\Facades\Voyager;
 use Carbon\Carbon;

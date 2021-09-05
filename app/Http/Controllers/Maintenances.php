@@ -13,7 +13,7 @@ use App\Staff;
 use DateTime;
 use DateInterval;
 use DatePeriod;
-use TCG\Voyager\Http\Controllers\VoyagerBaseController;
+use App\Http\Controllers\VoyagerBaseController;
 
 class Maintenances extends VoyagerBaseController
 {

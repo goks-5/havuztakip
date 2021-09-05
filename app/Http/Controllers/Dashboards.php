@@ -6,7 +6,7 @@ use App\Dashboard;
 use App\DashboardRow;
 use App\DashboardTool;
 use App\Tool;
-use TCG\Voyager\Http\Controllers\VoyagerBaseController;
+use App\Http\Controllers\VoyagerBaseController;
 
 use Illuminate\Http\Request;
 
