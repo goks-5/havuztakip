@@ -64,4 +64,6 @@ Route::group(['prefix' => ''], function () {
     Route::post('/cihazlar/veriler', ['uses'=>'Devices@DeviceDatasSearch', 'as' => 'cihazverilerajax']);
     Route::get('/cihazlar/veriler/{id}', ['uses'=>'Devices@DeviceDatas', 'as' => 'cihazveriler']);
     Voyager::routes();
+
+    Route::get('/', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });
