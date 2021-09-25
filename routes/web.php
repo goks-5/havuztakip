@@ -65,5 +65,5 @@ Route::group(['prefix' => ''], function () {
     Route::get('/cihazlar/veriler/{id}', ['uses'=>'Devices@DeviceDatas', 'as' => 'cihazveriler']);
     Voyager::routes();
 
-    Route::get('/', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
+  //  Route::get('/', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });
