@@ -27,7 +27,7 @@
               @endif
               @csrf
               <div class="panel-body">
-                <div class="form-group  col-md-3 ">
+                <div class="form-group  col-md-2 ">
                   <label class="control-label" for="name">Rapor Adı</label>
                   <input type="text" class="form-control" name="name" placeholder="Rapor Adı" value="{{$report->name ?? ''}}">
                 </div>
@@ -52,7 +52,7 @@
                   <label class="control-label" for="name">Veri adedi</label>
                   <input type="number" max="31" min="1" class="form-control" name="lenght" placeholder="Rapor Adı" value="{{$report->lenght ?? '1'}}">
                 </div>
-                <div class="form-group  col-md-4">
+                <div class="form-group  col-md-2">
                   <label class="control-label" for="name">Yerleşim</label>
                   <div>
                     <div class="custom-control custom-radio custom-control-inline col-md-6">
@@ -62,6 +62,19 @@
                     <div class="custom-control custom-radio custom-control-inline col-md-6">
                       <input type="radio" id="satir" name="type" class="custom-control-input" value="2">
                       <label class="custom-control-label" for="satir">Veriler Satırlarda</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group  col-md-3">
+                  <label class="control-label" for="name">Sıralama</label>
+                  <div>
+                    <div class="custom-control custom-radio custom-control-inline col-md-6">
+                      <input type="radio" id="desc" name="order_direction" class="custom-control-input" value="desc">
+                      <label class="custom-control-label" for="desc">Yeni tarihler önce</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline col-md-6">
+                      <input type="radio" id="asc" name="order_direction" class="custom-control-input" value="asc" >
+                      <label class="custom-control-label" for="asc">Eski tarihler önce</label>
                     </div>
                   </div>
                 </div>
@@ -142,6 +155,7 @@
 $('.islem optgroup , .islem option').hide();
 $("input:radio[name='period'][value='{{$report->period ?? '1'}}']").trigger('click');
 $("input:radio[name='type'][value='{{$report->type ?? '1'}}']").trigger('click');
+$("input:radio[name='order_direction'][value='{{$report->order_direction ?? 'desc'}}']").trigger('click');
     @if (isset($report->name ))
 
     @php

@@ -39,7 +39,7 @@ class Reports extends VoyagerBaseController
         $type = $report->type;
         $tags = json_decode($report->tags, true);
         $titles = json_decode($report->titles, true);
-
+        
         if(isset($request->date)){
           $date = date('Y-m-d H:i',strtotime($request->date)) ;
         }else{
@@ -82,7 +82,7 @@ class Reports extends VoyagerBaseController
                                     ->where('device_id', $device[0])
                                     ->where('data_id', $device[1])
                                     ->where('created_at', '<', $date)
-                                    ->limit($lenght)->orderBy('created_at','desc')->get();
+                                    ->limit($lenght)->orderBy('created_at',$report->order_direction)->get();
               foreach ($veriler as $veri) {
                 $ay = $aylar[date('m',strtotime( $veri->created_at)) - 1];
                 $gun = $gunler[date('N',strtotime( $veri->created_at)) - 1];
@@ -107,7 +107,7 @@ class Reports extends VoyagerBaseController
                                     ->where('device_id', $device[0])
                                     ->where('data_id', $device[1])
                                     ->where('created_at', '<', $date)
-                                    ->limit($lenght)->orderBy('created_at','desc')->get();
+                                    ->limit($lenght)->orderBy('created_at',$report->order_direction)->get();
               foreach ($veriler as $key2=> $veri) {
                 $ay = $aylar[date('m',strtotime( $veri->created_at)) - 1];
                 $gun = $gunler[date('N',strtotime( $veri->created_at)) - 1];
