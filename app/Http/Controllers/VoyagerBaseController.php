@@ -15,7 +15,7 @@ use TCG\Voyager\Events\BreadDataUpdated;
 use TCG\Voyager\Events\BreadImagesDeleted;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Http\Controllers\Traits\BreadRelationshipParser;
-
+use App\DataType;
 use TCG\Voyager\Http\Controllers\VoyagerBaseController as Base;
 
 class VoyagerBaseController extends Base
@@ -420,7 +420,7 @@ class VoyagerBaseController extends Base
     {
         $slug = $this->getSlug($request);
 
-        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
+        $dataType = DataType::where('slug', '=', $slug)->first();
 
         // Check permission
         $this->authorize('add', app($dataType->model_name));
