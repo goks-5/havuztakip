@@ -324,6 +324,7 @@ class VoyagerBaseController extends Base
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
+
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
 
@@ -342,6 +343,7 @@ class VoyagerBaseController extends Base
 
         // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->editRows, $dataType->name, $id)->validate();
+
 
         if (!isset($data->company_id) || $data->company_id ==  Auth::user()->company_id) {
             if (!in_array($dataType->model_name, $this->optionsModels) || !isset($data->user_id) || $data->write == 1 || $data->user_id ==  Auth::user()->id) {
@@ -438,6 +440,8 @@ class VoyagerBaseController extends Base
             $request->merge(['company_id' => Auth::user()->company_id]);
             $request->merge(['user_id' => Auth::user()->id]);
         }
+
+    
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
 

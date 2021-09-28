@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataType;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
@@ -134,8 +135,7 @@ class Reports extends VoyagerBaseController
     {
         $slug = $this->getSlug($request);
 
-        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-
+        $dataType = DataType::where('slug', '=', $slug)->first();
         // Check permission
         $this->authorize('add', app($dataType->model_name));
 
@@ -171,8 +171,8 @@ class Reports extends VoyagerBaseController
     {
         $slug = $this->getSlug($request);
 
-        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-
+        
+        $dataType = DataType::where('slug', '=', $slug)->first();
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
 
