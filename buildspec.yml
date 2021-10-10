@@ -10,10 +10,9 @@ phases:
   build:
     commands:
       - echo Build started on `date`
-      - mvn install
   post_build:
     commands:
       - echo Build completed on `date`
 artifacts:
   files:
-    - target/messageUtil-1.0.jar
+    - target/silbunu.jar
