@@ -17,5 +17,5 @@ artifacts:
   files:
     - '**/*'
   base-directory: base_dir
-  name: build-artifact-name
+  name: enerji_yonetim
   discard-paths: no
