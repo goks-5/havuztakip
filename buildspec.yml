@@ -16,6 +16,6 @@ phases:
 artifacts:
   files:
     - '**/*'
-  base-directory: base_dir
+  base-directory: /var/www/html
   name: enerji_yonetim
   discard-paths: no
