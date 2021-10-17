@@ -49,13 +49,13 @@ class Reports extends VoyagerBaseController
 
         switch ($report->period) {
             case 1:
-                $dateStart = date( 'Y-m-d H:i', strtotime( $date . ' -1 day' ) );
+                $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght day" ) );
             break;
             case 2:
-                $dateStart = date( 'Y-m-d H:i', strtotime( $date . ' -1 week' ) );
+                $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght week" ) );
             break;
             default:
-                $dateStart = date( 'Y-m-d H:i', strtotime( $date . ' -1 month' ) );
+                $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght month" ) );
             break;
         }
 
@@ -122,6 +122,7 @@ class Reports extends VoyagerBaseController
                                     ->where('device_id', $device[0])
                                     ->where('data_id', $device[1])
                                     ->where('created_at', '<', $date)
+                                    ->where('created_at', '>=', $dateStart)
                                     ->limit($lenght)->orderBy('created_at',$report->order_direction)->get();
               foreach ($veriler as $key2=> $veri) {
                 $ay = $aylar[date('m',strtotime( $veri->created_at)) - 1];
