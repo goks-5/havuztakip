@@ -47,6 +47,20 @@ class Reports extends VoyagerBaseController
           $date = date('Y-m-d');
         }
 
+        switch ($report->period) {
+            case 1:
+                $dateStart = date( 'Y-m-d H:i', strtotime( $date . ' -1 day' ) );
+            break;
+            case 2:
+                $dateStart = date( 'Y-m-d H:i', strtotime( $date . ' -1 week' ) );
+            break;
+            default:
+                $dateStart = date( 'Y-m-d H:i', strtotime( $date . ' -1 month' ) );
+            break;
+        }
+
+        
+
         $gunler = array(
             'Pazartesi',
             'Salı',
@@ -83,6 +97,7 @@ class Reports extends VoyagerBaseController
                                     ->where('device_id', $device[0])
                                     ->where('data_id', $device[1])
                                     ->where('created_at', '<', $date)
+                                    ->where('created_at', '>=', $dateStart)
                                     ->limit($lenght)->orderBy('created_at',$report->order_direction)->get();
               foreach ($veriler as $veri) {
                 $ay = $aylar[date('m',strtotime( $veri->created_at)) - 1];
@@ -94,7 +109,6 @@ class Reports extends VoyagerBaseController
 
                 }
               }
-
           }
           return Excel::download(new ReportExport($data), $report->name . '.xlsx');
         }else{
