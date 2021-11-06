@@ -33,7 +33,7 @@ class EnsureTokenIsValid
         } else {
             $uDevice = UndefineDevice::firstOrNew(['mac' => $parameters['mac'], 'device_id' => $parameters['device_id']]);
             $uDevice->save();
-            return response()->json(['status' => 'warning', 'message' => 'Device Not Found', 'timestamp' => time(), 'device' => $uDevice], 404);
+            return response()->json(['status' => 'warning', 'message' => 'Device Not Found', 'timestamp' => time()], 404);
         }
     }
 
