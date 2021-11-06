@@ -20,7 +20,7 @@ class Api extends Controller
         $device = Device::where(['mac' => $parameters['mac'], 'device_id' => $parameters['device_id']])->first();
         $response = [];
         $timestamp = strtotime($device->updated_at) + $device->period;
-        $changeTags = array_filter(json_decode($device->tags, true), function ($k) {
+        $changeTags = array_filter(json_decode($device->tags === NULL ? '{}' :$device->tags, true), function ($k) {
             return $k >= '1000';
         }, ARRAY_FILTER_USE_KEY);
         $changeAt = json_decode($device->tags_last_change, true);
