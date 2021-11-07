@@ -13,5 +13,5 @@ use App\Http\Middleware\EnsureTokenIsValid;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-
+URL::forceScheme('https');
     Route::get('/write', 'Api@write')->middleware([EnsureTokenIsValid::class]);
