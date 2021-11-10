@@ -21,19 +21,19 @@ class EnsureTokenIsValid
         $parameters = $request->all();
 
         if (!isset($parameters['mac']) || !isset($parameters['device_id']) || !isset($parameters['data'])) {
-            return response()->json(['status' => 'error', 'message' => 'Missing Parameters', 'timestamp' => time()], 400);
+            return response()->json(['status' => 'error', 'message' => 'missing parameters', 'timestamp' => time() , 'date' => date('Y-m-d H:i:s') ], 400);
         }
         $device = Device::where(['mac' => $parameters['mac'], 'device_id' => $parameters['device_id']])->first();
         if ($device) {
             if ($this->validateData($parameters, $device)) {
                 return $next($request);
             } else {
-                return response()->json(['status' => 'error', 'message' => 'Data Not Validate', 'timestamp' => time()], 403);
+                return response()->json(['status' => 'error', 'message' => 'data not validate', 'timestamp' => time(), 'date' => date('Y-m-d H:i:s') ], 403);
             }
         } else {
             $uDevice = UndefineDevice::firstOrNew(['mac' => $parameters['mac'], 'device_id' => $parameters['device_id']]);
             $uDevice->save();
-            return response()->json(['status' => 'warning', 'message' => 'Device Not Found', 'timestamp' => time()], 404);
+            return response()->json(['status' => 'warning', 'message' => 'device not found', 'timestamp' => time(), 'date' => date('Y-m-d H:i:s') ], 404);
         }
     }
 

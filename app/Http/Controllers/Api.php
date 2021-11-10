@@ -18,7 +18,7 @@ class Api extends Controller
     {
         $parameters = $request->all();
         $device = Device::where(['mac' => $parameters['mac'], 'device_id' => $parameters['device_id']])->first();
-        $response = [];
+        $response = [ 'date' => date('Y-m-d H:i:s') ];
         $timestamp = strtotime($device->updated_at) + $device->period;
         $changeTags = array_filter(json_decode($device->tags === NULL ? '{}' :$device->tags, true), function ($k) {
             return $k >= '1000';
@@ -50,14 +50,15 @@ class Api extends Controller
                 ];
             }
             DeviceData::insert($saveData);
-            $response['message'] = "Device data saved";
+            $response['message'] = "device data saved";
         } else {
-            $response['message'] = "Device data saved only to last";
+            $response['message'] = "device data saved only to last";
             $device->timestamps = false;
         }
 
         if ($device->token == null) {
             $device->token = Str::random(32);
+            $response['message'] = "new token generate";
             $response['token'] = $device->token;
         }
 
