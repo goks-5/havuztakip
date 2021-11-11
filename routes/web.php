@@ -10,9 +10,7 @@
 |
 */
 URL::forceScheme('https');
-Route::get('/admin', function () {
-    return Redirect::to('/', 301);
-});
+Route::get('/admin', 'RedirectController@redirectRoot');
 Route::post('/autocomplate', 'Ajax@AutoComplate');
 Route::get('/devicelist', 'Ajax@DeviceList')->name('devicelist');
 Route::get('/deviceonline', 'Ajax@DeviceOnline')->name('deviceonline');
