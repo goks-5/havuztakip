@@ -11,27 +11,9 @@
 */
 URL::forceScheme('https');
 
-Route::get('/test', function () {
-    App\Device::dosabData();
-//return  App\Device::diffData() ;
 
-//return  App\Device::getdatas2(4, 0, 1);
 
-});
 
-Route::get('/deposil', function () {
-    Artisan::call('cache:clear');
-    echo "Cache";
-    Artisan::call('route:clear');
-    echo "route";
-    Artisan::call('config:clear');
-    echo "config";
-    Artisan::call('view:clear');
-    return "view";
-});
-Route::get('/admin', function () {
-    return Redirect::to('/', 301);
-});
 
 Route::post('/autocomplate', 'Ajax@AutoComplate');
 Route::get('/devicelist', 'Ajax@DeviceList')->name('devicelist');
