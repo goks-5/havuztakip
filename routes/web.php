@@ -45,6 +45,6 @@ Route::group(['prefix' => ''], function () {
    // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });
 
-Route::group(['prefix' => 'admin'], function () {
+Route::group(['prefix' => '/admin'], function () {
     Voyager::routes();
 });
