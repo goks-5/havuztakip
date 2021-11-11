@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Device;
 use App\DeviceData;
 use Illuminate\Support\Str;
+
 class Api extends Controller
 {
     /**
@@ -18,9 +19,9 @@ class Api extends Controller
     {
         $parameters = $request->all();
         $device = Device::where(['mac' => $parameters['mac'], 'device_id' => $parameters['device_id']])->first();
-        $response = [ 'date' => date('Y-m-d H:i:s') ];
+        $response = ['date' => date('Y-m-d H:i:s')];
         $timestamp = strtotime($device->updated_at) + $device->period;
-        $changeTags = array_filter(json_decode($device->tags === NULL ? '{}' :$device->tags, true), function ($k) {
+        $changeTags = array_filter(json_decode($device->tags === NULL ? '{}' : $device->tags, true), function ($k) {
             return $k >= '1000';
         }, ARRAY_FILTER_USE_KEY);
         $changeAt = json_decode($device->tags_last_change, true);
@@ -70,6 +71,83 @@ class Api extends Controller
         $response['timestamp'] = time();
 
 
-        return response()->json( $response, 200);
+        return response()->json($response, 200);
+    }
+
+    public function devices(Request $request)
+    {
+        $company = $request->get('company');
+        $devices = Device::where('company_id', $company)->get();
+
+        foreach ($devices as $key => $device) {
+            $returndevice['device_id'] = $device->device_id;
+            $returndevice['company_id'] = $device->company_id;
+            $returndevice['name'] = $device->name;
+            $returndevice['last_at'] = $device->last_at;
+            $returndevice['status'] =  'success';
+            $returndevice['timestamp'] =  time();
+            $returndevice['date'] =  date('Y-m-d H:i:s');
+            $tags = json_decode($device->tags, true);
+            $last_data = json_decode($device->last_data, true);
+            $returndevice['tags'] = array();
+            foreach ($tags as $key2 => $tag) {
+                $data['name'] = $tag;
+                $data['value'] = $last_data[$key2];
+                $returndevice['tags'][$key2] =  (object)$data;
+            }
+            $return[$key] = (object)$returndevice;
+        }
+        return $return;
+    }
+
+
+    public function device(Request $request, $device_id)
+    {
+        $company = $request->get('company');
+        $device = Device::where(['device_id' => $device_id, 'company_id' => $company])->first();
+
+        if (!$device) {
+            return response()->json(['status' => 'error', 'message' => 'do not have permission', 'timestamp' => time(), 'date' => date('Y-m-d H:i:s')], 403);
+        } else {
+            $returndevice['device_id'] = $device->device_id;
+            $returndevice['company_id'] = $device->company_id;
+            $returndevice['name'] = $device->name;
+            $returndevice['last_at'] = $device->last_at;
+            $returndevice['status'] =  'success';
+            $returndevice['timestamp'] =  time();
+            $returndevice['date'] =  date('Y-m-d H:i:s');
+            $tags = json_decode($device->tags, true);
+            $last_data = json_decode($device->last_data, true);
+            $returndevice['tags'] = array();
+            foreach ($tags as $key2 => $tag) {
+                $data['name'] = $tag;
+                $data['value'] = $last_data[$key2];
+                $returndevice['tags'][$key2] =  (object)$data;
+            }
+            return $returndevice;
+        }
+    }
+
+    public function tag(Request $request, $device_id, $index)
+    {
+        $company = $request->get('company');
+        $device = Device::where(['device_id' => $device_id, 'company_id' => $company])->first();
+
+        if (!$device) {
+            return response()->json(['status' => 'error', 'message' => 'do not have permission', 'timestamp' => time(), 'date' => date('Y-m-d H:i:s')], 403);
+        } else {
+            $returndevice['status'] =  'success';
+            $returndevice['timestamp'] =  time();
+            $returndevice['date'] =  date('Y-m-d H:i:s');
+            $tags = json_decode($device->tags, true);
+            $last_data = json_decode($device->last_data, true);
+            if (isset($tags[$index])) {
+                $returndevice['name'] = $tags[$index];
+                $returndevice['value'] = $last_data[$index];
+                return  $returndevice;
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'device index not found', 'timestamp' => time(), 'date' => date('Y-m-d H:i:s')], 404);
+            }
+        }
     }
 }

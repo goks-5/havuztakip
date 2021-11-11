@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\EnsureTokenIsValid;
+use App\Http\Middleware\CheckCompanyToken;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,4 +15,7 @@ use App\Http\Middleware\EnsureTokenIsValid;
 |
 */
 URL::forceScheme('https');
-    Route::get('/write', 'Api@write')->middleware([EnsureTokenIsValid::class]);
+Route::get('/write', 'Api@write')->middleware([EnsureTokenIsValid::class]);
+Route::get('/read/devices', 'Api@devices')->middleware([CheckCompanyToken::class]);
+Route::get('/read/device/{device_id}', 'Api@device')->middleware([CheckCompanyToken::class]);
+Route::get('/read/device/{device_id}/{index}', 'Api@tag')->middleware([CheckCompanyToken::class]);
