@@ -1,3 +1,4 @@
+if [[ `git status --porcelain` ]]; then
 #!/bin/sh
 # activate maintenance mode
 php artisan down
@@ -13,3 +14,6 @@ php artisan migrate --force
 # --force  Required to run when in production.
 # stop maintenance mode
 php artisan up
+else
+  # No changes
+fi
