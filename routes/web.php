@@ -10,11 +10,9 @@
 |
 */
 URL::forceScheme('https');
-
-
-
-
-
+Route::get('/admin', function () {
+    return Redirect::to('/', 301);
+});
 Route::post('/autocomplate', 'Ajax@AutoComplate');
 Route::get('/devicelist', 'Ajax@DeviceList')->name('devicelist');
 Route::get('/deviceonline', 'Ajax@DeviceOnline')->name('deviceonline');
@@ -27,24 +25,23 @@ Route::post('/ajax/toolStyle', 'Ajax@toolStyle')->name('toolStyle');
 Route::get('/ajax/dashboardTagEnd', 'Ajax@dashboardTagEnd')->name('end_tag');
 Route::post('/ajax/faults_actions', 'Faults@actions')->name('faultsActions');
 Route::group(['prefix' => ''], function () {
-  Route::get('/raporlar/excel/{id}', ['uses'=>'Reports@excel', 'as' => 'report_excel']);
-  Route::get('/custom-reports/excel/{id}', ['uses'=>'CustomReports@excel', 'as' => 'custom_report_excel']);
-  Route::get('/dashboard', 'Dashboards@ajaxdata')->name('dashboarddata');
-  Route::get('/dashboard/{id}', 'Dashboards@dashboard')->name('dashboardnew');
-  Route::get('/firmadegistir/{id?}', 'Companies@switch')->name('switch_company');
-    Route::get('/gorevler/{status?}', ['uses'=>'Maintenances@tasks', 'as' => 'tasks']);
-    Route::post('/gorevler', ['uses'=>'Maintenances@addEdit', 'as' => 'task_edit']);
-    Route::get('/cihazlar/sanal/{id?}', ['uses'=>'Devices@addVirtual', 'as' => 'sanalekle']);
-    Route::post('/cihazlar/sanal', ['uses'=>'Devices@saveVirtual', 'as' => 'sanalkaydet']);
-    Route::get('/cihazlar/manuel', ['uses'=>'Devices@addManuel', 'as' => 'manuelekle']);
-    Route::post('/cihazlar/manuelAdd', ['uses'=>'Devices@addManuelData', 'as' => 'manuelAdd']);
-    Route::get('/cihazlar/remote_add', ['uses'=>'Devices@addRemote', 'as' => 'remoteAdd']);
-
-    Route::get('/cihazlar/dosab/{id?}', ['uses'=>'Devices@addDosab', 'as' => 'dosabekle']);
-    Route::post('/cihazlar/dosab', ['uses'=>'Devices@saveDosab', 'as' => 'dosabkaydet']);
-    Route::get('/cihazlar/veriler', ['uses'=>'Devices@DevicesDatas', 'as' => 'veriler']);
-    Route::post('/cihazlar/veriler', ['uses'=>'Devices@DeviceDatasSearch', 'as' => 'cihazverilerajax']);
-    Route::get('/cihazlar/veriler/{id}', ['uses'=>'Devices@DeviceDatas', 'as' => 'cihazveriler']);
+    Route::get('/raporlar/excel/{id}', ['uses' => 'Reports@excel', 'as' => 'report_excel']);
+    Route::get('/custom-reports/excel/{id}', ['uses' => 'CustomReports@excel', 'as' => 'custom_report_excel']);
+    Route::get('/dashboard', 'Dashboards@ajaxdata')->name('dashboarddata');
+    Route::get('/dashboard/{id}', 'Dashboards@dashboard')->name('dashboardnew');
+    Route::get('/firmadegistir/{id?}', 'Companies@switch')->name('switch_company');
+    Route::get('/gorevler/{status?}', ['uses' => 'Maintenances@tasks', 'as' => 'tasks']);
+    Route::post('/gorevler', ['uses' => 'Maintenances@addEdit', 'as' => 'task_edit']);
+    Route::get('/cihazlar/sanal/{id?}', ['uses' => 'Devices@addVirtual', 'as' => 'sanalekle']);
+    Route::post('/cihazlar/sanal', ['uses' => 'Devices@saveVirtual', 'as' => 'sanalkaydet']);
+    Route::get('/cihazlar/manuel', ['uses' => 'Devices@addManuel', 'as' => 'manuelekle']);
+    Route::post('/cihazlar/manuelAdd', ['uses' => 'Devices@addManuelData', 'as' => 'manuelAdd']);
+    Route::get('/cihazlar/remote_add', ['uses' => 'Devices@addRemote', 'as' => 'remoteAdd']);
+    Route::get('/cihazlar/dosab/{id?}', ['uses' => 'Devices@addDosab', 'as' => 'dosabekle']);
+    Route::post('/cihazlar/dosab', ['uses' => 'Devices@saveDosab', 'as' => 'dosabkaydet']);
+    Route::get('/cihazlar/veriler', ['uses' => 'Devices@DevicesDatas', 'as' => 'veriler']);
+    Route::post('/cihazlar/veriler', ['uses' => 'Devices@DeviceDatasSearch', 'as' => 'cihazverilerajax']);
+    Route::get('/cihazlar/veriler/{id}', ['uses' => 'Devices@DeviceDatas', 'as' => 'cihazveriler']);
     Voyager::routes();
-   // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
+    // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });
