@@ -10,7 +10,7 @@
 |
 */
 URL::forceScheme('https');
-Route::get('/admin', function () {
+Route::group(['prefix' => '/admin'], function () {
     return Redirect::to('/', 301);
 });
 Route::post('/autocomplate', 'Ajax@AutoComplate');
