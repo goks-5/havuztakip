@@ -224,7 +224,7 @@ class Devices extends VoyagerBaseController
             $device = new Device;
         }
         $device->mac = "00:00:00:00:00:01";
-        $device->device_id = "EOS_DOSAB_" . $request->device_id . "_" . $request->device_type;
+        $device->device_id = "DOSAB_" . $request->device_id . "_" . $request->device_type;
         $device->name = $request->name;
         $device->company_id = Auth::user()->company_id;
         $device->diff_tags = json_encode($request->diff_tags, JSON_UNESCAPED_UNICODE);
@@ -265,14 +265,14 @@ class Devices extends VoyagerBaseController
             }
             $device = new Device;
             $device->mac = "00:00:00:00:00:03";
-            $device->device_id = "EOS_REMOTE_" . Auth::user()->company_id . '_' . rand(10000, 10000000);
+            $device->device_id = "REMOTE_" . Auth::user()->company_id . '_' . rand(10000, 10000000);
             $device->company_id = Auth::user()->company_id;
             $device->name = Company::find($tagAccess->company_id)->name;
             $device->last_at = date('Y-m-d 01:00:00');
             $device->tags = json_encode($saveTags);
             $device->formula = json_encode(['token_id' => $tagAccess->id, 'token' => $tagAccess->token]);
             $device->save();
-            $device->device_id = "EOS_REMOTE_" . Auth::user()->company_id . '_' . $device->id;
+            $device->device_id = "REMOTE_" . Auth::user()->company_id . '_' . $device->id;
             $device->save();
             return redirect("/cihazlar/{$device->id}/edit");
         } else {
@@ -292,7 +292,7 @@ class Devices extends VoyagerBaseController
             $device = new Device;
         }
         $device->mac = "00:00:00:00:00:00";
-        $device->device_id = "EOS_SNL" . date("ymd") . str_pad(rand(0, 999), 3, "0", STR_PAD_LEFT);
+        $device->device_id = "VIRTUAL_" . date("ymd") . str_pad(rand(0, 999), 3, "0", STR_PAD_LEFT);
         $device->name = $request->name;
         $device->tags = $request->tags;
         $device->formula = $request->formula;
