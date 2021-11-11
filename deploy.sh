@@ -1,4 +1,4 @@
-if [[ `git status --porcelain` ]]; then
+if [ $(git status --porcelain | wc -l) -eq "0" ]; then
 #!/bin/sh
 # activate maintenance mode
 php artisan down
@@ -17,3 +17,4 @@ php artisan up
 else
   # No changes
 fi
+
