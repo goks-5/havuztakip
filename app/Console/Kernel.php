@@ -51,7 +51,7 @@ class Kernel extends ConsoleKernel
             $process->run(function ($type, $buffer) {
                 Log::info("deploy : $buffer");
             });
-        })->everyFiveMinutes();
+        })->dailyAt('02:44');
     }
 
     /**
