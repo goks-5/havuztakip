@@ -10,9 +10,6 @@
 |
 */
 URL::forceScheme('https');
-Route::get('/admin', function () {
-    return Redirect::to('/', 301);
-});
 
 Route::post('/autocomplate', 'Ajax@AutoComplate');
 Route::get('/devicelist', 'Ajax@DeviceList')->name('devicelist');
@@ -46,4 +43,8 @@ Route::group(['prefix' => ''], function () {
     Route::get('/cihazlar/veriler/{id}', ['uses'=>'Devices@DeviceDatas', 'as' => 'cihazveriler']);
     Voyager::routes();
    // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
+});
+});
+Route::group(['prefix' => 'admin'], function () {
+    Voyager::routes();
 });
