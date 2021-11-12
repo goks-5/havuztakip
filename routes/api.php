@@ -15,6 +15,8 @@ use App\Http\Middleware\CheckCompanyToken;
 |
 */
 URL::forceScheme('https');
+Route::get('/showrequest','Api@tests');
+Route::post('/showrequest','Api@tests');
 Route::post('/write', 'Api@write')->middleware([EnsureTokenIsValid::class]);
 Route::get('/read/devices', 'Api@devices')->middleware([CheckCompanyToken::class]);
 Route::get('/read/device/{device_id}', 'Api@device')->middleware([CheckCompanyToken::class]);

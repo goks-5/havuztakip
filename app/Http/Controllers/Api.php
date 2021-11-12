@@ -150,4 +150,12 @@ class Api extends Controller
             }
         }
     }
+
+    public function tests(Request $request)
+    {
+        $response['method'] = $request->method();
+        $response['headers'] = $request->header();
+        $response['request'] = $request->all();
+        return response()->json($response,200);
+    }
 }
