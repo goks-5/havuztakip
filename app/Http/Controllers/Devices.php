@@ -439,7 +439,6 @@ class Devices extends VoyagerBaseController
                 "add" => 1,
                 "details" =>"{}"
             ]);
-            dd(  $dataAll);
             $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
         }
 
