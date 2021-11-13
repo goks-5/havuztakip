@@ -25,8 +25,10 @@ Route::post('/ajax/toolStyle', 'Ajax@toolStyle')->name('toolStyle');
 Route::get('/ajax/dashboardTagEnd', 'Ajax@dashboardTagEnd')->name('end_tag');
 Route::post('/ajax/faults_actions', 'Faults@actions')->name('faultsActions');
 Route::group(['prefix' => ''], function () {
+    
     Route::get('/raporlar/excel/{id}', ['uses' => 'Reports@excel', 'as' => 'report_excel']);
     Route::get('/custom-reports/excel/{id}', ['uses' => 'CustomReports@excel', 'as' => 'custom_report_excel']);
+    Route::get('/update', 'Controller@updateFromGit')->name('updateFromGit');
     Route::get('/dashboard', 'Dashboards@ajaxdata')->name('dashboarddata');
     Route::get('/dashboard/{id}', 'Dashboards@dashboard')->name('dashboardnew');
     Route::get('/firmadegistir/{id?}', 'Companies@switch')->name('switch_company');
