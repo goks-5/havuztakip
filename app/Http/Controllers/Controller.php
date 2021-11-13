@@ -12,7 +12,7 @@ class Controller extends VoyagerBaseController
   }
 
   public function updateFromGit(){
-    $this->authorize('update_system');
+   // $this->authorize('update_system');
     $root_path = base_path();
     $process = new Process('cd ' . $root_path . '; ./deploy.sh');
     $process->run(function ($type, $buffer) {
