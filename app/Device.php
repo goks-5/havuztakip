@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 class Device extends Model
 {
 
-    protected $fillable = ['token','last_data','tags_last_change','last_at'];
+    protected $fillable = ['token','last_data','tags','tags_last_change','last_at'];
     public static function hourly()
     {
         //  DB::enableQueryLog();
