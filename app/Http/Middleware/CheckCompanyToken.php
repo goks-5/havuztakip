@@ -2,9 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Device;
 use App\Company;
-use App\UndefineDevice;
 use Closure;
 
 class CheckCompanyToken
