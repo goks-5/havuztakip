@@ -23,7 +23,7 @@ class SetCompany {
 
             $company_id = Auth::user()->company_id;
             $user_id = Auth::user()->id;
-            if (!is_numeric($company_id)) {
+            if (!is_numeric($company_id) || $company_id == 0 ) {
                 $tx = DB::table("company_users")->where("user_id", $user_id)->first();
                 if (isset($tx->company_id)) {
                     $company_id = $tx->company_id;
@@ -40,6 +40,7 @@ class SetCompany {
             }
             if (is_numeric($company_id)) {
                 Auth::user()->company = Company::where('id', $company_id)->first();
+                Auth::user()->company_id = $company_id;
             }
         }
 
