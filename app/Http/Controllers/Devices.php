@@ -558,15 +558,14 @@ class Devices extends VoyagerBaseController
 
         $dataType->addRows->push((object)[
             "data_type_id" => 17,
-            "field" => "type",
-            "type" => "query_text",
-            "display_name" => "type",
+            "field" => "company_id",
+            "type" => "text",
+            "display_name" => "company id",
             "edit" => 1,
             "add" => 1,
             "details" => "{}"
         ]);
 
-        dd($dataType->addRows);
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
 
