@@ -120,7 +120,7 @@ class Api extends Controller
             $returndevice['tags'] = array();
             foreach ($tags as $key2 => $tag) {
                 $data['name'] = $tag;
-                $data['value'] = $last_data[$key2];
+                $data['value'] = $last_data[$key2] ?? null;
                 $returndevice['tags'][$key2] =  (object)$data;
             }
             return $returndevice;
