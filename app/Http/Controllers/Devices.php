@@ -246,7 +246,7 @@ class Devices extends VoyagerBaseController
         $device->save();*/
         // Check permission
         $this->authorize('manuel', app('App\Device'));
-        return redirect("/cihazlar/create")->withInput(['mac' => "00:00:00:00:00:02", 'device_id' => "EOS_MANUEL_" . Auth::user()->company_id . '_' . rand(1, 1000000), 'last_at' => date('Y-m-d 01:00:00')]);
+        return redirect("/cihazlar/create")->withInput(['mac' => "00:00:00:00:00:02", 'device_id' => "MANUEL_" . Auth::user()->company_id . '_' . rand(1, 1000000), 'last_at' => date('Y-m-d 01:00:00')]);
     }
 
     public function addRemote(Request $request)
@@ -348,8 +348,8 @@ class Devices extends VoyagerBaseController
             "display_name" => "type",
             "edit" => 1,
             "add" => 1,
-            "col_width" => 100, 
-            "details" =>"{}",
+            "col_width" => 100,
+            "details" => "{}",
             "slugify" => ""
         ]);
         // If a column has a relationship associated with it, we do not want to show that field
@@ -437,7 +437,7 @@ class Devices extends VoyagerBaseController
                 "display_name" => "type",
                 "edit" => 1,
                 "add" => 1,
-                "details" =>"{}"
+                "details" => "{}"
             ]);
             $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
         }
@@ -553,20 +553,19 @@ class Devices extends VoyagerBaseController
         // Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
 
-        if (in_array($dataType->model_name, $this->companymodels)) {
-            $request->merge(['company_id' => Auth::user()->company_id]);
-        }
-        if (in_array($dataType->model_name, $this->dashboardmodels)) {
-            $request->merge(['user_id' => Auth::user()->id]);
-        }
+
+        $request->merge(['company_id' => Auth::user()->company_id]);
+
+        dd(  $request->all());
+
         $dataType->addRows->push((object)[
             "data_type_id" => 17,
             "field" => "type",
             "type" => "query_text",
             "display_name" => "type",
             "edit" => 1,
-            "add" => 1,            
-            "details" =>"{}"
+            "add" => 1,
+            "details" => "{}"
         ]);
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
