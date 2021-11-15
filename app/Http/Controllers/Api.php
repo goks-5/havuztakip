@@ -53,7 +53,7 @@ class Api extends Controller
             DeviceData::insert($saveData);
             $response['message'] = "device data saved";
         } else {
-            $response['message'] = "device data saved only to last";
+            $response['message'] = "last data saved";
             $device->timestamps = false;
         }
 
@@ -85,8 +85,8 @@ class Api extends Controller
             $returndevice['name'] = $device->name;
             $returndevice['last_at'] = $device->last_at;
             $returndevice['status'] =  'success';
-            $returndevice['timestamp'] =  time();
             $returndevice['date'] =  date('Y-m-d H:i:s');
+            $returndevice['timestamp'] =  time();
             $tags = json_decode($device->tags, true);
             $last_data = json_decode($device->last_data, true);
             $returndevice['tags'] = array();
@@ -107,15 +107,15 @@ class Api extends Controller
         $device = Device::where(['device_id' => $device_id, 'company_id' => $company])->first();
 
         if (!$device) {
-            return response()->json(['status' => 'error', 'message' => 'do not have permission', 'timestamp' => time(), 'date' => date('Y-m-d H:i:s')], 403);
+            return response()->json(['status' => 'error', 'message' => 'do not have permission', 'date' => date('Y-m-d H:i:s'), 'timestamp' => time()], 403);
         } else {
             $returndevice['device_id'] = $device->device_id;
             $returndevice['company_id'] = $device->company_id;
             $returndevice['name'] = $device->name;
             $returndevice['last_at'] = $device->last_at;
             $returndevice['status'] =  'success';
-            $returndevice['timestamp'] =  time();
             $returndevice['date'] =  date('Y-m-d H:i:s');
+            $returndevice['timestamp'] =  time();
             $tags = json_decode($device->tags, true);
             $last_data = json_decode($device->last_data, true);
             $returndevice['tags'] = array();
@@ -134,11 +134,11 @@ class Api extends Controller
         $device = Device::where(['device_id' => $device_id, 'company_id' => $company])->first();
 
         if (!$device) {
-            return response()->json(['status' => 'error', 'message' => 'do not have permission', 'timestamp' => time(), 'date' => date('Y-m-d H:i:s')], 403);
+            return response()->json(['status' => 'error', 'message' => 'do not have permission', 'date' => date('Y-m-d H:i:s'), 'timestamp' => time()], 403);
         } else {
             $returndevice['status'] =  'success';
-            $returndevice['timestamp'] =  time();
             $returndevice['date'] =  date('Y-m-d H:i:s');
+            $returndevice['timestamp'] =  time();
             $tags = json_decode($device->tags, true);
             $last_data = json_decode($device->last_data, true);
             if (isset($tags[$index])) {
@@ -146,7 +146,7 @@ class Api extends Controller
                 $returndevice['value'] = $last_data[$index];
                 return  $returndevice;
             } else {
-                return response()->json(['status' => 'error', 'message' => 'device index not found', 'timestamp' => time(), 'date' => date('Y-m-d H:i:s')], 404);
+                return response()->json(['status' => 'error', 'message' => 'device index not found',  'date' => date('Y-m-d H:i:s'), 'timestamp' => time()], 404);
             }
         }
     }
