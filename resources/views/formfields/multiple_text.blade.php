@@ -142,11 +142,8 @@
 
                 }
             }
-            $('.type').on('change', function() {
-                $('#form-type').val(JSON.stringify($('.type').serializeJSON().__type));
-            });
+    
             $('.con_{{ $row->field }}').on('input', function() {
-
                 $('.con_{{ $row->field }}').each(function() {
 
                     $(this).find('input').each(function() {
@@ -159,6 +156,7 @@
 
                 $('#form-{{ $row->field }}').val(JSON.stringify($('.multiple_{{ $row->field }}')
                     .serializeJSON().__{{ $row->field }}));
+                $('#form-type').val(JSON.stringify($('.type').serializeJSON().__type));
             });
 
 
