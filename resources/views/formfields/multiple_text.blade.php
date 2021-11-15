@@ -166,6 +166,11 @@
             $('#add_{{ $row->field }}').on('click', function() {
                 var $newRow = $row.clone().insertAfter('.mtextrow:last');
                 var $currentRow = $('.mtextrow:last');
+                $newRow.find('.type').each(function() {
+                        this.name = "__type[" + $currentRow.index() + "]";
+                        this.id = "type_" + $currentRow.index();
+
+                    });
                 $newRow.find('input').each(function() {
                     this.value = '';
                     var yindex = ($currentRow.index() * 1) + ($(this).data('index') * 1);
