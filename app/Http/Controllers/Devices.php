@@ -556,8 +556,6 @@ class Devices extends VoyagerBaseController
 
         $request->merge(['company_id' => Auth::user()->company_id]);
 
-        dd(  $request->all());
-
         $dataType->addRows->push((object)[
             "data_type_id" => 17,
             "field" => "type",
@@ -567,6 +565,8 @@ class Devices extends VoyagerBaseController
             "add" => 1,
             "details" => "{}"
         ]);
+
+        dd($dataType->addRows);
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
 
