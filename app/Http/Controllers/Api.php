@@ -17,9 +17,9 @@ class Api extends Controller
      */
     public function write(Request $request)
     {
-        $response['status'] = 'success';
         $parameters = $request->all();
         $device = Device::where(['mac' => $parameters['mac'], 'device_id' => $parameters['device_id']])->first();
+        $response = ['status'=>'','message'=>'','date' => date('Y-m-d H:i:s'),'timestamp'=>time()];
         $timestamp = strtotime($device->updated_at) + $device->period;
         $changeTags = array_filter(json_decode($device->tags === NULL ? '{}' : $device->tags, true), function ($k) {
             return $k >= '1000';
@@ -67,8 +67,7 @@ class Api extends Controller
         $device->tags_last_change = addslashes(json_encode($changeTags, true));
         $device->last_at =  date('Y-m-d H:i:s');
         $device->save();
-        $response = ['date' => date('Y-m-d H:i:s')];
-        $response['timestamp'] = time();
+        $response['status'] = 'success';
 
 
         return response()->json($response, 200);
