@@ -109,7 +109,7 @@
                                     @php
                         
 
-                      
+                        dump($data);
                                     $cellcolor = "#FFF";
                                     $fontcolor = "#526069";
                                    
@@ -134,10 +134,10 @@
                                                 @elseif($row->type == 'image')
                                                     <img src="@if( !filter_var($data->{$row->field}, FILTER_VALIDATE_URL)){{ Voyager::image( $data->{$row->field} ) }}@else{{ $data->{$row->field} }}@endif" style="width:100px">
                                                 @elseif($row->type == 'relationship')
+                                               @dump( $row->details)
                                                     @include('voyager::formfields.relationship', ['view' => 'browse','options' => $row->details])
                                                 @elseif($row->type == 'select_multiple')
                                                     @if(property_exists($row->details, 'relationship'))
-@dump($row->field)
 
                                                         @foreach($data->{$row->field} as $item)
                                                             {{ $item->{$row->field} }}
