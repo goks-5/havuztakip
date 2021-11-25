@@ -109,7 +109,7 @@
                                     @php
                         
 
-                        dump($data);
+                      
                                     $cellcolor = "#FFF";
                                     $fontcolor = "#526069";
                                    
@@ -137,6 +137,7 @@
                                                     @include('voyager::formfields.relationship', ['view' => 'browse','options' => $row->details])
                                                 @elseif($row->type == 'select_multiple')
                                                     @if(property_exists($row->details, 'relationship'))
+@dump($row->field)
 
                                                         @foreach($data->{$row->field} as $item)
                                                             {{ $item->{$row->field} }}
