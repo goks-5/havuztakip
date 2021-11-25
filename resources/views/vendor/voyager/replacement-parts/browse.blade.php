@@ -108,11 +108,25 @@
                                     @foreach($dataTypeContent as $data)
                                     @php
                         
+                                     $partCount = App\PartsCount::where('replacement_part_id',$data->id)->first();
+                                    if($partCount){
+                                        $partCount = $partCount->count;
+                                    }else{
 
-                        dump($data);
-                                    $cellcolor = "#FFF";
-                                    $fontcolor = "#526069";
-                                   
+                                        $partCount = 0;
+                                    }
+                        
+
+                                    if($partCount <= $data->lower_limit){
+                                        $fontcolor = "#526069";
+                                        $cellcolor = "#FF5";
+                                    }elseif($partCount >= $data->upper_limit){
+                                        $fontcolor = "#526069";
+                                        $cellcolor = "#8F8";
+                                    }else{
+                                        $fontcolor = null;
+                                        $cellcolor = null;
+                                    }                                   
                                     
                                     @endphp
 
@@ -134,7 +148,6 @@
                                                 @elseif($row->type == 'image')
                                                     <img src="@if( !filter_var($data->{$row->field}, FILTER_VALIDATE_URL)){{ Voyager::image( $data->{$row->field} ) }}@else{{ $data->{$row->field} }}@endif" style="width:100px">
                                                 @elseif($row->type == 'relationship')
-                                               @dump( $row->details)
                                                     @include('voyager::formfields.relationship', ['view' => 'browse','options' => $row->details])
                                                 @elseif($row->type == 'select_multiple')
                                                     @if(property_exists($row->details, 'relationship'))
