@@ -108,13 +108,15 @@
                                     @foreach($dataTypeContent as $data)
                                     @php
                         
+
+                        dump($data);
                                     $cellcolor = "#FFF";
                                     $fontcolor = "#526069";
                                    
                                     
                                     @endphp
 
-                                    <tr style="background:{{$cellcolor}};color:{{$fontcolor}}">
+                                    <tr @if(!is_null($cellcolor))style="background:{{$cellcolor}};color:{{$fontcolor}}"@endif>
                                         @if($showCheckboxColumn)
                                             <td>
                                                 <input type="checkbox" name="row_id" id="checkbox_{{ $data->getKey() }}" value="{{ $data->getKey() }}">
