@@ -50,7 +50,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
     echo "</style>";
   }
   @endphp
-  <div class="ui-widget-content resizable" data-tool="{{$tool->id}}" id="td_{{$tool->id}}" style="{{$tool->style}}">
+  <div class="ui-widget-content resizable" data-tool="{{$tool->id}}" id="td_{{$tool->id}}" style="{{$tool->style}};text-aling:center;aling-content:center;">
     @include('dashboard.tools.'.$tool->type,['tool'=>$tool,'settings'=>$settings])
   </div>
   @endforeach
