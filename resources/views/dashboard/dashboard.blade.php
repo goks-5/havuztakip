@@ -39,7 +39,7 @@
   if (isset($settings['css'])){
     echo "<style>";
     echo "#td_".$tool->id."{";
-    echo "text-aling:center;aling-content:center;";
+    echo "text-align:center;align-content:center;";
     echo $tool->style;
 foreach ($settings['css'] as $key => $value) {
   echo "$key:$value;";
