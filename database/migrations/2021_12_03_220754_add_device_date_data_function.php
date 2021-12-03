@@ -14,7 +14,8 @@ class AddDeviceDateDataFunction extends Migration
      */
     public function up()
     {
-        $function = "CREATE FUNCTION `enerji`.`device_date_data`(`device_id` int,`data_id` int,`qdate` datetime) RETURNS float
+        $function = "SET GLOBAL log_bin_trust_function_creators = 1;" .
+        "CREATE FUNCTION `enerji`.`device_date_data`(`device_id` int,`data_id` int,`qdate` datetime) RETURNS float
         BEGIN
             set @date_value = null;
             

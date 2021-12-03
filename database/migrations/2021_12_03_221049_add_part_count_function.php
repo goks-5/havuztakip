@@ -12,7 +12,8 @@ class AddPartCountFunction extends Migration
      */
     public function up()
     {
-        $function = "CREATE FUNCTION `enerji`.`part_count`(`part_id` int) RETURNS decimal(16,4)
+        $function = "SET GLOBAL log_bin_trust_function_creators = 1;" .
+        "CREATE FUNCTION `enerji`.`part_count`(`part_id` int) RETURNS decimal(16,4)
         BEGIN
             
                 set @return_value = 0;

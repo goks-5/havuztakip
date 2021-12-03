@@ -12,7 +12,8 @@ class AddDeviceDateSubHourlyFunction extends Migration
      */
     public function up()
     {
-        $function = "CREATE FUNCTION `enerji`.`device_date_sub_hourly`(`device_id` int,`data_id` int,`start_time` datetime,`end_time` datetime) RETURNS decimal(20,2)
+        $function = "SET GLOBAL log_bin_trust_function_creators = 1;" .
+        "CREATE FUNCTION `enerji`.`device_date_sub_hourly`(`device_id` int,`data_id` int,`start_time` datetime,`end_time` datetime) RETURNS decimal(20,2)
         BEGIN
         
         if isnull(end_time) or  end_time < start_time or  end_time = '' then set end_time = now();END IF;
