@@ -111,8 +111,9 @@
 @section('css')
 <style>
 #datas tr td span{
-  width: 90px;
-display: inline-block;
+  width: 180px;
+display: inline-block;  
+  font-size: 10px;
 }
 .panel-body{
   overflow-x: scroll;
@@ -185,6 +186,12 @@ display: inline-block;
       $('#addCellInfo').modal('toggle');
     }
 
+function addtomodal(cell){
+  $('#targetCell').val(cell);
+  $('#cellType').val($('#type_'+cell).val());
+  $('#cellText').val($('#text_'+cell).val());
+  $('#deviceTags').val($('#value_'+cell).val());
+}
 
 
 
@@ -205,7 +212,7 @@ display: inline-block;
              $('#td_'+i+'_'+ii).append('<input type="hidden" value="" name="datas['+i+']['+ii+'][value]" id="value_'+i+'_'+ii + '"/>');
              $('#td_'+i+'_'+ii).append('<input type="hidden" value="" name="datas['+i+']['+ii+'][text]" id="text_'+i+'_'+ii + '"//>');
              $('#td_'+i+'_'+ii).append('<span id="span_'+i+'_'+ii + '">&nbsp;</span>');
-             $('#td_'+i+'_'+ii).append('<button type="button" class="btn btn-primary" id="bt_'+i+'_'+ii + '"  data-toggle="modal" href="#addCellInfo" onclick="$(\'#targetCell\').val(\''+i+'_'+ii+'\')">+</button>')
+             $('#td_'+i+'_'+ii).append('<button type="button" class="btn btn-primary" id="bt_'+i+'_'+ii + '"  data-toggle="modal" href="#addCellInfo" onclick="addtomodal(\''+i+'_'+ii+'\')">+</button>')
           }
           $('#td_'+i+'_'+ii).removeClass('delete');
        }
