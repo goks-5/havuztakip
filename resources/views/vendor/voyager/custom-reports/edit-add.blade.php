@@ -186,16 +186,18 @@ display: inline-block;
       $('#addCellInfo').modal('toggle');
     }
 
-function addtomodal(cell){
-  $('#targetCell').val(cell);
-  $('#cellType').val($('#type_'+cell).val());
-  $('#cellText').val($('#text_'+cell).val());
-  const obj = JSON.parse($('#value_'+cell).val());
-  console.log(obj);
-  $('#device').val(obj.devive);
-  $('#device').trigger("change");
-  $('#deviceTags').val($('#value_'+cell).val());
-}
+    function addtomodal(cell){
+      $('#targetCell').val(cell);
+      $('#cellType').val($('#type_'+cell).val());
+      $('#cellText').val($('#text_'+cell).val());
+      const obj = JSON.parse($('#value_'+cell).val());
+      console.log(obj);
+      if(typeof obj.device !== 'undefined'){
+        $('#device').val(obj.device);
+        $('#device').trigger("change");
+        $('#deviceTags').val($('#value_'+cell).val());
+      }
+    }
 
 
 
