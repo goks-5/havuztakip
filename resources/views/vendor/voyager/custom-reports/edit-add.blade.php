@@ -190,8 +190,9 @@ function addtomodal(cell){
   $('#targetCell').val(cell);
   $('#cellType').val($('#type_'+cell).val());
   $('#cellText').val($('#text_'+cell).val());
-  console.log($('#text_'+cell).val());
-
+  const obj = JSON.parse($('#value_'+cell).val());
+  console.log(obj);
+  $('#device').val(obj.devive);
   $('#device').trigger("change");
   $('#deviceTags').val($('#value_'+cell).val());
 }
