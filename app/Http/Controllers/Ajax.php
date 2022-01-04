@@ -64,6 +64,7 @@ class Ajax extends Controller
         $cikti['changeTags'] =  array();
 
         foreach ($devices as $device) {
+            $tags = [];
             if (!is_null($device->tags)) {
                 $tags = array_filter(json_decode($device->tags, true), function ($k) {
                     return $k < '1000';
