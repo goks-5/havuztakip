@@ -37,7 +37,7 @@ class Device extends Model
     {
         $sayaclar = DB::table('devices')->where('mac', '00:00:00:00:00:01')->get();
         foreach ($sayaclar as $sayac) {
-            $id = explode('_', str_replace('EOS_DOSAB_', '', $sayac->device_id));
+            $id = explode('_', str_replace('DOSAB_', '', $sayac->device_id));
             $json =  file_get_contents("http://enviys.dosab.org.tr/ajax/meter.instant.ajax.php?i={$id[0]}&t={$id[1]}&o=0");
           
             $sdata = json_decode($json);

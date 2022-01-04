@@ -30,7 +30,7 @@
 @if(isset($device->id ))
 <input type="hidden" name='id' value="{{$device->id}}"/>
 @php
-  $values = explode("_",str_replace('EOS_DOSAB_', '', $device->device_id));
+  $values = explode("_",str_replace('DOSAB_', '', $device->device_id));
   $diff_tags = json_decode($device->diff_tags,true);
 @endphp
 @endif
