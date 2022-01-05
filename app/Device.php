@@ -313,12 +313,18 @@ class Device extends Model
       //  $lastd = Device::echoTimer(false,$lastd);
 
         if (($last) || $triger) {
+            if($first){
+                $firstValue = $first->value;
+            }else{
+                $firstValue = 0;
+            }
+
             switch ($type) {
                 case 'last':
                     $value = $last->value;
                     break;
                 case 'first':
-                    $value = $first->value ?? 0;
+                    $value =  $firstValue;
                     break;
                 case 'max':
                     $rememberKey = sha1("max_". $device_id ."_". $targetData_id . "_" .$start);
@@ -354,7 +360,7 @@ class Device extends Model
                     $value = $triger->value;
                     break;
                 default:
-                    $value = $last->value - $first->value ?? 0;
+                    $value = $last->value -  $firstValue;
                     break;
             }
           
