@@ -181,13 +181,17 @@ class Device extends Model
     {
         $tag = preg_replace('/\s+/', '', $tag);
 
-        $number = '(?:\d+(?:[,.]\d+)?|pi|π)'; // What is a number
+        $number = '(?:\d+(?:[,.]\d+)?|pi|π|dom|doy|moy)'; // What is a number
         $functions = '(?:sinh?|cosh?|tanh?|abs|acosh?|asinh?|atanh?|exp|log10|deg2rad|rad2deg|sqrt|elseif|else|if|ceil|floor|round)'; // Allowed PHP functions
         $operators = '[+\/*\/=\/<\/>\^%-]'; // Allowed math operators
         $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
         $result = 0;
         if (preg_match($regexp, $tag)) {
             $tag = preg_replace('!pi|π!', 'pi()', $tag); // Replace pi with pi function
+            $tag = str_replace('dom', 'date("j")', $tag); // day of month
+            $tag = str_replace('doy', '(date("z") + 1 )', $tag); // day of year
+            $tag = str_replace('moy', 'date("n")', $tag); // month of year
+            
             eval('  try {
                 $result = ' . $tag . ';
             } catch (Exception $e) {
