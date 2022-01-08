@@ -164,12 +164,18 @@ class Device extends Model
         foreach ($virtual as $sanal) {
             $tags = json_decode($sanal->formula);
             $last_data = json_decode($sanal->last_data, true);
+            $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find($sanal->company_id);
+            if ($setting) {
+                $setting = $setting->toArray();
+            } else {
+                $setting = ['day_start_hour' => 0, 'week_start_day' => 1, 'month_start_day' => 1];
+            }
             foreach ($tags as $data_id => $tag) {
                 foreach ($degistir as $key => $value) {
                     $tag = str_replace($key, $value, $tag);
                 }
 
-                $result = Device::calculate($tag);
+                $result = Device::calculate($tag,$setting);
                 $last_data[$data_id] = (string)$result;
                 DB::table('device_datas')->insert(["device_id" => $sanal->id, "data_id" => $data_id, "value" => $result, 'created_at' => date('Y-m-d H:i:s')]);
             }
@@ -177,11 +183,13 @@ class Device extends Model
         }
     }
 
-    public static function calculate($tag)
+    public static function calculate($tag,$setting)
     {
         $tag = preg_replace('/\s+/', '', $tag);
 
-        $number = '(?:\d+(?:[,.]\d+)?|pi|π|dom|doy|moy)'; // What is a number
+        $number = '(?:\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy)'; // What is a number
+        $hom = (date("j") -1) * 24 + date("G") - $setting['day_start_hour'];
+        $hoy = date("z") * 24 + date("G") - $setting['day_start_hour'];
         $functions = '(?:sinh?|cosh?|tanh?|abs|acosh?|asinh?|atanh?|exp|log10|deg2rad|rad2deg|sqrt|elseif|else|if|ceil|floor|round)'; // Allowed PHP functions
         $operators = '[+\/*\/=\/<\/>\^%-]'; // Allowed math operators
         $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
@@ -191,6 +199,8 @@ class Device extends Model
             $tag = str_replace('dom', 'date("j")', $tag); // day of month
             $tag = str_replace('doy', '(date("z") + 1 )', $tag); // day of year
             $tag = str_replace('moy', 'date("n")', $tag); // month of year
+            $tag = str_replace('hom', $hom, $tag); // hour of month
+            $tag = str_replace('hoy', $hoy, $tag); // hour of year
             
             eval('  try {
                 $result = ' . $tag . ';
