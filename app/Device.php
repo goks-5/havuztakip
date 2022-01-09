@@ -187,9 +187,19 @@ class Device extends Model
     {
         $tag = preg_replace('/\s+/', '', $tag);
 
-        $number = '(?:\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy)'; // What is a number
+        $number = '(?:\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)'; // What is a number
         $hom = (date("j") -1) * 24 + date("G") - $setting['day_start_hour'];
+        if($hom < 0){
+            $hom = 24 +  (date("j",strtotime("-1 day")) -1) * 24 + date("G",strtotime("-1 day")) - $setting['day_start_hour'];    
+        }
         $hoy = date("z") * 24 + date("G") - $setting['day_start_hour'];
+        if($hoy < 0){
+            $hoy = 24 +  date("z",strtotime("-1 day")) * 24 + date("G",strtotime("-1 day")) - $setting['day_start_hour'];  
+        }        
+        $hod = date("G") - $setting['day_start_hour'];
+        if($hod < 0){
+            $hod = 24 + $hod;    
+        }
         $functions = '(?:sinh?|cosh?|tanh?|abs|acosh?|asinh?|atanh?|exp|log10|deg2rad|rad2deg|sqrt|elseif|else|if|ceil|floor|round)'; // Allowed PHP functions
         $operators = '[+\/*\/=\/<\/>\^%-]'; // Allowed math operators
         $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
@@ -201,6 +211,7 @@ class Device extends Model
             $tag = str_replace('moy', 'date("n")', $tag); // month of year
             $tag = str_replace('hom', $hom, $tag); // hour of month
             $tag = str_replace('hoy', $hoy, $tag); // hour of year
+            $tag = str_replace('hod', $hod, $tag); // hour of day
             
             eval('  try {
                 $result = ' . $tag . ';
