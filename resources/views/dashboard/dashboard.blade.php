@@ -40,7 +40,6 @@
     echo "<style>";
     echo "#td_".$tool->id."{";
     echo "text-align:center;align-content:center;";
-    echo $tool->style;
 foreach ($settings['css'] as $key => $value) {
   echo "$key:$value;";
 }
@@ -52,7 +51,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
     echo "</style>";
   }
   @endphp
-  <div class="ui-widget-content resizable" data-tool="{{$tool->id}}" id="td_{{$tool->id}}" >
+  <div class="ui-widget-content resizable" data-tool="{{$tool->id}}" id="td_{{$tool->id}}" style="{{ $tool->style }}" >
     @include('dashboard.tools.'.$tool->type,['tool'=>$tool,'settings'=>$settings])
   </div>
   @endforeach
