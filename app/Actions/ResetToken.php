@@ -35,7 +35,7 @@ class ResetToken extends AbstractAction
     public function getDefaultRoute()
     {
 
-        return route('reset_token', array("device"=>$this->data->id));
+        return route('reset_token', array("id"=>$this->data->id));
 
     }
 
