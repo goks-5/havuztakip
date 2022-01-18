@@ -33,6 +33,19 @@ class Devices extends VoyagerBaseController
         return view('voyager::cihazlar.veri', $data);
     }
 
+    public function ResetToken($id){
+
+        $this->authorize('delete', app('App\Device'));
+        $device = Device::where('company_id', Auth::user()->company_id)->where('id', $id)->first();
+        if($device){
+            $device->token = null;
+            $device->save();
+            return back()->with(['message' => "Cihaz Tokenı sıfırlandı", 'alert-type' => 'success']);
+        }else{
+            return back()->with(['message' => "Token sıfırlama yetkiniz yok", 'alert-type' => 'warning']);
+        }
+    }
+
     public function DeviceDatas($id)
     {
         $this->authorize('data', app('App\Device'));

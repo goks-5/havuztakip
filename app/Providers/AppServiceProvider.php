@@ -35,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
     Schema::defaultStringLength(191);
     Voyager::addAction(\App\Actions\DeviceAction::class);
     Voyager::addAction(\App\Actions\ReportAction::class);
+    Voyager::addAction(\App\Actions\ResetToken::class);
     if (env('REDIRECT_HTTPS')) {
       \URL::forceScheme('https');
     }
