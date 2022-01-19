@@ -63,6 +63,18 @@ class Api extends Controller
             $response['token'] = $device->token;
         }
 
+        if(!empty($parameters['productCode'])){
+            $device->product =  $parameters['productCode'];   
+        }
+
+        if(!empty($parameters['hwVer'])){
+            $device->hardware =  $parameters['hwVer'];   
+        }
+
+        if(!empty($parameters['swVer'])){
+            $device->software =  $parameters['swVer'];   
+        }
+
         $device->last_data = addslashes(json_encode($replace, true));
         $device->tags_last_change = addslashes(json_encode($changeTags, true));
         $device->last_at =  date('Y-m-d H:i:s');
