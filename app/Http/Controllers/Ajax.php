@@ -436,7 +436,7 @@ class Ajax extends Controller
                     if (isset($request['save'])) {
                         if (isset($request['setting']['device'])) {
                             $deviceset = json_decode($request['setting']['device'], true);
-                            if (json_last_error() === JSON_ERROR_NONE) {
+                            if (isset($deviceset['device'])) {
                             $request['setting']['device'] = $deviceset['device'];
                             $request['setting']['device_index'] = $deviceset['device_index'];
                             }
