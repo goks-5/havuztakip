@@ -122,7 +122,7 @@
     @if($options->device == 3)
   <div class="col-md-12">
     <label class="control-label">Cihaz</label>
-    <select class="form-control select2" id="device">
+    <select class="form-control select2" id="device" name="setting[device]">
       @foreach ($devices as $device)
        @if (count($filter) == 0 || in_array($device->mac,$filter))
       <option value='{{$device->id}}' @if(isset($settings['device']) && $device->id == $settings['device'] ) selected @endif>
