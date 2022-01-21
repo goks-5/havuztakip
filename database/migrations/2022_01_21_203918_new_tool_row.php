@@ -14,7 +14,7 @@ class NewToolRow extends Migration
      */
     public function up()
     {
-        DB::table('data_rows')->insert(
+        DB::table('tools')->insert(
             array(
                 'name' => 'Son Veri Zamanı',
                 'image' => 'tools/June2020/Al5WBbGyaja5LhBZ8kRz.png',
