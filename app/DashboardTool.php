@@ -76,6 +76,16 @@ class DashboardTool extends Model
         }
     }
 
+    public function last_date($settings, $tool)
+    {
+        $devices = Device::where('id', $settings['device'])->first();
+        if ($devices) {
+            return $devices->last_at;
+        }else{
+            return "-";
+        }
+    }
+
     public function switch($settings, $tool)
     {
         $devices = Device::where('id', $settings['device'])->first();
