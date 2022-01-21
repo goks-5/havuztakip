@@ -119,7 +119,7 @@
     }
     </style>
     @endif
-    @if($options->device == 1)
+    @if($options->device == 3)
   <div class="col-md-12">
     <label class="control-label">Cihaz</label>
     <select class="form-control select2" id="device">
