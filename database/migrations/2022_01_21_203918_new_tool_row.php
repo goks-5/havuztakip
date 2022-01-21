@@ -17,7 +17,7 @@ class NewToolRow extends Migration
         DB::table('tools')->insert(
             array(
                 'name' => 'Son Veri Zamanı',
-                'image' => 'tools/June2020/Al5WBbGyaja5LhBZ8kRz.png',
+                'image' => 'tools/July2020/Al5WBbGyaja5LhBZ8kRz.png',
                 'title' => '1',
                 'unit' => '0',
                 'layer' => '1',
