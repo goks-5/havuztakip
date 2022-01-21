@@ -5,7 +5,7 @@
 <div class='con_{{ $row->field }}'>
     <div class="form-group mtextrow">
         <div class="row">
-            <div class="col-sm-6">
+            <div class="col-sm-5">
                 <input type="text" data-name="" data-index="0" class="form-control multiple_{{ $row->field }}"
                     name="__{{ $row->field }}[0]"
                     placeholder="0. {{ old($row->field, $options->placeholder ?? $row->getTranslatedAttribute('display_name')) }}">
@@ -47,6 +47,14 @@
                 </select>
             </div>
 
+
+            <div class="col-sm-1">
+                <div class="form-check">
+                    <input class="form-check-input multiple_{{ $row->field }}" type="checkbox" data-index="100"
+                        data-name=" Saatlik" value="" id="{{ $row->field }}_100" name="__{{ $row->field }}[100]">
+                    <label class="form-check-label" for="{{ $row->field }}_100">Saatlik</label>
+                </div>
+            </div>
             <div class="col-sm-1">
                 <div class="form-check">
                     <input class="form-check-input multiple_{{ $row->field }}" type="checkbox" data-index="200"

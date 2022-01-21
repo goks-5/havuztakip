@@ -241,7 +241,8 @@ class Device extends Model
         $startd = Device::echoTimer($startd,$last);
         if ($id == null) {
             $devices = Device::where(function ($query) {
-                $query->Where('tags', 'LIKE', '% Günlük"%')
+                $query->Where('tags', 'LIKE', '% Saatlik"%')
+                    ->orWhere('tags', 'LIKE', '% Günlük"%')
                     ->orWhere('tags', 'LIKE', '% Haftalık"%')
                     ->orWhere('tags', 'LIKE', '% Aylık"%');
             })
@@ -267,7 +268,15 @@ class Device extends Model
                 if ($data_id > 99) {
                     $start = clone $baseStart;
                     $type = 'diff';
-                    if ($data_id > 199 && $data_id < 300) {
+                    if ($data_id > 99 && $data_id < 200) {
+                        $start = Carbon::now()->subMinutes(5)->startOfHour();
+                        $end = clone $start;
+                        $end->addHours(1);
+                        if (isset($types[$data_id - 100])) {
+                            $type = $types[$data_id - 100];
+                        } 
+                        $last_data[$data_id]  =  Device::addDiffData($device_id, $data_id - 100, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
+                    }if ($data_id > 199 && $data_id < 300) {
                         $end = clone $start;
                         $end->addHours(24);
                         if (isset($types[$data_id - 200])) {

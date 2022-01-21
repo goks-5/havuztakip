@@ -53,19 +53,26 @@
               <option value="4" {{isset($values[1]) && $values[1] == 4 ? 'selected' : ''}}>Atık Su Sayacı</option>
               </select>
               </div>
-              <div class="col-sm-4">
+              
+              <div class="col-sm-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value=" Saatlik" id="t_100" name="diff_tags[100]" {{isset($diff_tags[100])  ? 'checked' : ''}}>
+                  <label class="form-check-label" for="t_100">Saatlik</label>
+                </div>
+                </div>
+              <div class="col-sm-3">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" value=" Günlük" id="t_200" name="diff_tags[200]" {{isset($diff_tags[200])  ? 'checked' : ''}}>
               <label class="form-check-label" for="t_200">Günlük</label>
             </div>
             </div>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
             <div class="form-check">
               <input class="form-check-input" type="checkbox" value=" Haftalık" id="t_300" name="diff_tags[300]" {{isset($diff_tags[300])  ? 'checked' : ''}}>
               <label class="form-check-label" for="t_300">Haftalık</label>
             </div>
             </div>
-              <div class="col-sm-4">
+              <div class="col-sm-3">
             <div class="form-check">
               <input class="form-check-input" type="checkbox"  value=" Aylık" id="t_400" name="diff_tags[400]" {{isset($diff_tags[400])  ? 'checked' : ''}}>
               <label class="form-check-label" for="t_400">Aylık</label>
