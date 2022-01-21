@@ -46,10 +46,10 @@
                   <div class="form-group mtextrow">
 
                     <div class="row">
-                      <div class="col-sm-3">
+                      <div class="col-sm-4">
                       <input type="text" data-name="" data-index="0" class="form-control multiple_tags" name="__tags[0]" placeholder="0. Etiket" id="tags_0">
                       </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-4">
                     <select class="form-control type"  name="__type[0]" id="type_0">
                         <option value='diff'>Fark Değer</option>
                         <option value='last'>Son Değer</option>
@@ -84,25 +84,25 @@
                         
                     </select>
                   </div>
-                  <div class="col-sm-2">
+                  <div class="col-sm-1">
                   <div class="form-check">
                   <input class="form-check-input multiple_tags" type="checkbox" data-index="100" data-name=" Saatlik" value="Sayaç 1 Saatlik" id="tags_100" name="__tags[100]">
                   <label class="form-check-label" for="tags_100">Saatlik</label>
                   </div>
                   </div>
-                  <div class="col-sm-2">
+                  <div class="col-sm-1">
                   <div class="form-check">
                   <input class="form-check-input multiple_tags" type="checkbox" data-index="200" data-name=" Günlük" value="Sayaç 1 Günlük" id="tags_200" name="__tags[200]">
                   <label class="form-check-label" for="tags_200">Günlük</label>
                   </div>
                   </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-1">
                     <div class="form-check">
                     <input class="form-check-input multiple_tags" type="checkbox" data-index="300" data-name=" Haftalık" value="Sayaç 1 Haftalık" id="tags_300" name="__tags[300]">
                     <label class="form-check-label" for="tags_300">Haftalık</label>
                     </div>
                     </div>
-                    <div class="col-sm-2">
+                    <div class="col-sm-1">
                     <div class="form-check">
                     <input class="form-check-input multiple_tags" type="checkbox" data-index="400" data-name=" Aylık" value="Sayaç 1 Aylık" id="tags_400" name="__tags[400]">
                     <label class="form-check-label" for="tags_400">Aylık</label>
