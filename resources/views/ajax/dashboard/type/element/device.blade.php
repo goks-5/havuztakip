@@ -1,4 +1,4 @@
-@if($options->device == 1 || $options->device == 2 )
+@if($options->device == 1 || $options->device == 2 || $options->device == 3 )
 <h5>Veri kaynağı</h5>
 @endif
 @if($options->device == 1)
@@ -119,3 +119,17 @@
     }
     </style>
     @endif
+    @if($options->device == 1)
+  <div class="col-md-12">
+    <label class="control-label">Cihaz</label>
+    <select class="form-control select2" id="device">
+      @foreach ($devices as $device)
+       @if (count($filter) == 0 || in_array($device->mac,$filter))
+      <option value='{{$device->id}}' @if(isset($settings['device']) && $device->id == $settings['device'] ) selected @endif>
+        {{$device->name}}
+        </option>
+         @endif
+      @endforeach
+    </select>
+  </div>
+  @endif
