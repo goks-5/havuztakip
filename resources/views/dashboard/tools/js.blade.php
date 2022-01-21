@@ -15,6 +15,9 @@
               case 'device_data':
                 DeviceData(lastdata[k]);
                 break;
+                case 'last_date':
+                DeviceData(lastdata[k]);
+                break;
                 case 'device_daily_data':
                   DeviceData(lastdata[k]);
                   break;
