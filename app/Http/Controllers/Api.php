@@ -75,8 +75,8 @@ class Api extends Controller
             $device->software =  $parameters['swVer'];   
         }
 
-        $device->last_data = addslashes(json_encode($replace, true));
-        $device->tags_last_change = addslashes(json_encode($changeTags, true));
+        $device->last_data = json_encode($replace, true);
+        $device->tags_last_change = json_encode($changeTags, true);
         $device->last_at =  date('Y-m-d H:i:s');
         $device->save();
         $response['status'] = 'success';
