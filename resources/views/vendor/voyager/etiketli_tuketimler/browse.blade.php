@@ -326,7 +326,7 @@ foreach($dataTypeContent as $data){
                                             </td>
                                         @endforeach
                                         <td>
-                                          {{$devicestring}}
+                                          {{$devicestring ?? "Not set"}}
                                         </td>
 @foreach ($pointColums as $key => $Colums)
   <td>
