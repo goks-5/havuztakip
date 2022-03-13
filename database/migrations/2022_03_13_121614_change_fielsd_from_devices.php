@@ -54,7 +54,7 @@ class ChangeFielsdFromDevices extends Migration
                 'data_type_id' => $type->id ,
                 'field' => 'field_detail',
                 'type' => 'multiple_text',
-                'display_name' => 'Bölüm Detayı',
+                'display_name' => 'Saha Detayı',
                 'required' => '0',
                 'browse' => '1',
                 'read' => '1',
