@@ -63,17 +63,14 @@ class Api extends Controller
             $response['token'] = $device->token;
         }
 
-        if(!empty($parameters['productCode'])){
-            $device->product =  $parameters['productCode'];   
+        if(!empty($parameters['productDetail'])){
+            $device->product_detail =  $parameters['productDetail'];   
         }
 
-        if(!empty($parameters['hwVer'])){
-            $device->hardware =  $parameters['hwVer'];   
+        if(!empty($parameters['fieldDetail'])){
+            $device->field_detail =  $parameters['fieldDetail'];   
         }
-
-        if(!empty($parameters['swVer'])){
-            $device->software =  $parameters['swVer'];   
-        }
+ 
 
         $device->last_data = json_encode($replace, true);
         $device->tags_last_change = json_encode($changeTags, true);
