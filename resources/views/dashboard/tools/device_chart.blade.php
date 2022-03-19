@@ -8,5 +8,5 @@
   <div class="col-xs-12 text-center">{{$settings['title']}} </div>
   @endif
   <div class="col-xs-12" id="tool_{{$tool->id}}" data-type="{{$setting['type'] ?? 'line'}}" style="height: calc(100% - 6px); overflow: hidden;"></div>
-  <span onclick="printDiv('tool_{{$tool->id}}')"><i class="voyager-settings"></i></span>
+  <button onclick="printDiv('tool_{{$tool->id}}')"><i class="voyager-print"></i></button>
 </div>
