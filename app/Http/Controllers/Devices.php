@@ -303,9 +303,9 @@ class Devices extends VoyagerBaseController
             $device = Device::where('company_id', Auth::user()->company_id)->where('id', $request->id)->first();
         } else {
             $device = new Device;
+            $device->device_id = "VIRTUAL_" . date("ymd") . str_pad(rand(0, 999), 3, "0", STR_PAD_LEFT);
         }
         $device->mac = "00:00:00:00:00:00";
-        $device->device_id = "VIRTUAL_" . date("ymd") . str_pad(rand(0, 999), 3, "0", STR_PAD_LEFT);
         $device->name = $request->name;
         $device->tags = $request->tags;
         $device->formula = $request->formula;
