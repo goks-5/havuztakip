@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use App\Device;
 use App\Fault;
 use App\ProductionTag;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardTool extends Model
 {
@@ -232,8 +233,9 @@ class DashboardTool extends Model
 
                 $result[$tag->id]['tags'][] = [
                     'name' => $device[$dt['device']]->name . ' - ' . $devicetags[$dt['device_index']],
-                    'value' => DB::select(" SELECT device_date_sub({$dt['device']},{$dt['device_index']},'{$st}','{$et}') as sub_value")[0]->sub_value
-                ];
+                    'value' => Cache::remember('pt_' . $tag->id .'_'. $device[$dt['device']]->name . '_' . $devicetags[$dt['device_index']],300, function () use ($dt , $st , $et)  {
+                        return  DB::select(" SELECT device_date_sub({$dt['device']},{$dt['device_index']},'{$st}','{$et}') as sub_value")[0]->sub_value ;
+                })];
             }
         }
 

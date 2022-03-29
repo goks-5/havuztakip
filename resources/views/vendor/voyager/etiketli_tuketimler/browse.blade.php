@@ -173,8 +173,10 @@ foreach($dataTypeContent as $data){
                                             });
                                         } else {
                                             $et = date('Y-m-d H:i:s') ;
-                                            $value = DB::select(" SELECT device_date_sub({$point['device']},{$point['device_index']},'{$st}','{$et}') as sub_value")[0]->sub_value ;
-                                        }
+                                            $value = Cache::remember('pt_' . $data->id .'_'. $device[$point['device']]->name . '_' . $devicetags[$point['device_index']],300, function () use ($point , $st , $et)  {
+                                                    return  DB::select(" SELECT device_date_sub({$point['device']},{$point['device_index']},'{$st}','{$et}') as sub_value")[0]->sub_value ;
+                                            });
+                                         }
                                         $numericvalue = preg_replace('~\D~', '', $devicetags[$point['device_index']]);
                                         $nonnumericvalue = trim(trim(trim($devicetags[$point['device_index']] ,$numericvalue ),'.'));
                                         $devicestring = $device[$point['device']]->name . ' - ' . $numericvalue;
