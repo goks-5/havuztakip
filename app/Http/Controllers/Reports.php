@@ -104,12 +104,23 @@ class Reports extends VoyagerBaseController
 
                 $data[$index]['Sayaç'] = trim(trim(trim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endesk';
 
-                for ($addDate = 0; $addDate < $lenght; $addDate++) {
-                    $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
-                    $ay = $aylar[date('m', strtotime($onDate)) - 1];
-                    $gun = $gunler[date('N', strtotime($onDate)) - 1];
-                    $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+
+                if($report->order_direction == 'desc'){
+                    for ($addDate = $lenght; $addDate == 0; --$addDate) {
+                        $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
+                        $ay = $aylar[date('m', strtotime($onDate)) - 1];
+                        $gun = $gunler[date('N', strtotime($onDate)) - 1];
+                        $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                    }
+                }else{
+                    for ($addDate = 0; $addDate <= $lenght; ++$addDate) {
+                        $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
+                        $ay = $aylar[date('m', strtotime($onDate)) - 1];
+                        $gun = $gunler[date('N', strtotime($onDate)) - 1];
+                        $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                    } 
                 }
+
                 ++$index;
                 $data[$index]['Sayaç'] = $titles[$key];
                 $veriler = DB::table('device_datas')
