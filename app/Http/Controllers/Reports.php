@@ -106,14 +106,14 @@ class Reports extends VoyagerBaseController
 
 
                 if($report->order_direction == 'desc'){
-                    for ($addDate = $lenght; $addDate >= 0; --$addDate) {
+                    for ($addDate = $lenght; $addDate >= 0; $addDate--) {
                         $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
                         $ay = $aylar[date('m', strtotime($onDate)) - 1];
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
                         $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
                     }
                 }else{
-                    for ($addDate = 0; $addDate <= $lenght; ++$addDate) {
+                    for ($addDate = 0; $addDate <= $lenght; $addDate++) {
                         $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
                         $ay = $aylar[date('m', strtotime($onDate)) - 1];
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
