@@ -64,7 +64,6 @@ class Reports extends VoyagerBaseController
             default:
                 $dateStart = Carbon::parse(strtotime($date . " -$report->lenght month"))
                 ->startOfDay()->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->toDateTimeString();
-                $dateStart = date('Y-m-d H:i', strtotime($date . " -$report->lenght month"));
                 $dataDiff = 400;
                 $dateparam = "month";
                 break;
@@ -133,7 +132,7 @@ class Reports extends VoyagerBaseController
                 }
                 ++$index;
             }
-            dd($setting,$data, new ReportExport($data));
+            dd($dateStart,$setting,$data, new ReportExport($data));
             return Excel::download(new ReportExport($data), $report->name . '.xlsx');
         } else {
 
