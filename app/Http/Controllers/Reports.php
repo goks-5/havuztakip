@@ -50,19 +50,19 @@ class Reports extends VoyagerBaseController
         switch ($report->period) {
             case 1:
                 $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght day" ) );
-                $dataDiff = 200;
             break;
             case 2:
                 $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght week" ) );
-                $dataDiff = 300;
             break;
             default:
                 $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght month" ) );
-                $dataDiff = 400;
             break;
         }
-       
-
+        $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find(Auth::user()->company_id);
+        $dateStart = Carbon::parse($dateStart)->startOfDay()->addHours($setting['day_start_hour'])->toDateTimeString();
+        
+       // $index[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] = Device::getDayFirstValueOnCache( $device[0],  $device[1] - $dataDiff, $veri->created_at);
+                
         $gunler = array(
             'Pazartesi',
             'Salı',
@@ -107,14 +107,14 @@ class Reports extends VoyagerBaseController
 
                 $data[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] =$veri->value;
 
-                $index[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] = Device::getDayFirstValueOnCache( $device[0],  $device[1] - $dataDiff, $veri->created_at);
+                
                 if($key <> 0 && !isset($data[0][date('d', strtotime( $veri->created_at)) ." " . $ay ])){
                   $data[0][date('d', strtotime( $veri->created_at)) ." " . $ay ] = null;
 
                 }
               }
           }
-          dd($data,$index);
+          dd($data,new ReportExport($data));
           return Excel::download(new ReportExport($data), $report->name . '.xlsx');
         }else{
 
@@ -135,12 +135,9 @@ class Reports extends VoyagerBaseController
                 $tarih =date('d', strtotime( $veri->created_at)) ." " . $ay . " " . date('Y', strtotime( $veri->created_at)) . " " . $gun ;
                 $data[$tarih]['Tarih']  = $tarih;
                 $data[$tarih][$titles[$key]] =$veri->value;
-                $index[$tarih][$titles[$key]] = Device::getDayFirstValueOnCache( $veri->device_id, $veri->data_id - $dataDiff, $veri->created_at);
-              
               }
 
           }
-          dd($data,$index);
           return Excel::download(new ReportExport(array_values($data)), $report->name . '.xlsx');
         }
 
