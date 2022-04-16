@@ -50,26 +50,27 @@ class Reports extends VoyagerBaseController
         $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find(Auth::user()->company_id);
         switch ($report->period) {
             case 1:
-                $dateStart = Carbon::parse(strtotime($date . " -$report->lenght day"))->startOfDay()->addHours($setting['day_start_hour'])->toDateTimeString();
+                $dateStart = Carbon::parse(strtotime($date . " -$report->lenght day"))
+                ->startOfDay()->addHours($setting['day_start_hour'])->toDateTimeString();
                 $dataDiff = 200;
                 $dateparam = "day";
                 break;
             case 2:
-                $dateStart = Carbon::parse(strtotime($date . " -$report->lenght week"))->startOfDay()->startOfWeek($setting['week_start_day'])->addHours($setting['day_start_hour'])->toDateTimeString();
+                $dateStart = Carbon::parse(strtotime($date . " -$report->lenght week"))
+                ->startOfDay()->startOfWeek($setting['week_start_day'])->addHours($setting['day_start_hour'])->toDateTimeString();
                 $dataDiff = 300;
                 $dateparam = "week";
                 break;
             default:
-                $dateStart = Carbon::parse(strtotime($date . " -$report->lenght month"))->startOfDay()->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->toDateTimeString();
+                $dateStart = Carbon::parse(strtotime($date . " -$report->lenght month"))
+                ->startOfDay()->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->toDateTimeString();
                 $dateStart = date('Y-m-d H:i', strtotime($date . " -$report->lenght month"));
                 $dataDiff = 400;
                 $dateparam = "month";
                 break;
         }
-        $dateStart = Carbon::parse($dateStart)->startOfDay()->addHours($setting['day_start_hour'])->toDateTimeString();
 
-        // $index[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] = Device::getDayFirstValueOnCache( $device[0],  $device[1] - $dataDiff, $veri->created_at);
-
+  
         $gunler = array(
             'Pazartesi',
             'Salı',
@@ -132,7 +133,7 @@ class Reports extends VoyagerBaseController
                 }
                 ++$index;
             }
-            dd($data, new ReportExport($data));
+            dd($setting,$data, new ReportExport($data));
             return Excel::download(new ReportExport($data), $report->name . '.xlsx');
         } else {
 
