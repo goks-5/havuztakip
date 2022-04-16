@@ -436,6 +436,17 @@ class Device extends Model
     }
 
 
+    public static function getDayFirstValueOnCache($device_id, $data_id, $start){
+        $rememberKey = sha1("first_". $device_id ."_". $data_id . "_" .$start);
+        $data =  Cache::remember($rememberKey, 86400, function () use($device_id,$data_id,$start){
+            return Device::getDayFirstValue($device_id, $data_id,$start);
+        }); 
+        if($data){
+            return $data->value;
+        }else{
+            return 0;
+        }
+    }
     public static function getDayLastValue($device_id, $data_id, $time,$start){
         $islem = strtotime($time);      
        if(Carbon::now()->timestamp < $islem){ // gün bitmediyse son veri

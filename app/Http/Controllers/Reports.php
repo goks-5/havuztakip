@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CompanySetting;
 use App\DataType;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +41,6 @@ class Reports extends VoyagerBaseController
         $type = $report->type;
         $tags = json_decode($report->tags, true);
         $titles = json_decode($report->titles, true);
-        
         if(isset($request->date)){
           $date = date('Y-m-d H:i',strtotime($request->date)) ;
         }else{
@@ -50,16 +50,18 @@ class Reports extends VoyagerBaseController
         switch ($report->period) {
             case 1:
                 $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght day" ) );
+                $dataDiff = 200;
             break;
             case 2:
                 $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght week" ) );
+                $dataDiff = 300;
             break;
             default:
                 $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght month" ) );
+                $dataDiff = 400;
             break;
         }
-
-        
+       
 
         $gunler = array(
             'Pazartesi',
@@ -104,12 +106,15 @@ class Reports extends VoyagerBaseController
                 $gun = $gunler[date('N',strtotime( $veri->created_at)) - 1];
 
                 $data[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] =$veri->value;
+
+                $index[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] = Device::getDayFirstValueOnCache( $veri->device_id, $veri->data_id - $dataDiff, $veri->created_at);
                 if($key <> 0 && !isset($data[0][date('d', strtotime( $veri->created_at)) ." " . $ay ])){
                   $data[0][date('d', strtotime( $veri->created_at)) ." " . $ay ] = null;
 
                 }
               }
           }
+          dd($data,$index);
           return Excel::download(new ReportExport($data), $report->name . '.xlsx');
         }else{
 
@@ -130,9 +135,12 @@ class Reports extends VoyagerBaseController
                 $tarih =date('d', strtotime( $veri->created_at)) ." " . $ay . " " . date('Y', strtotime( $veri->created_at)) . " " . $gun ;
                 $data[$tarih]['Tarih']  = $tarih;
                 $data[$tarih][$titles[$key]] =$veri->value;
+                $index[$tarih][$titles[$key]] = Device::getDayFirstValueOnCache( $veri->device_id, $veri->data_id - $dataDiff, $veri->created_at);
+              
               }
 
           }
+          dd($data,$index);
           return Excel::download(new ReportExport(array_values($data)), $report->name . '.xlsx');
         }
 
