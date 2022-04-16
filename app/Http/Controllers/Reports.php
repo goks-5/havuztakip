@@ -51,25 +51,25 @@ class Reports extends VoyagerBaseController
         switch ($report->period) {
             case 1:
                 $dateStart = Carbon::parse(strtotime($date . " -$report->lenght day"))
-                ->startOfDay()->addHours($setting['day_start_hour'])->toDateTimeString();
+                    ->startOfDay()->addHours($setting['day_start_hour'])->toDateTimeString();
                 $dataDiff = 200;
                 $dateparam = "day";
                 break;
             case 2:
                 $dateStart = Carbon::parse(strtotime($date . " -$report->lenght week"))
-                ->startOfDay()->startOfWeek($setting['week_start_day'])->addHours($setting['day_start_hour'])->toDateTimeString();
+                    ->startOfDay()->startOfWeek($setting['week_start_day'])->addHours($setting['day_start_hour'])->toDateTimeString();
                 $dataDiff = 300;
                 $dateparam = "week";
                 break;
             default:
                 $dateStart = Carbon::parse(strtotime($date . " -$report->lenght month"))
-                ->startOfDay()->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->toDateTimeString();
+                    ->startOfDay()->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->toDateTimeString();
                 $dataDiff = 400;
                 $dateparam = "month";
                 break;
         }
 
-  
+
         $gunler = array(
             'Pazartesi',
             'Salı',
@@ -103,7 +103,7 @@ class Reports extends VoyagerBaseController
                 $device = explode('_', $tag);
 
                 $data[$index]['Sayaç'] = trim(trim(trim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endesk';
-                $data[$index+1]['Sayaç'] = $titles[$key];
+                $data[$index + 1]['Sayaç'] = $titles[$key];
                 $veriler = DB::table('device_datas')
                     ->select('created_at', 'value')
                     ->where('device_id', $device[0])
@@ -111,36 +111,33 @@ class Reports extends VoyagerBaseController
                     ->where('created_at', '<', $date)
                     ->where('created_at', '>=', $dateStart)
                     ->limit($lenght)->orderBy('created_at', $report->order_direction)->get();
-                    $veriArray = [];
+                $veriArray = [];
                 foreach ($veriler as $veri) {
                     $ay = $aylar[date('m', strtotime($veri->created_at)) - 1];
                     $gun = $gunler[date('N', strtotime($veri->created_at)) - 1];
                     $veriArray[date('d', strtotime($veri->created_at)) . " " . $ay] = $veri->value;
-
                 }
-                if($report->order_direction == 'desc'){
+                if ($report->order_direction == 'desc') {
                     for ($addDate = $lenght; $addDate >= 0; $addDate--) {
                         $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
                         $ay = $aylar[date('m', strtotime($onDate)) - 1];
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
                         $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
-                        $data[$index+1][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';                        
+                        $data[$index + 1][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
                     }
-                }else{
+                } else {
                     for ($addDate = 0; $addDate <= $lenght; $addDate++) {
                         $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
                         $ay = $aylar[date('m', strtotime($onDate)) - 1];
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
                         $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
-                        $data[$index+1][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
-                       
-                    } 
+                        $data[$index + 1][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
+                    }
                 }
 
                 ++$index;
                 ++$index;
             }
-            dump($data);
             return Excel::download(new ReportExport($data), $report->name . '.xlsx');
         } else {
 
@@ -155,12 +152,33 @@ class Reports extends VoyagerBaseController
                     ->where('created_at', '<', $date)
                     ->where('created_at', '>=', $dateStart)
                     ->limit($lenght)->orderBy('created_at', $report->order_direction)->get();
-                foreach ($veriler as $key2 => $veri) {
+                $veriArray = [];
+                foreach ($veriler as $veri) {
                     $ay = $aylar[date('m', strtotime($veri->created_at)) - 1];
                     $gun = $gunler[date('N', strtotime($veri->created_at)) - 1];
                     $tarih = date('d', strtotime($veri->created_at)) . " " . $ay . " " . date('Y', strtotime($veri->created_at)) . " " . $gun;
-                    $data[$tarih]['Tarih']  = $tarih;
-                    $data[$tarih][$titles[$key]] = $veri->value;
+                    $veriArray[$tarih] = $veri->value;
+                }
+                if ($report->order_direction == 'desc') {
+                    for ($addDate = $lenght; $addDate >= 0; $addDate--) {
+                        $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
+                        $ay = $aylar[date('m', strtotime($onDate)) - 1];
+                        $gun = $gunler[date('N', strtotime($onDate)) - 1];
+                        $tarih = date('d', strtotime($onDate)) . " " . $ay . " " . date('Y', strtotime($onDate)) . " " . $gun;
+                        $data[$tarih]['Tarih']  = $tarih;
+                        $data[$tarih][trim(trim(trim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endesk'] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                        $data[$tarih][$titles[$key]] =  $veriArray[$tarih] ?? '-';
+                    }
+                } else {
+                    for ($addDate = 0; $addDate <= $lenght; $addDate++) {
+                        $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
+                        $ay = $aylar[date('m', strtotime($onDate)) - 1];
+                        $gun = $gunler[date('N', strtotime($onDate)) - 1];
+                        $tarih = date('d', strtotime($onDate)) . " " . $ay . " " . date('Y', strtotime($onDate)) . " " . $gun;
+                        $data[$tarih]['Tarih']  = $tarih;
+                        $data[$tarih][trim(trim(trim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endesk'] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                        $data[$tarih][$titles[$key]] =  $veriArray[$tarih] ?? '-';
+                    }
                 }
             }
             return Excel::download(new ReportExport(array_values($data)), $report->name . '.xlsx');
