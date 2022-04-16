@@ -106,7 +106,7 @@ class Reports extends VoyagerBaseController
 
 
                 if($report->order_direction == 'desc'){
-                    for ($addDate = $lenght; $addDate == 0; --$addDate) {
+                    for ($addDate = $lenght; $addDate >= 0; --$addDate) {
                         $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
                         $ay = $aylar[date('m', strtotime($onDate)) - 1];
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
