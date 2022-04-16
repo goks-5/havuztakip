@@ -50,12 +50,18 @@ class Reports extends VoyagerBaseController
         switch ($report->period) {
             case 1:
                 $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght day" ) );
+                $dataDiff = 200;
+                $dateparam = "day" ;
             break;
             case 2:
                 $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght week" ) );
+                $dataDiff = 300;
+                $dateparam = "week" ;
             break;
             default:
                 $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght month" ) );
+                $dataDiff = 400;
+                $dateparam = "month" ;
             break;
         }
         $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find(Auth::user()->company_id);
@@ -91,9 +97,21 @@ class Reports extends VoyagerBaseController
 
 
         if($type == 1){
+            $index = 0;
           foreach ($tags as $key => $tag) {
               $device = explode('_', $tag);
-              $data[$key]['Sayaç'] = $titles[$key];
+
+              $data[$index]['Sayaç'] = trim(trim(trim($titles[$key],'Günlük'),'Haftalık'),'Aylık') . 'Endesk';
+
+              for($addDate = 0; $addDate <$lenght;$addDate++ ){
+                $onDate = date( 'Y-m-d H:i', strtotime( $dateStart . " +$addDate $dateparam" ) );
+                $ay = $aylar[date('m',strtotime(  $onDate )) - 1];
+                $gun = $gunler[date('N',strtotime(  $onDate )) - 1]; 
+                $data[$index][date('d', strtotime(  $onDate )) ." " . $ay ] =Device::getDayFirstValueOnCache( $device[0],  $device[1] - $dataDiff, $onDate);
+              }
+              
+              ++$index;
+              $data[$index]['Sayaç'] = $titles[$key];
               $veriler = DB::table('device_datas')
                                     ->select('created_at','value')
                                     ->where('device_id', $device[0])
@@ -105,7 +123,7 @@ class Reports extends VoyagerBaseController
                 $ay = $aylar[date('m',strtotime( $veri->created_at)) - 1];
                 $gun = $gunler[date('N',strtotime( $veri->created_at)) - 1];
 
-                $data[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] =$veri->value;
+                $data[$index][date('d', strtotime( $veri->created_at)) ." " . $ay ] =$veri->value;
 
                 
                 if($key <> 0 && !isset($data[0][date('d', strtotime( $veri->created_at)) ." " . $ay ])){
@@ -113,6 +131,7 @@ class Reports extends VoyagerBaseController
 
                 }
               }
+              ++$index;
           }
           dd($data,new ReportExport($data));
           return Excel::download(new ReportExport($data), $report->name . '.xlsx');
