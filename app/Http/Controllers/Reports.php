@@ -41,34 +41,34 @@ class Reports extends VoyagerBaseController
         $type = $report->type;
         $tags = json_decode($report->tags, true);
         $titles = json_decode($report->titles, true);
-        if(isset($request->date)){
-          $date = date('Y-m-d H:i',strtotime($request->date)) ;
-        }else{
-          $date = date('Y-m-d');
+        if (isset($request->date)) {
+            $date = date('Y-m-d H:i', strtotime($request->date));
+        } else {
+            $date = date('Y-m-d');
         }
 
         switch ($report->period) {
             case 1:
-                $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght day" ) );
+                $dateStart = date('Y-m-d H:i', strtotime($date . " -$report->lenght day"));
                 $dataDiff = 200;
-                $dateparam = "day" ;
-            break;
+                $dateparam = "day";
+                break;
             case 2:
-                $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght week" ) );
+                $dateStart = date('Y-m-d H:i', strtotime($date . " -$report->lenght week"));
                 $dataDiff = 300;
-                $dateparam = "week" ;
-            break;
+                $dateparam = "week";
+                break;
             default:
-                $dateStart = date( 'Y-m-d H:i', strtotime( $date . " -$report->lenght month" ) );
+                $dateStart = date('Y-m-d H:i', strtotime($date . " -$report->lenght month"));
                 $dataDiff = 400;
-                $dateparam = "month" ;
-            break;
+                $dateparam = "month";
+                break;
         }
         $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find(Auth::user()->company_id);
         $dateStart = Carbon::parse($dateStart)->startOfDay()->addHours($setting['day_start_hour'])->toDateTimeString();
-        
-       // $index[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] = Device::getDayFirstValueOnCache( $device[0],  $device[1] - $dataDiff, $veri->created_at);
-                
+
+        // $index[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] = Device::getDayFirstValueOnCache( $device[0],  $device[1] - $dataDiff, $veri->created_at);
+
         $gunler = array(
             'Pazartesi',
             'Salı',
@@ -96,70 +96,66 @@ class Reports extends VoyagerBaseController
 
 
 
-        if($type == 1){
+        if ($type == 1) {
             $index = 0;
-          foreach ($tags as $key => $tag) {
-              $device = explode('_', $tag);
+            foreach ($tags as $key => $tag) {
+                $device = explode('_', $tag);
 
-              $data[$index]['Sayaç'] = trim(trim(trim($titles[$key],'Günlük'),'Haftalık'),'Aylık') . 'Endesk';
+                $data[$index]['Sayaç'] = trim(trim(trim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endesk';
 
-              for($addDate = 0; $addDate <$lenght;$addDate++ ){
-                $onDate = date( 'Y-m-d H:i', strtotime( $dateStart . " +$addDate $dateparam" ) );
-                $ay = $aylar[date('m',strtotime(  $onDate )) - 1];
-                $gun = $gunler[date('N',strtotime(  $onDate )) - 1]; 
-                $data[$index][date('d', strtotime(  $onDate )) ." " . $ay ] =Device::getDayFirstValueOnCache( $device[0],  $device[1] - $dataDiff, $onDate);
-              }
-              
-              ++$index;
-              $data[$index]['Sayaç'] = $titles[$key];
-              $veriler = DB::table('device_datas')
-                                    ->select('created_at','value')
-                                    ->where('device_id', $device[0])
-                                    ->where('data_id', $device[1])
-                                    ->where('created_at', '<', $date)
-                                    ->where('created_at', '>=', $dateStart)
-                                    ->limit($lenght)->orderBy('created_at',$report->order_direction)->get();
-              foreach ($veriler as $veri) {
-                $ay = $aylar[date('m',strtotime( $veri->created_at)) - 1];
-                $gun = $gunler[date('N',strtotime( $veri->created_at)) - 1];
-
-                $data[$index][date('d', strtotime( $veri->created_at)) ." " . $ay ] =$veri->value;
-
-                
-                if($key <> 0 && !isset($data[0][date('d', strtotime( $veri->created_at)) ." " . $ay ])){
-                  $data[0][date('d', strtotime( $veri->created_at)) ." " . $ay ] = null;
-
+                for ($addDate = 0; $addDate < $lenght; $addDate++) {
+                    $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
+                    $ay = $aylar[date('m', strtotime($onDate)) - 1];
+                    $gun = $gunler[date('N', strtotime($onDate)) - 1];
+                    $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
                 }
-              }
-              ++$index;
-          }
-          dd($data,new ReportExport($data));
-          return Excel::download(new ReportExport($data), $report->name . '.xlsx');
-        }else{
+                ++$index;
+                $data[$index]['Sayaç'] = $titles[$key];
+                $veriler = DB::table('device_datas')
+                    ->select('created_at', 'value')
+                    ->where('device_id', $device[0])
+                    ->where('data_id', $device[1])
+                    ->where('created_at', '<', $date)
+                    ->where('created_at', '>=', $dateStart)
+                    ->limit($lenght)->orderBy('created_at', $report->order_direction)->get();
+                foreach ($veriler as $veri) {
+                    $ay = $aylar[date('m', strtotime($veri->created_at)) - 1];
+                    $gun = $gunler[date('N', strtotime($veri->created_at)) - 1];
+
+                    $data[$index][date('d', strtotime($veri->created_at)) . " " . $ay] = $veri->value;
 
 
-          foreach ($tags as $key => $tag) {
-              $device = explode('_', $tag);
+                    if ($key <> 0 && !isset($data[0][date('d', strtotime($veri->created_at)) . " " . $ay])) {
+                        $data[0][date('d', strtotime($veri->created_at)) . " " . $ay] = null;
+                    }
+                }
+                ++$index;
+            }
+            dd($data, new ReportExport($data));
+            return Excel::download(new ReportExport($data), $report->name . '.xlsx');
+        } else {
 
-              $veriler = DB::table('device_datas')
-                                    ->select('created_at','value')
-                                    ->where('device_id', $device[0])
-                                    ->where('data_id', $device[1])
-                                    ->where('created_at', '<', $date)
-                                    ->where('created_at', '>=', $dateStart)
-                                    ->limit($lenght)->orderBy('created_at',$report->order_direction)->get();
-              foreach ($veriler as $key2=> $veri) {
-                $ay = $aylar[date('m',strtotime( $veri->created_at)) - 1];
-                $gun = $gunler[date('N',strtotime( $veri->created_at)) - 1];
-                $tarih =date('d', strtotime( $veri->created_at)) ." " . $ay . " " . date('Y', strtotime( $veri->created_at)) . " " . $gun ;
-                $data[$tarih]['Tarih']  = $tarih;
-                $data[$tarih][$titles[$key]] =$veri->value;
-              }
 
-          }
-          return Excel::download(new ReportExport(array_values($data)), $report->name . '.xlsx');
+            foreach ($tags as $key => $tag) {
+                $device = explode('_', $tag);
+
+                $veriler = DB::table('device_datas')
+                    ->select('created_at', 'value')
+                    ->where('device_id', $device[0])
+                    ->where('data_id', $device[1])
+                    ->where('created_at', '<', $date)
+                    ->where('created_at', '>=', $dateStart)
+                    ->limit($lenght)->orderBy('created_at', $report->order_direction)->get();
+                foreach ($veriler as $key2 => $veri) {
+                    $ay = $aylar[date('m', strtotime($veri->created_at)) - 1];
+                    $gun = $gunler[date('N', strtotime($veri->created_at)) - 1];
+                    $tarih = date('d', strtotime($veri->created_at)) . " " . $ay . " " . date('Y', strtotime($veri->created_at)) . " " . $gun;
+                    $data[$tarih]['Tarih']  = $tarih;
+                    $data[$tarih][$titles[$key]] = $veri->value;
+                }
+            }
+            return Excel::download(new ReportExport(array_values($data)), $report->name . '.xlsx');
         }
-
     }
     public function create(Request $request)
     {
@@ -199,9 +195,9 @@ class Reports extends VoyagerBaseController
             }
 
             return $redirect->with([
-                    'message'    => __('voyager::generic.successfully_added_new')." {$dataType->getTranslatedAttribute('display_name_singular')}",
-                    'alert-type' => 'success',
-                ]);
+                'message'    => __('voyager::generic.successfully_added_new') . " {$dataType->getTranslatedAttribute('display_name_singular')}",
+                'alert-type' => 'success',
+            ]);
         } else {
             return response()->json(['success' => true, 'data' => $data]);
         }
@@ -210,13 +206,13 @@ class Reports extends VoyagerBaseController
     {
         $slug = $this->getSlug($request);
 
-        
+
         $dataType = DataType::where('slug', '=', $slug)->first();
         // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
 
         $model = app($dataType->model_name);
-        if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope'.ucfirst($dataType->scope))) {
+        if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope' . ucfirst($dataType->scope))) {
             $model = $model->{$dataType->scope}();
         }
         if ($model && in_array(SoftDeletes::class, class_uses($model))) {
@@ -246,7 +242,7 @@ class Reports extends VoyagerBaseController
         }
 
         return $redirect->with([
-            'message'    => __('voyager::generic.successfully_updated')." {$dataType->getTranslatedAttribute('display_name_singular')}",
+            'message'    => __('voyager::generic.successfully_updated') . " {$dataType->getTranslatedAttribute('display_name_singular')}",
             'alert-type' => 'success',
         ]);
     }
