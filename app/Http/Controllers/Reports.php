@@ -107,7 +107,7 @@ class Reports extends VoyagerBaseController
 
                 $data[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] =$veri->value;
 
-                $index[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] = Device::getDayFirstValueOnCache( $veri->device_id, $veri->data_id - $dataDiff, $veri->created_at);
+                $index[$key][date('d', strtotime( $veri->created_at)) ." " . $ay ] = Device::getDayFirstValueOnCache( $device[0],  $device[1] - $dataDiff, $veri->created_at);
                 if($key <> 0 && !isset($data[0][date('d', strtotime( $veri->created_at)) ." " . $ay ])){
                   $data[0][date('d', strtotime( $veri->created_at)) ." " . $ay ] = null;
 
