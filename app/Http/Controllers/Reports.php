@@ -102,7 +102,7 @@ class Reports extends VoyagerBaseController
             foreach ($tags as $key => $tag) {
                 $device = explode('_', $tag);
 
-                $data[$index]['Sayaç'] = trim(trim(trim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endesk';
+                $data[$index]['Sayaç'] = rtrim(rtrim(rtrim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endeks';
                 $data[$index + 1]['Sayaç'] = $titles[$key];
                 $veriler = DB::table('device_datas')
                     ->select('created_at', 'value')
