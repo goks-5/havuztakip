@@ -8,6 +8,7 @@ use App\FormFields\QueryTextField;
 use App\FormFields\DashboardField;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,7 +38,7 @@ class AppServiceProvider extends ServiceProvider
     Voyager::addAction(\App\Actions\ReportAction::class);
     Voyager::addAction(\App\Actions\ResetToken::class);
     if (env('REDIRECT_HTTPS')) {
-      \URL::forceScheme('https');
+      URL::forceScheme('https');
     }
   }
 }

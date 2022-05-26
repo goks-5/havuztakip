@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use App\Http\Middleware\EnsureTokenIsValid;
 use App\Http\Middleware\CheckCompanyToken;
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,7 +16,10 @@ use App\Http\Middleware\CheckCompanyToken;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-URL::forceScheme('https');
+if(env('REDIRECT_HTTPS')){
+    URL::forceScheme('https');
+}
+
 Route::get('/showrequest','Api@tests');
 Route::post('/showrequest','Api@tests');
 Route::post('/write', 'Api@write')->middleware([EnsureTokenIsValid::class]);

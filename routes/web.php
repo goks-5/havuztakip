@@ -1,4 +1,8 @@
 <?php
+use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Redirect;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -9,10 +13,17 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-URL::forceScheme('https');
+
+
+if(env('REDIRECT_HTTPS')){
+    URL::forceScheme('https');
+}
+
+
 Route::get('/admin', function () {
     return Redirect::to('/', 301);
 });
+
 Route::post('/autocomplate', 'Ajax@AutoComplate');
 Route::get('/devicelist', 'Ajax@DeviceList')->name('devicelist');
 Route::get('/deviceonline', 'Ajax@DeviceOnline')->name('deviceonline');
