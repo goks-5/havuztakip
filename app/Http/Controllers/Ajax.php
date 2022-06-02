@@ -54,7 +54,7 @@ class Ajax extends Controller
             ->get(['id', 'mac', 'name', 'tags', 'last_data', 'last_at', 'tags_last_change']);
         $timeout1 =  setting('device.ofline') * 60;
         $timeout2 =  setting('device.oflinesayac');
-        $timeout3 =  setting('device.tag.change') * 60;
+        $timeout3 =  setting('device.tag') * 60;
         $cikti["ofline"] = 0;
         $cikti['deviceCount'] = count($devices);
         $cikti['pointCount'] = 0;
