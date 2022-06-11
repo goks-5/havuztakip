@@ -451,7 +451,17 @@ class Devices extends VoyagerBaseController
                 "edit" => 1,
                 "add" => 1,
                 "details" => "{}"
+            ]);        
+            $dataType->editRows->push((object)[
+                "data_type_id" => 17,
+                "field" => "text",
+                "type" => "tags_last_change",
+                "display_name" => "Tags Last Change",
+                "edit" => 1,
+                "add" => 1,
+                "details" => "{}"
             ]);
+            $request->request->add(['tags_last_change' => []]);
             $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
         }
 
