@@ -454,8 +454,8 @@ class Devices extends VoyagerBaseController
             ]);        
             $dataType->editRows->push((object)[
                 "data_type_id" => 17,
-                "field" => "text",
-                "type" => "tags_last_change",
+                "field" => "tags_last_change",
+                "type" => "text",
                 "display_name" => "Tags Last Change",
                 "edit" => 1,
                 "add" => 1,
