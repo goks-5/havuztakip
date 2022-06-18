@@ -112,6 +112,7 @@
                         <div class="row">
   <div class="col-sm-6">
     <input type="text" class="form-control formul"  name="__formuls[]" placeholder="Formül">
+    <span class='formul_response' ></span>
   </div>
         <div class="col-sm-6">
           <select class="selectpicker islem" size="10">
@@ -156,7 +157,14 @@
 @stop
 
 @section('css')
+<style>
+  .formul_response{
+    font-weight: bolder;
+    padding: 12px;
+    font-size: large;
+  }
 
+</style>
 
 @stop
 
@@ -174,6 +182,7 @@
 
 $(this).closest('div').prev().find('input').val($(this).closest('div').prev().find('input').val() + $(this).val());
 
+$(this).closest('div').prev().find('input').trigger( "input" );
   $('#form-formula').val(JSON.stringify($('.formul').serializeJSON().__formuls));
 
 })
@@ -192,9 +201,6 @@ $(this).closest('div').prev().find('input').val($(this).closest('div').prev().fi
     if ($('#form-type').val().length > 0) {
       kayitlitype = JSON.parse($('#form-type').val());
     }
-
-    console.log(kayitlitype);
-
 
       for (elem in kayitli) {
         write_tags(kayitli[elem],elem);
@@ -291,6 +297,21 @@ if( index < 100){
       }
     });
 
+    $('.formul').on('input', function() {
+
+var responseSpan = $(this).nextAll('.formul_response:first');
+
+     $(this).val( this.value.replace(',','.'));
+      $.ajax({
+      url: '{{route('calculate')}}',
+      type: 'post',
+      data: {tags:this.value,_token :'{{csrf_token()}}'},
+      success: function(result) {
+                responseSpan.html('Şimdiki sonuç : ' + result);
+            }
+      });
+
+    });
 
   });
 </script>

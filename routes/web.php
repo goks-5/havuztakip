@@ -35,6 +35,7 @@ Route::get('/ajax/butondata', 'Ajax@manuelAjax')->name('butondata');
 Route::post('/ajax/dashboardTagsAdd', 'Ajax@dashboardTagsAdd')->name('TagsAdd');
 Route::post('/ajax/toolStyle', 'Ajax@toolStyle')->name('toolStyle');
 Route::get('/ajax/dashboardTagEnd', 'Ajax@dashboardTagEnd')->name('end_tag');
+Route::post('/ajax/calculate', 'Ajax@calculate')->name('calculate');
 Route::post('/ajax/faults_actions', 'Faults@actions')->name('faultsActions');
 Route::group(['prefix' => ''], function () {
     

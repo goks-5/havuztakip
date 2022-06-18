@@ -9,9 +9,11 @@ use App\DashboardTool;
 use App\Device;
 use App\DeviceData;
 use App\ProductionTag;
+use App\CompanySetting;
 use App\Tool;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Stmt\TryCatch;
 
 class Ajax extends Controller
 {
@@ -274,6 +276,20 @@ class Ajax extends Controller
 
         return view('ajax.dashboard.' . $request['action_type'], $data);
     }
+
+    public function calculate(Request $request){
+        $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find(Auth::user()->company_id);
+        $tags = $request->tags;
+        try {
+           $return = Device::calculate($tags,$setting);
+        } catch (\Throwable $th) {
+            $return = $th->getMessage();
+        }
+
+        return $return;
+          
+    }
+
 
     public function dashboardTagsAdd(Request $request)
     {
