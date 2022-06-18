@@ -305,7 +305,7 @@ var responseSpan = $(this).nextAll('.formul_response:first');
       $.ajax({
       url: '{{route('calculate')}}',
       type: 'post',
-      data: {tags:this.value,_token :'{{csrf_token()}}'},
+      data: {tag:this.value,_token :'{{csrf_token()}}'},
       success: function(result) {
                 responseSpan.html('Şimdiki sonuç : ' + result);
             }

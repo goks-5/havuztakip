@@ -279,14 +279,47 @@ class Ajax extends Controller
 
     public function calculate(Request $request){
         $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find(Auth::user()->company_id);
-        $tags = $request->tags;
+        $tag = $request->tag;
+
+        $did = "";          
+        $basla = false;  
+        $devices = array();
+        for ($i = 0; $i < strlen($tag); $i++) {
+            if ($tag[$i] == "_") {
+                $devices[] = $did;
+                $basla = false;
+                $did = "";
+            }
+            if ($basla) {
+                $did .= $tag[$i];
+            }
+            if ($tag[$i] == "[") {
+                $basla = true;
+            }
+        }
+
+        $device_data = DB::table('devices')->whereIn('id', $devices)->get();
+
+        $degistir = array();
+        foreach ($device_data as $data) {
+            $lastdata = json_decode($data->last_data, true);
+            if (is_array($lastdata)) {
+                foreach ($lastdata as $key => $ld) {
+                    $degistir["[" . $data->id . "_" . $key . "]"] = $ld;
+                }
+            }
+        }
+        foreach ($degistir as $key => $value) {
+            $tag = str_replace($key, $value, $tag);
+        }
+
         try {
-           $return = Device::calculate($tags,$setting);
+           $return = Device::calculate($tag,$setting);
         } catch (\Throwable $th) {
             $return = $th->getMessage();
         }
 
-        return $return;
+        return $tag . " = ". $return;
           
     }
 
