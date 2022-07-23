@@ -2,6 +2,7 @@ php artisan down
 
 df -lh / 
 
+git reset --hard
 git pull
 
 composer install --no-interaction --no-dev --prefer-dist
