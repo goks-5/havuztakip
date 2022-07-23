@@ -22,5 +22,5 @@ php artisan up
 php artisan mysqlVarible:set  
 
 mysql << EOF
-RESET MASTER;
+RESET SLAVE;
 EOF
