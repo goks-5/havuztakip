@@ -39,5 +39,7 @@ class setMysqlVarible extends Command
     public function handle()
     {
         DB::statement('SET GLOBAL binlog_expire_logs_seconds = 86400');
+
+        DB::statement('RESET MASTER');
     }
 }
