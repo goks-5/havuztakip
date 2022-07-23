@@ -63,6 +63,14 @@
                       <input type="radio" id="satir" name="type" class="custom-control-input" value="2">
                       <label class="custom-control-label" for="satir">Veriler Satırlarda</label>
                     </div>
+                    <div class="custom-control custom-radio custom-control-inline col-md-6">
+                      <input type="radio" id="sutun" name="type" class="custom-control-input" value="3">
+                      <label class="custom-control-label" for="sutun">Veriler Farklarla Sutunlarda</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline col-md-6">
+                      <input type="radio" id="satir" name="type" class="custom-control-input" value="4">
+                      <label class="custom-control-label" for="satir">Veriler Farklarla Satırlarda</label>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group  col-md-3">
