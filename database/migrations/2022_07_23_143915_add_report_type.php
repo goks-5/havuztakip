@@ -17,8 +17,13 @@ class AddReportType extends Migration
     {
        $type = DataType::where('model_name' ,'App\Report')->first();
        $row = DataRow::where('data_type_id',$type->id)->where('field','type')->first();
-       $row->details = '{"options":{"1":"Veriler Sutunlarda","2":"Veriler Satırlarda","3":"Veriler Farklarla Sutunlarda ","4":"Veriler Farklarla Satırlarda"}}';
-       $row->save();        
+       $row->details = ['options' =>[
+        '1'=>'Veriler Sutunlarda',
+        '2'=>'Veriler Satırlarda',
+        '3'=>'Veriler Farklarla Sutunlarda ',
+        '4'=>'Veriler Farklarla Satırlarda'
+       ]];
+       $row->save();   
     }
 
     /**
@@ -30,7 +35,10 @@ class AddReportType extends Migration
     {
         $type = DataType::where('model_name' ,'App\Report')->first();
         $row = DataRow::where('data_type_id',$type->id)->where('field','type')->first();
-        $row->details = '{"options":{"1":"Veriler Sutunlarda","2":"Veriler Sat\u0131rlarda"}}';
+        $row->details =       $row->details = ['options' =>[
+            '1'=>'Veriler Sutunlarda',
+            '2'=>'Veriler Satırlarda'
+           ]];
         $row->save();
     }
 }
