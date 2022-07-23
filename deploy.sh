@@ -20,7 +20,3 @@ php artisan view:clear
 php artisan up
 
 php artisan mysqlVarible:set  
-
-mysql << EOF
-RESET SLAVE;
-EOF
