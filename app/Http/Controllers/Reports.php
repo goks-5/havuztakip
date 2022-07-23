@@ -97,7 +97,7 @@ class Reports extends VoyagerBaseController
 
 
 
-        if ($type == 1) {
+        if ($type == 1 || $type == 3) {
             $index = 0;
             foreach ($tags as $key => $tag) {
                 $device = explode('_', $tag);
@@ -122,7 +122,9 @@ class Reports extends VoyagerBaseController
                         $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
                         $ay = $aylar[date('m', strtotime($onDate)) - 1];
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
-                        $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                        if ($type == 3) {
+                            $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                        }
                         $data[$index + 1][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
                     }
                 } else {
@@ -130,7 +132,9 @@ class Reports extends VoyagerBaseController
                         $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
                         $ay = $aylar[date('m', strtotime($onDate)) - 1];
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
-                        $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                        if ($type == 3) {
+                            $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                        }
                         $data[$index + 1][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
                     }
                 }
@@ -166,7 +170,9 @@ class Reports extends VoyagerBaseController
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
                         $tarih = date('d', strtotime($onDate)) . " " . $ay . " " . date('Y', strtotime($onDate)) . " " . $gun;
                         $data[$tarih]['Tarih']  = $tarih;
-                        $data[$tarih][rtrim(rtrim(rtrim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endeks'] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                        if ($type == 4) {
+                            $data[$tarih][rtrim(rtrim(rtrim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endeks'] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                        }
                         $data[$tarih][$titles[$key]] =  $veriArray[$tarih] ?? '-';
                     }
                 } else {
@@ -176,7 +182,9 @@ class Reports extends VoyagerBaseController
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
                         $tarih = date('d', strtotime($onDate)) . " " . $ay . " " . date('Y', strtotime($onDate)) . " " . $gun;
                         $data[$tarih]['Tarih']  = $tarih;
-                        $data[$tarih][rtrim(rtrim(rtrim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endeks'] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                        if ($type == 4) {
+                            $data[$tarih][rtrim(rtrim(rtrim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endeks'] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                        }
                         $data[$tarih][$titles[$key]] =  $veriArray[$tarih] ?? '-';
                     }
                 }
