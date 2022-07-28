@@ -172,7 +172,7 @@ $("input:radio[name='order_direction'][value='{{$report->order_direction ?? 'des
     @endphp
     @foreach ($tags_gelen as $key => $value)
     $(".islem option[value='{{$value}}']").each(function() {
-      $(this).text("{{$titles[$key]}}");
+      $(this).text("{{$titles[$key] ?? 'bulunamıyor' }}");
     });
     $(".islem").val("{{$value}}").trigger('dblclick');
 
