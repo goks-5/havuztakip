@@ -102,9 +102,11 @@ class Reports extends VoyagerBaseController
             foreach ($tags as $key => $tag) {
                 $device = explode('_', $tag);
                 if ($type == 3) {
-                    $data[$index]['Sayaç'] = rtrim(rtrim(rtrim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endeks';
-                }
+                $data[$index]['Sayaç'] = rtrim(rtrim(rtrim($titles[$key], 'Günlük'), 'Haftalık'), 'Aylık') . 'Endeks';
                 $data[$index + 1]['Sayaç'] = $titles[$key];
+                }else{
+                    $data[$index]['Sayaç'] = $titles[$key];
+                }
                 $veriler = DB::table('device_datas')
                     ->select('created_at', 'value')
                     ->where('device_id', $device[0])
@@ -125,9 +127,12 @@ class Reports extends VoyagerBaseController
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
                         if ($type == 3) {
                             $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                            $data[$index + 1][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
+                        }else{
+                            $data[$index][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
+                            
                         }
-                        $data[$index + 1][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
-                    }
+                        }
                 } else {
                     for ($addDate = 0; $addDate <= $lenght; $addDate++) {
                         $onDate = date('Y-m-d H:i', strtotime($dateStart . " +$addDate $dateparam"));
@@ -135,13 +140,18 @@ class Reports extends VoyagerBaseController
                         $gun = $gunler[date('N', strtotime($onDate)) - 1];
                         if ($type == 3) {
                             $data[$index][date('d', strtotime($onDate)) . " " . $ay] = Device::getDayFirstValueOnCache($device[0],  $device[1] - $dataDiff, $onDate);
+                            $data[$index + 1][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
+                        }else{
+                            $data[$index][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
+                            
                         }
-                        $data[$index + 1][date('d', strtotime($onDate)) . " " . $ay] =  $veriArray[date('d', strtotime($onDate)) . " " . $ay] ?? '-';
-                    }
+                        }
                 }
 
                 ++$index;
-                ++$index;
+                if ($type == 3) {
+                    ++$index;
+                }
             }
             return Excel::download(new ReportExport($data), $report->name . '.xlsx');
         } else {
