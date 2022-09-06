@@ -308,7 +308,7 @@ class Device extends Model
         }
         Device::echoTimer($startd,false);
     }
-    private static function addDiffData($device_id, $data_id, $targetData_id, $start, $end, $type = 'diff')
+    private static function addDiffData($device_id, $data_id, $targetData_id, $start, $end, $type = 'diff',$default='last')
     {
       //  dump($device_id, $data_id, $targetData_id, $start, $end, $type );
        // $startd = false;
@@ -332,7 +332,17 @@ class Device extends Model
            // $lastd = Device::echoTimer($startd,$lastd);
          //  dump('Last');
             $last = Device::getDayLastValue($device_id, $data_id,$end,$start);
+            if($default){
+                if(!$last){
+                    $last = DB::table('device_datas')
+                    ->where('device_id', $device_id)
+                    ->where('data_id', $data_id)
+                    ->where('created_at','>', date('Y-m-d H:i:s',strtotime("-30 day")))
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+                }
                 
+            }
            
         //    $lastd = Device::echoTimer(false,$lastd);
         }
@@ -420,6 +430,16 @@ class Device extends Model
         }else{// yoksa önceki günün son datası
             $islem = strtotime($time);
             $start = date('Y-m-d H:i:s',strtotime("-3 day", $islem));
+            $data = DB::table('device_datas')
+                ->where('device_id', $device_id)
+                ->where('data_id', $data_id)
+                ->whereBetween('created_at', [$start, $time])
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+        if(!$data){
+            $islem = strtotime($time);
+            $start = date('Y-m-d H:i:s',strtotime("-30 day", $islem));
             $data = DB::table('device_datas')
                 ->where('device_id', $device_id)
                 ->where('data_id', $data_id)
