@@ -13,7 +13,7 @@ $wsize =  floor(24 /$gCount);
 
 
 @if($options->title == 1)
-  <div class="col-xs-4">
+  <div class="col-xs-{{ $wsize }}">
     <label class="control-label">Başlık</label>
     <input type="text" name="setting[title]" class="form-control" value="{{$settings['title'] ?? ''}}" />
   </div>
@@ -138,7 +138,7 @@ $wsize =  floor(24 /$gCount);
   <h5 class="col-xs-12">Diğer özellikler</h5>
   @endif
 @if($options->unit == 1)
-<div class="col-xs-2">
+<div class="col-xs-{{ $wsize }}">
 <label class="control-label">Veri Birimi</label>
 <input type="text" name="setting[unit]" class="form-control" value="{{$settings['unit'] ?? ''}}"/>
 </div>
