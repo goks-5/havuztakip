@@ -1,7 +1,7 @@
 @php
 $options = \App\Tool::where(['slug' => $slug])->first();
 $gCount = $options->title + $options->size +  $options->color + $options->background + $options->layer ;
-$wsize =  floor(12 /$gCount);
+$wsize =  floor(24 /$gCount);
 @endphp
 
   @include('ajax.dashboard.type.element.device',['filter' => $filter ?? []])
