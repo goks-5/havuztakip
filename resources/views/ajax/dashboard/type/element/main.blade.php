@@ -13,7 +13,7 @@ $wsize =  floor(24 /$gCount);
 
 
 @if($options->title == 1)
-  <div class="col-xs-2">
+  <div class="col-xs-4">
     <label class="control-label">Başlık</label>
     <input type="text" name="setting[title]" class="form-control" value="{{$settings['title'] ?? ''}}" />
   </div>
