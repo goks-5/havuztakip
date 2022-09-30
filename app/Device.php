@@ -524,8 +524,8 @@ class Device extends Model
         $values = DB::table('device_datas')
             ->where('device_id', $device_id)
             ->where('data_id', $data_id)
-            ->whereBetween('hourly', [date('Y-m-d H:i:s', strtotime("- $hour hour")), date('Y-m-d H:i:s')])
-            ->groupBy(DB::raw("FLOOR(UNIX_TIMESTAMP(hourly)/($hour / 6))"))->orderBy('hourly', $order);
+            ->whereBetween('created_at', [date('Y-m-d H:i:s', strtotime("- $hour hour")), date('Y-m-d H:i:s')])
+            ->groupBy(DB::raw("FLOOR(UNIX_TIMESTAMP(created_at)/($hour / 6))"))->orderBy('created_at', $order);
 
         //  return $values->get(DB::raw(' if(max(value) - avg(value) > avg(value) - min(value),min(value),max(value) ) value, min(`created_at`) created_at'));
         return $values->get(DB::raw(' max(value) value, min(`created_at`) created_at'));
