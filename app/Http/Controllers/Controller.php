@@ -21,4 +21,14 @@ class Controller extends VoyagerBaseController
     });
   }
 
+  public function serverInfo(){
+
+    $data['disk_free_space'] = disk_free_space('/');
+
+    $data['commit_hash'] = trim(exec('git log --pretty="%h" -n1 HEAD'));
+
+    $data['commit_date'] = trim(exec('git log -n1 --pretty=%ci HEAD'));
+
+    return response()->json($data);
+  }
 }

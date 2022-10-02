@@ -27,6 +27,7 @@ Route::get('/admin', function () {
 
 Route::post('/autocomplate', 'Ajax@AutoComplate');
 Route::get('/devicelist', 'Ajax@DeviceList')->name('devicelist');
+Route::get('/server_info', 'Controller@serverInfo')->name('serverInfo');
 Route::get('/deviceonline', 'Ajax@DeviceOnline')->name('deviceonline');
 Route::post('/ajax/dahboard_tool', 'Ajax@dahboardTool')->name('dahboardTool');
 Route::post('/ajax/boardAction', 'Ajax@boardAction')->name('boardAction');
