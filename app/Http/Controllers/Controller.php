@@ -29,6 +29,8 @@ class Controller extends VoyagerBaseController
 
     $data['commit_date'] = trim(exec('git log -n1 --pretty=%ci HEAD'));
 
+    $data['ip'] = request()->server('SERVER_ADDR');
+
     return response()->json($data);
   }
 }
