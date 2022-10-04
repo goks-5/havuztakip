@@ -13,9 +13,11 @@
             </a>
         @endcan
         @can('dosab', app($dataType->model_name))
+        <!--    
             <a href="{{ route('dosabekle') }}" class="btn btn-warning btn-add-new">
                 <i class="voyager-plus"></i> <span>DOSAB Sayaç Ekle</span>
             </a>
+        -->
         @endcan
         @can('manuel', app($dataType->model_name))
             <a href="{{ route('manuelekle') }}" class="btn btn-primary btn-add-new">
