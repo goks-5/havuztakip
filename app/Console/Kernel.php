@@ -5,6 +5,7 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use  App\Device;
+use App\DeviceData;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Log;
 
@@ -28,8 +29,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(function () {
-            Device::dosabData();
-        })->everyFifteenMinutes();
+            DeviceData::deleteOldData();
+        })->everyFiveMinutes();
+
         if ((float)date("i") < 32) {
             $schedule->call(function () {
                 Device::hourly();
