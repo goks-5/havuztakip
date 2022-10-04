@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(function () {
-            DeviceData::deleteOldData();
+            DeviceData::deleteOldData(93);
         })->everyFiveMinutes();
 
         if ((float)date("i") < 32) {
