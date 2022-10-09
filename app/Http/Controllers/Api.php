@@ -58,7 +58,11 @@ class Api extends Controller
         }
 
         if ($device->token == null) {
-            $device->token = Str::random(32);
+            $token = setting('device.default_token',null); 
+            if(empty($token)){
+                $token = Str::random(32);
+            }
+            $device->token = $token;
             $response['message'] = "new token generate";
             $response['token'] = $device->token;
         }
