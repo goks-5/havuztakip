@@ -337,7 +337,7 @@ class Device extends Model
             //  dump('Last');
             $last = Device::getDayLastValue($device_id, $data_id, $end, $start);
             if ($default == -1) {
-                $lastData= json_decode(Device::find($device_id)->last_data,true);
+                $lastData = json_decode(Device::find($device_id)->last_data, true);
                 $default = $lastData[$data_id];
             }
 
@@ -359,9 +359,9 @@ class Device extends Model
         } else {
             $firstValue = $default;
         }
-        if ($last){
+        if ($last) {
             $lastValue = $last->value;
-        }else{
+        } else {
             $lastValue = $default;
         }
 
@@ -400,6 +400,16 @@ class Device extends Model
                         ->where('data_id', $data_id)
                         ->whereBetween('created_at', [$start, $end])
                         ->orderBy('created_at', 'desc')->avg('value');
+                });
+                break;
+            case 'sum':
+                $rememberKey = sha1("sum_" . $device_id . "_" . $targetData_id . "_" . $start);
+                $value = Cache::remember($rememberKey, 600, function () use ($device_id, $data_id, $start, $end) {
+                    return   DB::table('device_datas')
+                        ->where('device_id', $device_id)
+                        ->where('data_id', $data_id)
+                        ->whereBetween('created_at', [$start, $end])
+                        ->orderBy('created_at', 'desc')->sum('value');
                 });
                 break;
             case 'triger':

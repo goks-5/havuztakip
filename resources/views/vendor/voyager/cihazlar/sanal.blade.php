@@ -55,6 +55,7 @@
                         <option value='last'>Son Değer</option>
                         <option value='first'>İlk Değer</option>
                         <option value='avg'>Ortalama Değer</option>
+                        <option value='sum'>Toplam Değer</option>
                         <option value='max'>En Büyük Değer</option>
                         <option value='min'>En Küçük Değer</option>
                         <option value='triger[0]'>0:00 da tetiklen</option>
