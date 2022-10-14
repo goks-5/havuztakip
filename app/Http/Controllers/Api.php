@@ -163,6 +163,41 @@ class Api extends Controller
         }
     }
 
+
+    public function writeTag(Request $request, $device_id, $index,$value)
+    {
+        $company = $request->get('company');
+        $device = Device::where(['mac'=>'00:00:00:00:00:02','device_id' => $device_id, 'company_id' => $company])->first();
+
+        if (!$device) {
+            return response()->json(['status' => 'error', 'message' => 'do not have permission', 'date' => date('Y-m-d H:i:s'), 'timestamp' => time()], 403);
+        } else {
+            $returndevice['status'] =  'write';
+            $returndevice['date'] =  date('Y-m-d H:i:s');
+            $returndevice['timestamp'] =  time();
+            $tags = json_decode($device->tags, true);
+            $last_data = json_decode($device->last_data, true);
+            if (isset($tags[$index])) {
+                $last_data[$index] = $value;
+                $device->last_data = json_encode($last_data, true);
+                $device->last_at =  date('Y-m-d H:i:s');
+                $device->save();
+                $saveData[] = [
+                    'device_id' => $device->id,
+                    'data_id' => $index,
+                    'value' => $value,
+                    'created_at' => date('Y-m-d H:i:s')
+                ];
+                DeviceData::insert($saveData);
+                $returndevice['name'] = $tags[$index];
+                $returndevice['value'] = $last_data[$index];
+                return  $returndevice;
+            } else {
+                return response()->json(['status' => 'error', 'message' => 'device index not found',  'date' => date('Y-m-d H:i:s'), 'timestamp' => time()], 404);
+            }
+        }
+    }
+
     public function tests(Request $request)
     {
         $response['method'] = $request->method();

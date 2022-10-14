@@ -26,3 +26,4 @@ Route::post('/write', 'Api@write')->middleware([EnsureTokenIsValid::class]);
 Route::get('/read/devices', 'Api@devices')->middleware([CheckCompanyToken::class]);
 Route::get('/read/device/{device_id}', 'Api@device')->middleware([CheckCompanyToken::class]);
 Route::get('/read/device/{device_id}/{index}', 'Api@tag')->middleware([CheckCompanyToken::class]);
+Route::post('/write/device/{device_id}/{index}/{value}', 'Api@writeTag')->middleware([CheckCompanyToken::class]);
