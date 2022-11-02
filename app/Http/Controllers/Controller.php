@@ -52,7 +52,7 @@ class Controller extends VoyagerBaseController
     $mem = array_merge($mem);
     $memory_usage = $mem[2]/$mem[1]*100;
 
-    return round($memory_usage) . "% ("  . round($mem[2] / 1024) . "mb /" . round($mem[1] / 1024) . "mb )" ;
+    return round($memory_usage) . "% ("  . round($mem[2] / 1024) . "mb / " . round($mem[1] / 1024) . "mb)" ;
   }
 
 }
