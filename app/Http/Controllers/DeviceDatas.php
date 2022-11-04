@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use TCG\Voyager\Database\Schema\SchemaManager;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use TCG\Voyager\Events\BreadDataAdded;
+use App\DataType;
 
 class DeviceDatas extends VoyagerBaseController
 {
@@ -194,5 +196,57 @@ class DeviceDatas extends VoyagerBaseController
             'showSoftDeleted',
             'showCheckboxColumn'
         ));
+    }
+
+    /**
+     * POST BRE(A)D - Store data.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function store(Request $request)
+    {
+        $slug = $this->getSlug($request);
+
+        $dataType = DataType::where('slug', '=', $slug)->first();
+
+        // Check permission
+        $this->authorize('add', app($dataType->model_name));
+
+        // Validate fields with ajax
+        $val = $this->validateBread($request->all(), $dataType->addRows)->validate();
+
+        $dataType->addRows->push((object)[
+            "data_type_id" => 34,
+            "field" => "hourly",
+            "type" => "timestamp",
+            "display_name" => "Hourly",
+            "edit" => 1,
+            "add" => 1,
+            "details" => "{}"
+        ]);
+
+        $request->merge(['hourly' => $request->created_at ]);
+        dd($request->all(),$dataType->addRows,$request->created_at);
+        $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
+
+
+        event(new BreadDataAdded($dataType, $data));
+
+        if (!$request->has('_tagging')) {
+            if (auth()->user()->can('browse', $data)) {
+                $redirect = redirect()->route("voyager.{$dataType->slug}.index");
+            } else {
+                $redirect = redirect()->back();
+            }
+
+            return $redirect->with([
+                'message'    => __('voyager::generic.successfully_added_new') . " {$dataType->getTranslatedAttribute('display_name_singular')}",
+                'alert-type' => 'success',
+            ]);
+        } else {
+            return response()->json(['success' => true, 'data' => $data]);
+        }
     }
 }
