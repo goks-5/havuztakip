@@ -227,8 +227,8 @@ class DeviceDatas extends VoyagerBaseController
             "details" => "{}"
         ]);
 
-        $request->merge(['hourly' => $request->created_at ]);
-        dd($request->all(),$dataType->addRows,$request->created_at);
+        $request->merge(['hourly' => Carbon::parse($request->created_at)->format('Y-m-d H:00:00') ]);
+        
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
 
