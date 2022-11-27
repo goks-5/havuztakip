@@ -226,8 +226,8 @@ class Reports extends VoyagerBaseController
         $request->merge(['company_id' => Auth::user()->company_id]);
 
         //dd($request);
-        $request->merge(['tags' => json_encode($request->tags)]);
-        $request->merge(['titles' => json_encode($request->titles)]);
+        $request->merge(['tags' => json_encode($request->tags ?? [])]);
+        $request->merge(['titles' => json_encode($request->titles ?? [])]);
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
 
