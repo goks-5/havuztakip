@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use TCG\Voyager\Models\Setting;
 
-class ChangeTagChangeOnSettings extends Migration
+class ChangeOfflineOnSettings extends Migration
 {
     /**
      * Run the migrations.
