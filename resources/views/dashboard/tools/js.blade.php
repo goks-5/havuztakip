@@ -311,11 +311,20 @@
 
         function faultsTable(data) {
             Object.keys(data).forEach(function(k) {
-                var t = $('#faults_table_' + k).DataTable({
-                    "searching": false,
-                    "order": [[ 5, 'desc' ]],
-                    paging: false
-                });
+
+                if ($.fn.dataTable.isDataTable('#faults_table_' + k)) {
+                    var t = $('#faults_table_' + k).DataTable();
+                } else {
+                    var t = $('#faults_table_' + k).DataTable({
+                        "searching": false,
+                        "order": [
+                            [5, 'desc']
+                        ],
+                        paging: false
+                    });
+                }
+
+
                 t.clear();
                 Object.keys(data[k]).forEach(function(s) {
                     t.row.add([
