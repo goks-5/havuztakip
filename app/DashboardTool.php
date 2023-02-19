@@ -186,6 +186,17 @@ class DashboardTool extends Model
 
         return $value;
     }
+
+    public function faults_table($settings, $tool)
+    {
+        $value['faults'] = Fault::where('company_id', Auth::user()->company_id)
+        ->whereIn('status', $settings['status'])
+        ->orderBy('created_at desc')
+        ->limit($settings['limit']);
+
+        return $value;
+    }
+
     public function backgroud($settings, $tool)
     {
 
