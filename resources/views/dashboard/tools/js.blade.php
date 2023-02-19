@@ -365,15 +365,13 @@
                 t.clear();
                 Object.keys(data[k]).forEach(function(s) {
                     t.row.add([
-                        '<p title="Raporlayan : ' + data[k][s]['reporting_user'] +
-                        ' , Bakımcı : ' + data[k][s]['staff'] + '">' + data[k][s][
-                            'status'
-                        ] + '</p>', ,
-                        '<p title="' + data[k][s]['fault_comment'] + '">' + data[k][s][
-                            'equipment'
-                        ] + ' - ' + data[k][s][
-                            'fault_code'
-                        ] + '</p>',
+                        '<p title="Raporlayan : ' +
+                         data[k][s]['reporting_user'] +
+                        ' , Bakımcı : ' + data[k][s]['staff'] +
+                         '">' + data[k][s]['status'] + '</p>', 
+                        '<p title="' + data[k][s]['fault_comment'] +
+                         '">' + data[k][s]['equipment'] +
+                          ' - ' + data[k][s]['fault_code'] + '</p>',
                         data[k][s]['created_at'],
                         '<a href="/arizalar/' +
                         data[k][s]['id'] +
