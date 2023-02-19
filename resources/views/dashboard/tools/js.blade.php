@@ -309,8 +309,13 @@
             });
         }
 
-        function faultsTable($data){
-           console.log($data);
+        function faultsTable($data) {
+            Object.keys(data).forEach(function(k) {
+              console.log(k);
+                Object.keys(data[k]).forEach(function(s) {
+                    console.log(s);
+                });
+            });
         }
 
         function period(data) {
@@ -325,40 +330,7 @@
 
 
 
-            /*
 
-  Object.keys(data).forEach(function(k) {
-    var cols = [];
-      var rows = [];
-      cols.push({'title' : 'Cihaz'}) ;
-        rows.push(data[k]['cols'][1]['label']) ;
-    Object.keys(data[k]['rows']).forEach(function(s){
-      var tarih = eval( "new " + data[k]['rows'][s]['c'][0]['v']);
- var gun=tarih.getDay();
- var ay=tarih.getMonth();
- var yil=tarih.getFullYear();
- var gunler= ['Pz', 'Pzt', 'Sal','Çar','Per','Cum','Cmt'];
-    var aylar= ['Ocak', 'Şubat', 'Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
-      cols.push({'title' : tarih.getDate()+' '+aylar[ay]+' '+gunler[gun]}) ;
-        rows.push(parseFloat(data[k]['rows'][s]['c'][1]['v']).toFixed(2)) ;
-    });
-
-
-
-    if ( $.fn.dataTable.isDataTable( '#'+k) ) {
-      $('#'+k).DataTable().destroy();
-    }
-  var t = $('#'+k).DataTable({
-  searching: false, paging: false, info: false, ordering : false, "dom": '<"toolbar">frtip',
-      "columns": cols
-});
-  t.clear();
-//  $("div.toolbar").html('<b>'+data[k]['cols'][1]['label']+'</b>');
-t.row.add(rows);
-
-});
-
-  */
         }
 
         function DeviceDataGauge(data) {
@@ -385,10 +357,12 @@ t.row.add(rows);
         function fswitch(data) {
             Object.keys(data).forEach(function(k) {
                 if ($('#switch_' + k).length) {
-                    if ($('#switch_' + k).data('onvalue') == data[k] && !$('#switch_' + k).prop(
+                    if ($('#switch_' + k).data('onvalue') == data[k] && !$('#switch_' + k)
+                        .prop(
                             "checked")) {
                         $('#switch_' + k).bootstrapToggle('on');
-                    } else if ($('#switch_' + k).data('offvalue') == data[k] && $('#switch_' + k).prop(
+                    } else if ($('#switch_' + k).data('offvalue') == data[k] && $(
+                            '#switch_' + k).prop(
                             "checked")) {
                         $('#switch_' + k).bootstrapToggle('off');
                     }
