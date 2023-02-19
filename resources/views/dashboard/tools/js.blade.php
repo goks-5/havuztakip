@@ -311,9 +311,18 @@
 
         function faultsTable(data) {
             Object.keys(data).forEach(function(k) {
-              console.log(k);
+              var t = $('#faults_table_' + k).DataTable();
+              t.clear();
                 Object.keys(data[k]).forEach(function(s) {
-                    console.log(s);
+                  t.row.add([
+                            data[k][s]['equipment'] ,
+                            data[k][s]['fault_code'] ,
+                            data[k][s]['reporting_user'] ,
+                            data[k][s]['staff'] ,
+                            data[k][s]['created_at'] ,
+                            data[k][s]['accepted_at'] 
+
+                        ]).draw(false);
                 });
             });
         }
