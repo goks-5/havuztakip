@@ -339,7 +339,7 @@
                     var t = $('#faults_table_' + k).DataTable({
                         "searching": false,
                         "order": [
-                            [5, 'desc']
+                            [3, 'desc']
                         ],
                         paging: false,
                         "info": false,
@@ -370,11 +370,9 @@
                 t.clear();
                 Object.keys(data[k]).forEach(function(s) {
                     t.row.add([
-                        data[k][s]['status'],
+                      '<p title="Raporlayan : '+ data[k][s]['reporting_user'] +' , Bakımcı : ' +data[k][s]['staff']+'">' +  data[k][s]['status'] + '</p>',
                         data[k][s]['equipment'],
                        '<p title="'+ data[k][s]['fault_comment'] +'">' + data[k][s]['fault_code'] + '</p>',
-                        data[k][s]['reporting_user'],
-                        data[k][s]['staff'],
                         data[k][s]['created_at'],
                         '<a href="/arizalar/' +
                         data[k][s]['id'] +

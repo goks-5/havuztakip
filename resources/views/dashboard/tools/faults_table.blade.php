@@ -11,8 +11,6 @@
                         <th>Durum</th>
                         <th>Ekipman</th>
                         <th>Arıza Kodu</th>
-                        <th>Bildiren Personel</th>
-                        <th>Bakımcı</th>
                         <th>Oluşturma</th>
                         <th></th>
                     </tr>
