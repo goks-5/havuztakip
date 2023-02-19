@@ -37,7 +37,7 @@
   </div>
   <br>
 
-  <div class="col-xs-12">
+  <div class="col-xs-6">
       <label class="control-label">Veri Gösterme Limiti</label>
       <input type="number" name="setting[limit]" class="form-control" value="{{ $settings['limit'] ?? '10' }}" />
   </div>

@@ -192,7 +192,7 @@ class DashboardTool extends Model
         $value['faults'] = Fault::where('company_id', Auth::user()->company_id)
         ->whereIn('status', $settings['status'])
         ->orderBy('created_at desc')
-        ->limit($settings['limit']);
+        ->limit($settings['limit'])->get();
 
         return $value;
     }
