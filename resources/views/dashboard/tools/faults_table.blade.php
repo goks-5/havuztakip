@@ -19,6 +19,37 @@
                 </thead>
             </table>
         </div>
+        <style>
+            .bekliyor {
+                background: #FF5;
+                color: #526069;
+            }
+
+            .basladi {
+                background: #FF8;
+                color: #526069;
+            }
+
+            .yonlendirildi {
+                background: #aef;
+                color: #526069;
+            }
+
+            .m_bekliyor {
+                background: #aef;
+                color: #526069;
+            }
+
+            .onay {
+                background: #9F9;
+                color: #526069;
+            }
+
+            .yeni {
+                background: #F33;
+                color: #FFF;
+            }
+        </style>
     @endcan
     @can('add', app('App\Fault'))
     @endcan

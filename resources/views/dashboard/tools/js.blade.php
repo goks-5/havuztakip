@@ -308,7 +308,28 @@
                 });
             });
         }
-
+/*
+      case 'Bekliyor |0|':
+                                      $fontcolor = "#526069";
+                                      $cellcolor = "#FF5";
+                                      break;
+                                      case 'Bakıma Başlandı |0|':
+                                      $fontcolor = "#526069";
+                                      $cellcolor = "#FF8";
+                                      break;
+                                      case 'Firma Yönlendirildi |2|':
+                                      $fontcolor = "#526069";
+                                      $cellcolor = "#aef";
+                                      break;
+                                      case 'Malzeme Bekliyor |2|':
+                                      $fontcolor = "#526069";
+                                      $cellcolor = "#aef";
+                                      break;
+                                      case 'Onay |1|':
+                                      $cellcolor = "#9F9";
+                                      $fontcolor = "#526069";
+                                      break;
+                                      case 'Yeni':*/
         function faultsTable(data) {
             Object.keys(data).forEach(function(k) {
 
@@ -321,7 +342,27 @@
                             [5, 'desc']
                         ],
                         paging: false,
-                        "info": false
+                        "info": false,
+                        "createdRow": function(row, data, dataIndex) {
+                            if (data[0] == "Bekliyor |0|") {
+                                $(row).addClass('bekliyor');
+                            }
+                            if (data[0] == "Bakıma Başlandı |0|") {
+                                $(row).addClass('basladi');
+                            }
+                            if (data[0] == "Firma Yönlendirildi |2|") {
+                                $(row).addClass('yonlendirildi');
+                            }
+                            if (data[0] == "Malzeme Bekliyor |2|") {
+                                $(row).addClass('m_bekliyor');
+                            }
+                            if (data[0] == "Onay |1|") {
+                                $(row).addClass('onay');
+                            }
+                            if (data[0] == "Yeni") {
+                                $(row).addClass('yeni');
+                            }
+                        }
                     });
                 }
 
@@ -335,7 +376,7 @@
                         data[k][s]['reporting_user'],
                         data[k][s]['staff'],
                         data[k][s]['created_at'],
-                        '<a href=".../arizalar/' +
+                        '<a href="/arizalar/' +
                         data[k][s]['id'] +
                         '/edit" title="Düzenle" class="btn btn-sm btn-primary pull-right edit">' +
                         '<i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Düzenle</span></a>'
