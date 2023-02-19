@@ -14,6 +14,7 @@
                         <th>Arıza Kodu</th>
                         <th>Bildiren Personel</th>
                         <th>Bakımcı</th>
+                        <th></th>
                     </tr>
                 </thead>
             </table>

@@ -320,7 +320,8 @@
                         "order": [
                             [5, 'desc']
                         ],
-                        paging: false
+                        paging: false,
+                        "info": false
                     });
                 }
 
@@ -333,7 +334,11 @@
                         data[k][s]['fault_code'],
                         data[k][s]['reporting_user'],
                         data[k][s]['staff'],
-                        data[k][s]['created_at']
+                        data[k][s]['created_at'],
+                        '<a href=".../arizalar/' +
+                        data[k][s]['id'] +
+                        '/edit" title="Düzenle" class="btn btn-sm btn-primary pull-right edit">' +
+                        '<i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Düzenle</span></a>'
 
                     ]).draw(false);
                 });
