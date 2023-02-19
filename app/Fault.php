@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Fault extends Model
 {
-    
+    protected $casts = [
+        'accepted_at' => 'date',
+    ];
 
     public function equipment(): BelongsTo
     {
