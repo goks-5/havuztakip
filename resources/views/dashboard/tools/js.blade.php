@@ -308,28 +308,28 @@
                 });
             });
         }
-/*
-      case 'Bekliyor |0|':
-                                      $fontcolor = "#526069";
-                                      $cellcolor = "#FF5";
-                                      break;
-                                      case 'Bakıma Başlandı |0|':
-                                      $fontcolor = "#526069";
-                                      $cellcolor = "#FF8";
-                                      break;
-                                      case 'Firma Yönlendirildi |2|':
-                                      $fontcolor = "#526069";
-                                      $cellcolor = "#aef";
-                                      break;
-                                      case 'Malzeme Bekliyor |2|':
-                                      $fontcolor = "#526069";
-                                      $cellcolor = "#aef";
-                                      break;
-                                      case 'Onay |1|':
-                                      $cellcolor = "#9F9";
-                                      $fontcolor = "#526069";
-                                      break;
-                                      case 'Yeni':*/
+        /*
+              case 'Bekliyor |0|':
+                                              $fontcolor = "#526069";
+                                              $cellcolor = "#FF5";
+                                              break;
+                                              case 'Bakıma Başlandı |0|':
+                                              $fontcolor = "#526069";
+                                              $cellcolor = "#FF8";
+                                              break;
+                                              case 'Firma Yönlendirildi |2|':
+                                              $fontcolor = "#526069";
+                                              $cellcolor = "#aef";
+                                              break;
+                                              case 'Malzeme Bekliyor |2|':
+                                              $fontcolor = "#526069";
+                                              $cellcolor = "#aef";
+                                              break;
+                                              case 'Onay |1|':
+                                              $cellcolor = "#9F9";
+                                              $fontcolor = "#526069";
+                                              break;
+                                              case 'Yeni':*/
         function faultsTable(data) {
             Object.keys(data).forEach(function(k) {
 
@@ -344,22 +344,17 @@
                         paging: false,
                         "info": false,
                         "createdRow": function(row, data, dataIndex) {
-                            if (data[0] == "Bekliyor |0|") {
+                            if (data[0].includes("Bekliyor |0|")) {
                                 $(row).addClass('bekliyor');
-                            }
-                            if (data[0] == "Bakıma Başlandı |0|") {
+                            } else if (data[0].includes("Bakıma Başlandı |0|")) {
                                 $(row).addClass('basladi');
-                            }
-                            if (data[0] == "Firma Yönlendirildi |2|") {
+                            } else if (data[0].includes("Firma Yönlendirildi |2|")) {
                                 $(row).addClass('yonlendirildi');
-                            }
-                            if (data[0] == "Malzeme Bekliyor |2|") {
+                            } else if (data[0].includes("Malzeme Bekliyor |2|")) {
                                 $(row).addClass('m_bekliyor');
-                            }
-                            if (data[0] == "Onay |1|") {
+                            } else if (data[0].includes("Onay |1|")) {
                                 $(row).addClass('onay');
-                            }
-                            if (data[0] == "Yeni") {
+                            } else if (data[0].includes("Yeni")) {
                                 $(row).addClass('yeni');
                             }
                         }
@@ -370,9 +365,14 @@
                 t.clear();
                 Object.keys(data[k]).forEach(function(s) {
                     t.row.add([
-                      '<p title="Raporlayan : '+ data[k][s]['reporting_user'] +' , Bakımcı : ' +data[k][s]['staff']+'">' +  data[k][s]['status'] + '</p>',
+                        '<p title="Raporlayan : ' + data[k][s]['reporting_user'] +
+                        ' , Bakımcı : ' + data[k][s]['staff'] + '">' + data[k][s][
+                            'status'
+                        ] + '</p>',
                         data[k][s]['equipment'],
-                       '<p title="'+ data[k][s]['fault_comment'] +'">' + data[k][s]['fault_code'] + '</p>',
+                        '<p title="' + data[k][s]['fault_comment'] + '">' + data[k][s][
+                            'fault_code'
+                        ] + '</p>',
                         data[k][s]['created_at'],
                         '<a href="/arizalar/' +
                         data[k][s]['id'] +
