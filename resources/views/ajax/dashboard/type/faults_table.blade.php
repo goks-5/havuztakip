@@ -3,6 +3,7 @@
   <br>
 
 <h5>Durumlar</h5>
+@dump($setting['status'])
  <div class="col-xs-3">
       <label class="control-label">Bekliyor {{ $setting['status'][0] ?? '0' }}</label> 
       <input type="checkbox" name="setting[status][0]" class="form-check-input" style="display:block" value="Bekliyor |0|"
