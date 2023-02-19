@@ -372,7 +372,7 @@
                     t.row.add([
                         data[k][s]['status'],
                         data[k][s]['equipment'],
-                        data[k][s]['fault_code'],
+                       '<p title="'+ data[k][s]['fault_comment'] +'">' + data[k][s]['fault_code'] + '</p>',
                         data[k][s]['reporting_user'],
                         data[k][s]['staff'],
                         data[k][s]['created_at'],

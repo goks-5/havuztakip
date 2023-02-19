@@ -8,44 +8,44 @@
             <table id="faults_table_tool_{{ $tool->id }}" class="table table-hover">
                 <thead>
                     <tr>
-                        <th>Oluşturma</th>
                         <th>Durum</th>
                         <th>Ekipman</th>
                         <th>Arıza Kodu</th>
                         <th>Bildiren Personel</th>
                         <th>Bakımcı</th>
+                        <th>Oluşturma</th>
                         <th></th>
                     </tr>
                 </thead>
             </table>
         </div>
         <style>
-            .bekliyor {
+            .bekliyor td{
                 background: #FF5;
                 color: #526069;
             }
 
-            .basladi {
+            .basladi td{
                 background: #FF8;
                 color: #526069;
             }
 
-            .yonlendirildi {
+            .yonlendirildi td{
                 background: #aef;
                 color: #526069;
             }
 
-            .m_bekliyor {
+            .m_bekliyor td{
                 background: #aef;
                 color: #526069;
             }
 
-            .onay {
+            .onay td{
                 background: #9F9;
                 color: #526069;
             }
 
-            .yeni {
+            .yeni td{
                 background: #F33;
                 color: #FFF;
             }
