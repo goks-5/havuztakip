@@ -339,7 +339,7 @@
                     var t = $('#faults_table_' + k).DataTable({
                         "searching": false,
                         "order": [
-                            [3, 'desc']
+                            [2, 'desc']
                         ],
                         paging: false,
                         "info": false,
@@ -368,9 +368,10 @@
                         '<p title="Raporlayan : ' + data[k][s]['reporting_user'] +
                         ' , Bakımcı : ' + data[k][s]['staff'] + '">' + data[k][s][
                             'status'
-                        ] + '</p>',
-                        data[k][s]['equipment'],
+                        ] + '</p>', ,
                         '<p title="' + data[k][s]['fault_comment'] + '">' + data[k][s][
+                            'equipment'
+                        ] + ' - ' + data[k][s][
                             'fault_code'
                         ] + '</p>',
                         data[k][s]['created_at'],

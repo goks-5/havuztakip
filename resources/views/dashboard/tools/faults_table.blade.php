@@ -9,8 +9,7 @@
                 <thead>
                     <tr>
                         <th>Durum</th>
-                        <th>Ekipman</th>
-                        <th>Arıza Kodu</th>
+                        <th>Ekipman - Arıza Kodu</th>
                         <th>Oluşturma</th>
                         <th></th>
                     </tr>
