@@ -1,7 +1,7 @@
 <div class="tool_data row">
   @include('dashboard.tools.toolSettings',['tool'=>$tool])
 
-@dump($settings)
+@dump($settings['status'][0])
 
 
     <div id="tool_{{$tool->id}}"></div>
