@@ -309,7 +309,7 @@
             });
         }
 
-        function faultsTable($data) {
+        function faultsTable(data) {
             Object.keys(data).forEach(function(k) {
               console.log(k);
                 Object.keys(data[k]).forEach(function(s) {
