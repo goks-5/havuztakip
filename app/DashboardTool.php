@@ -200,7 +200,7 @@ class DashboardTool extends Model
                 'equipment' => $fault->equipment->name,
                 'staff' => $fault->staff->name ?? null,
                 'created_at' => $fault->created_at->format('Y-m-d H:i:s'),
-                'accepted_at' => $fault->accepted_at->format('Y-m-d H:i:s') ?? null,
+                'accepted_at' =>  $fault->accepted_at ? $fault->accepted_at->format('Y-m-d H:i:s') : null,
                 'fault_code' => $fault->fault_code,
                 'fault_comment' => $fault->fault_comment,
                 'reporting_user' => $fault->reporting_user,
