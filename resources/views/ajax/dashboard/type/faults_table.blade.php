@@ -4,6 +4,12 @@
 
   <h5>Durumlar</h5>
   <div>
+    <div class="col-xs-4">
+        <label class="control-label">Yeni</label>
+        <input type="checkbox" name="setting[status][5]" class="form-check-input" style="display:block"
+            value="Yeni" id='setting[status][5]'
+            {{ ($settings['status']['5'] ?? '0') == 'Yeni' ? 'checked' : '' }} />
+    </div>
       <div class="col-xs-4">
           <label class="control-label">Bekliyor</label>
           <input type="checkbox" name="setting[status][0]" class="form-check-input" style="display:block"
@@ -29,11 +35,12 @@
               {{ ($settings['status']['3'] ?? '0') == 'Malzeme Bekliyor |2|' ? 'checked' : '' }} />
       </div>
       <div class="col-xs-4">
-          <label class="control-label">Tamamlandı</label>
-          <input type="checkbox" name="setting[status][4]" class="form-check-input" style="display:block"
-              value="Onay |1|" id='setting[status][4]'
-              {{ ($settings['status']['4'] ?? '0') == 'Onay |1|' ? 'checked' : '' }} />
-      </div>
+        <label class="control-label">Tamamlandı</label>
+        <input type="checkbox" name="setting[status][4]" class="form-check-input" style="display:block"
+            value="Onay |1|" id='setting[status][4]'
+            {{ ($settings['status']['4'] ?? '0') == 'Onay |1|' ? 'checked' : '' }} />
+    </div>     
+
   </div>
   <br>
 
