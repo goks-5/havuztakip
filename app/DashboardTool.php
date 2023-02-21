@@ -198,7 +198,7 @@ class DashboardTool extends Model
             $return[] = [
                 'id' => $fault->id,
                 'equipment' => $fault->equipment->name,
-                'staff' => $fault->staff->name,
+                'staff' => $fault->staff->name ?? null,
                 'created_at' => $fault->created_at->format('Y-m-d H:i:s'),
                 'accepted_at' => $fault->accepted_at->format('Y-m-d H:i:s'),
                 'fault_code' => $fault->fault_code,
