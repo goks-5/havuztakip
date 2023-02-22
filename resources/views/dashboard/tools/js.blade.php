@@ -372,7 +372,8 @@
                         '<p title="' + data[k][s]['fault_comment'] +
                          '">' + data[k][s]['equipment'] +
                           ' - ' + data[k][s]['fault_code'] + '</p>',
-                        data[k][s]['created_at'],
+                          '<p title="' + data[k][s]['accepted_at'] +
+                         '">' +  data[k][s]['created_at'] +  '</p>',
                         '<a href="/arizalar/' +
                         data[k][s]['id'] +
                         '/edit" title="Düzenle" class="btn btn-sm btn-primary pull-right edit">' +
