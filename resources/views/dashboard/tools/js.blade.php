@@ -372,7 +372,7 @@
                         '<p title="' + data[k][s]['fault_comment'] +
                          '">' + data[k][s]['equipment'] +
                           ' - ' + data[k][s]['fault_code'] + '</p>',
-                          '<p title="' + data[k][s]['accepted_at'] +
+                          '<p title="Kabul Edilme : ' + data[k][s]['accepted_at'] +
                          '">' +  data[k][s]['created_at'] +  '</p>',
                         '<a href="/arizalar/' +
                         data[k][s]['id'] +
