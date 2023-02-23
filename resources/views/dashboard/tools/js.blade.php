@@ -407,10 +407,12 @@
                 });
             });
         }
-        $('.modalidset').click(function() {
+
+        $('.faults_table').on('click', '.modalidset', function() {
             console.log($(this).data('id'));
             $('.modalidinput').val($(this).data('id'));
         });
+
 
         function period(data) {
             Object.keys(data).forEach(function(k) {
@@ -421,10 +423,6 @@
                     height: '100%'
                 });
             });
-
-
-
-
         }
 
         function DeviceDataGauge(data) {

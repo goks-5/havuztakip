@@ -1,4 +1,4 @@
-<div class="tool_data row">
+<div class="tool_data row faults_table">
     @include('dashboard.tools.toolSettings', ['tool' => $tool])
     @php
         $staffs = App\Staff::select('*')
@@ -6,8 +6,6 @@
             ->get();
         
     @endphp
-    <div id="tool_{{ $tool->id }}"></div>
-
     @can('browse', app('App\Fault'))
         <div class="table-responsive">
             <table id="faults_table_tool_{{ $tool->id }}" class="table table-hover">
