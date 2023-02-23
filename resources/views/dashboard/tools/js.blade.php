@@ -364,25 +364,53 @@
 
                 t.clear();
                 Object.keys(data[k]).forEach(function(s) {
+                    actionbtn = '';
+                    @can('accept', app('App\Fault'))
+                        if (data[k][s]['status'] == 'Yeni') {
+                            actionbtn = '<a href="#" title="Kabul Et" data-id ="' +
+                                data[k][s]['id'] +
+                                '" class="btn btn-sm btn-danger pull-right edit modalidset" data-toggle="modal"  data-target="#acceptModal" >' +
+                                '<i class="voyager-paper-plane"></i> <span class="hidden-xs hidden-sm">Kabul Et</span></a>';
+                        } else if (data[k][s]['status'] != 'Onay |1|' && data[k][s]['status'] !=
+                            'Bitti |1|') {
+                            actionbtn = '<a href="#" title="İşlem Gir" data-id ="' +
+                                data[k][s]['id'] +
+                                '" class="btn btn-sm btn-warning pull-right edit modalidset" data-toggle="modal"  data-target="#actionModal">' +
+                                '<i class="voyager-fire"></i> <span class="hidden-xs hidden-sm">İşlem Gir</span></a>';
+                        }
+                    @endcan
+
+                    @can('close', app('App\Fault'))
+                        if (data[k][s]['status'] == 'Onay |1|') {
+
+                            actionbtn = '<a href="#" title="Arızayı Kapat" data-id ="' +
+                                data[k][s]['id'] +
+                                '" class="btn btn-sm btn-primary pull-right edit modalidset" data-toggle="modal"  data-target="#closeModal">' +
+                                '<i class="voyager-lightbulb"></i> <span class="hidden-xs hidden-sm">Arızayı Kapat</span></a>';
+                        }
+                    @endcan
+
+
                     t.row.add([
                         '<p title="Raporlayan : ' +
-                         data[k][s]['reporting_user'] +
+                        data[k][s]['reporting_user'] +
                         ' , Bakımcı : ' + data[k][s]['staff'] +
-                         '">' + data[k][s]['status'] + '</p>', 
+                        '">' + data[k][s]['status'] + '</p>',
                         '<p title="' + data[k][s]['fault_comment'] +
-                         '">' + data[k][s]['equipment'] +
-                          ' - ' + data[k][s]['fault_code'] + '</p>',
-                          '<p title="Kabul Edilme : ' + data[k][s]['accepted_at'] +
-                         '">' +  data[k][s]['created_at'] +  '</p>',
-                        '<a href="/arizalar/' +
-                        data[k][s]['id'] +
-                        '/edit" title="Düzenle" class="btn btn-sm btn-primary pull-right edit">' +
-                        '<i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Düzenle</span></a>'
+                        '">' + data[k][s]['equipment'] +
+                        ' - ' + data[k][s]['fault_code'] + '</p>',
+                        '<p title="Kabul Edilme : ' + data[k][s]['accepted_at'] +
+                        '">' + data[k][s]['created_at'] + '</p>',
+                        actionbtn
 
                     ]).draw(false);
                 });
             });
         }
+        $('.modalidset').click(function() {
+            console.log($(this).data('id'));
+            $('.modalidinput').val($(this).data('id'));
+        });
 
         function period(data) {
             Object.keys(data).forEach(function(k) {
