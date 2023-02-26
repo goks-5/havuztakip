@@ -398,7 +398,7 @@
                         '">' + data[k][s]['status'] + '</p>',
                          data[k][s]['equipment'] +
                         ' - ' + data[k][s]['fault_code'] +
-                         '<br>' +  data[k][s]['fault_comment'] ,                        ,
+                        '<br>' +  data[k][s]['fault_comment'] ,
                         '<p title="Kabul Edilme : ' + data[k][s]['accepted_at'] +
                         '">' + data[k][s]['created_at'] + '</p>',
                         actionbtn
