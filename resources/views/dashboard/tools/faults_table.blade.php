@@ -12,7 +12,7 @@
                 <thead>
                     <tr>
                         <th>Durum</th>
-                        <th>Ekipman - Arıza Kodu</th>
+                        <th>Ekipman - Arıza Kodu - Açıklama</th>
                         <th>Oluşturma</th>
                         <th></th>
                     </tr>
