@@ -312,15 +312,15 @@ class Ajax extends Controller
                 foreach ($lastdata as $key => $ld) {
                     $degistir["[" . $data->id . "_" . $key . "]"] = $ld;
                     if ($key < 100 && isset($tags[$key])) {
-                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key] . "]";
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  " <br> [" . $data->name . "_" . $tags[$key] . "]";
                     } elseif ($key > 99 && $key < 200 && isset($tags[$key - 100])) {
-                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 100] . " Saatlik]";
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  " <br> [" . $data->name . "_" . $tags[$key - 100] . " Saatlik]";
                     } elseif ($key > 199 && $key < 300 && isset($tags[$key - 200])) {
-                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 200] . " Günlük]";
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  " <br> [" . $data->name . "_" . $tags[$key - 200] . " Günlük]";
                     } elseif ($key > 299 && $key < 400 && isset($tags[$key - 300])) {
-                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 300] . " Haftalık]";
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  " <br> [" . $data->name . "_" . $tags[$key - 300] . " Haftalık]";
                     } elseif ($key > 399 && $key < 500 && isset($tags[$key - 400])) {
-                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 400] . " Aylık]";
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  " <br> [" . $data->name . "_" . $tags[$key - 400] . " Aylık]";
                     }
                 }
             }
@@ -338,7 +338,7 @@ class Ajax extends Controller
             $return = $th->getMessage();
         }
 
-        return $tag . " = " . $return . "<br> $tag2";
+        return $tag . " = " . $return . " $tag2";
     }
 
 
