@@ -330,7 +330,7 @@ class Ajax extends Controller
             $tag = str_replace($key, $value, $tag);
         }
         foreach ($degistir2 as $key => $value) {
-            $tag2 = str_replace($key, $value, $tag);
+            $tag2 = str_replace($key, $value, $tag2);
         }
         try {
             $return = Device::calculate($tag, $setting);
