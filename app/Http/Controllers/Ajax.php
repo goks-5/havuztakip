@@ -306,11 +306,15 @@ class Ajax extends Controller
         foreach ($device_data as $data) {
             $lastdata = json_decode($data->last_data, true);
             $tags = json_decode($data->tags, true);
-            Log::alert('lastdata',$lastdata);
-            Log::alert('tags',$tags);
+
             if (is_array($lastdata)) {
                 foreach ($lastdata as $key => $ld) {
                     $degistir["[" . $data->id . "_" . $key . "]"] = $ld;
+                }
+            }
+
+            if (is_array($tags)) {
+                foreach ($tags as $key => $ld) {
                     $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key] . "]" ;
                 }
             }
