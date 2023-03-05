@@ -124,7 +124,7 @@
             @endphp
             <optgroup label="{{$device->name}}">
               @foreach ($tags as $key => $tag)
-              <option value='[{{$device->id}}_{{$key}}]'>{{$tag}}</option>
+              <option value='[{{$device->id}}_{{$key}}]' class='deviceTagOption'>{{$tag}}</option>
               @endforeach
             </optgroup>
             @endforeach
@@ -188,10 +188,10 @@ $(this).closest('div').prev().find('input').trigger( "input" );
   $('#form-formula').val(JSON.stringify($('.formul').serializeJSON().__formuls));
 
 })
-$("#inputFilter").change(function() {
+$("#inputFilter").keyup(function() {
     var filter = $(this).val();
     console.log(filter);
-    $("#deviceTag option").each(function() {
+    $(".deviceTagOption").each(function() {
         var match = $(this).text().search(new RegExp(filter, "i"));
         console.log(match);
         if (match < 0 && $(this).text() != "--select--")  {                   
