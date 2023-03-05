@@ -279,7 +279,7 @@ class Ajax extends Controller
 
     public function calculate(Request $request){
         $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find(Auth::user()->company_id);
-        $tag = $request->tag;
+        $tag = $tag2 = $request->tag;
 
         $did = "";          
         $basla = false;  
@@ -301,25 +301,31 @@ class Ajax extends Controller
         $device_data = DB::table('devices')->whereIn('id', $devices)->get();
 
         $degistir = array();
+        $degistir2 = array();
         foreach ($device_data as $data) {
             $lastdata = json_decode($data->last_data, true);
+            $tags = json_decode($data->tags, true);
+
             if (is_array($lastdata)) {
                 foreach ($lastdata as $key => $ld) {
                     $degistir["[" . $data->id . "_" . $key . "]"] = $ld;
+                    $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key] . "]" ;
                 }
             }
         }
         foreach ($degistir as $key => $value) {
             $tag = str_replace($key, $value, $tag);
         }
-
+        foreach ($degistir2 as $key => $value) {
+            $tag2 = str_replace($key, $value, $tag);
+        }
         try {
            $return = Device::calculate($tag,$setting);
         } catch (\Throwable $th) {
             $return = $th->getMessage();
         }
 
-        return $tag . " = ". $return;
+        return $tag . " = ". $return . "<br> $tag2";
           
     }
 

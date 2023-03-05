@@ -116,7 +116,7 @@
     <span class='formul_response' ></span>
   </div>
         <div class="col-sm-6">
-          <input id='inputFilter'  class="form-control" placeholder="Arama Yap"/>
+          <input id='inputFilter'  class="form-control" placeholder="Arama Yap" style="width: 400px; margin-bottom: 12px;"/>
           <select class="selectpicker islem" id="deviceTag" size="10">
             @foreach ($devices as $device)
             @php
@@ -165,7 +165,9 @@
     padding: 12px;
     font-size: large;
   }
-
+  select option[disabled] {
+    display: none;
+}
 </style>
 
 @stop
