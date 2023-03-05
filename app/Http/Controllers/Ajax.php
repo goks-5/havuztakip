@@ -278,12 +278,13 @@ class Ajax extends Controller
         return view('ajax.dashboard.' . $request['action_type'], $data);
     }
 
-    public function calculate(Request $request){
+    public function calculate(Request $request)
+    {
         $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find(Auth::user()->company_id);
         $tag = $tag2 = $request->tag;
 
-        $did = "";          
-        $basla = false;  
+        $did = "";
+        $basla = false;
         $devices = array();
         for ($i = 0; $i < strlen($tag); $i++) {
             if ($tag[$i] == "_") {
@@ -310,14 +311,20 @@ class Ajax extends Controller
             if (is_array($lastdata)) {
                 foreach ($lastdata as $key => $ld) {
                     $degistir["[" . $data->id . "_" . $key . "]"] = $ld;
+                    if ($key < 100) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key] ?? '____' . "]";
+                    } elseif ($key > 99 && $key < 200) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 100] ?? '____' . " Saatlik]";
+                    } elseif ($key > 199 && $key < 300) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 200] ?? '____' . " Günlük]";
+                    } elseif ($key > 299 && $key < 400) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 300] ?? '____' . " Haftalık]";
+                    } elseif ($key > 399 && $key < 500) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 400] ?? '____' . " Aylık]";
+                    }
                 }
             }
 
-            if (is_array($tags)) {
-                foreach ($tags as $key => $ld) {
-                    $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key] . "]" ;
-                }
-            }
         }
         foreach ($degistir as $key => $value) {
             $tag = str_replace($key, $value, $tag);
@@ -326,13 +333,12 @@ class Ajax extends Controller
             $tag2 = str_replace($key, $value, $tag);
         }
         try {
-           $return = Device::calculate($tag,$setting);
+            $return = Device::calculate($tag, $setting);
         } catch (\Throwable $th) {
             $return = $th->getMessage();
         }
 
-        return $tag . " = ". $return . "<br> $tag2";
-          
+        return $tag . " = " . $return . "<br> $tag2";
     }
 
 
@@ -450,8 +456,8 @@ class Ajax extends Controller
                         if (isset($request['setting']['device'])) {
                             $deviceset = json_decode($request['setting']['device'], true);
                             if (isset($deviceset['device'])) {
-                            $request['setting']['device'] = $deviceset['device'];
-                            $request['setting']['device_index'] = $deviceset['device_index'];
+                                $request['setting']['device'] = $deviceset['device'];
+                                $request['setting']['device_index'] = $deviceset['device_index'];
                             }
                         }
                         if (isset($request['setting']['devices'])) {
@@ -500,8 +506,8 @@ class Ajax extends Controller
                         if (isset($request['setting']['device'])) {
                             $deviceset = json_decode($request['setting']['device'], true);
                             if (isset($deviceset['device'])) {
-                            $request['setting']['device'] = $deviceset['device'];
-                            $request['setting']['device_index'] = $deviceset['device_index'];
+                                $request['setting']['device'] = $deviceset['device'];
+                                $request['setting']['device_index'] = $deviceset['device_index'];
                             }
                         }
                         if (isset($request['setting']['devices'])) {
@@ -592,7 +598,7 @@ class Ajax extends Controller
             $settings = json_decode($tool->settings, true);
             $device = Device::where('company_id', Auth::user()->company_id)->where('id', $settings['device'])->first();
             if ($device) {
-                $value = $request->status == 'on' ? $settings['onValue'] : $settings['offValue'];  
+                $value = $request->status == 'on' ? $settings['onValue'] : $settings['offValue'];
                 $time = date('Y-m-d H:i');
                 $deviceData = new DeviceData;
                 $deviceData->device_id = $settings['device'];
@@ -605,12 +611,11 @@ class Ajax extends Controller
                 if (!empty($device->last_data)) {
                     $lastdata = json_decode($device->last_data, true);
                 }
-                $replace = array_replace($lastdata, [$settings['device_index']=> $value]);
+                $replace = array_replace($lastdata, [$settings['device_index'] => $value]);
                 ksort($replace);
                 $device->last_data = json_encode($replace);
                 $device->save();
                 dump($replace);
-
             }
         }
     }
