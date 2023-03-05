@@ -311,16 +311,16 @@ class Ajax extends Controller
             if (is_array($lastdata)) {
                 foreach ($lastdata as $key => $ld) {
                     $degistir["[" . $data->id . "_" . $key . "]"] = $ld;
-                    if ($key < 100) {
-                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key] ?? '____' . "]";
-                    } elseif ($key > 99 && $key < 200) {
-                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 100] ?? '____' . " Saatlik]";
-                    } elseif ($key > 199 && $key < 300) {
-                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 200] ?? '____' . " Günlük]";
-                    } elseif ($key > 299 && $key < 400) {
-                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 300] ?? '____' . " Haftalık]";
-                    } elseif ($key > 399 && $key < 500) {
-                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 400] ?? '____' . " Aylık]";
+                    if ($key < 100 && isset($tags[$key])) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key] . "]";
+                    } elseif ($key > 99 && $key < 200 && isset($tags[$key - 100])) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 100] . " Saatlik]";
+                    } elseif ($key > 199 && $key < 300 && isset($tags[$key - 200])) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 200] . " Günlük]";
+                    } elseif ($key > 299 && $key < 400 && isset($tags[$key - 300])) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 300] . " Haftalık]";
+                    } elseif ($key > 399 && $key < 500 && isset($tags[$key - 400])) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  "[" . $data->name . "_" . $tags[$key - 400] . " Aylık]";
                     }
                 }
             }
