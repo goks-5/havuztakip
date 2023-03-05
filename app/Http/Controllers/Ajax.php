@@ -13,6 +13,7 @@ use App\CompanySetting;
 use App\Tool;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use PhpParser\Node\Stmt\TryCatch;
 
 class Ajax extends Controller
@@ -305,7 +306,8 @@ class Ajax extends Controller
         foreach ($device_data as $data) {
             $lastdata = json_decode($data->last_data, true);
             $tags = json_decode($data->tags, true);
-
+            Log::alert('lastdata',$lastdata);
+            Log::alert('tags',$tags);
             if (is_array($lastdata)) {
                 foreach ($lastdata as $key => $ld) {
                     $degistir["[" . $data->id . "_" . $key . "]"] = $ld;
