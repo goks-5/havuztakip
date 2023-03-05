@@ -116,6 +116,7 @@
     <span class='formul_response' ></span>
   </div>
         <div class="col-sm-6">
+          <input id='inputFilter' />
           <select class="selectpicker islem" size="10">
             @foreach ($devices as $device)
             @php
@@ -187,7 +188,20 @@ $(this).closest('div').prev().find('input').trigger( "input" );
   $('#form-formula').val(JSON.stringify($('.formul').serializeJSON().__formuls));
 
 })
+$("#inputFilter").change(function() {
+    var filter = $(this).val();
+    //alert(filter);
+    $(".islem option").each(function() {
+        var match = $(this).text().search(new RegExp(filter, "i"));
+        //alert(match);
+        if (match < 0 && $(this).text() != "--select--")  {                   
+            $(this).attr("disabled",true);
+        }
+        else
+            $(this).attr("disabled",false);
 
+    });
+});
     var $row = $('.mtextrow');
 
     var kayitli = JSON.parse('[]');
@@ -316,14 +330,5 @@ var responseSpan = $(this).nextAll('.formul_response:first');
 
   });
 </script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.css">
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.js"></script>
-<script type="text/javascript">
 
-$(document).ready(function() {
-$('.selectpicker').selectpicker({
-  noneSelectedText: 'Seçim Yapmalısınız'
-});
-});
-</script>
 @stop
