@@ -316,5 +316,14 @@ var responseSpan = $(this).nextAll('.formul_response:first');
 
   });
 </script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.css">
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.5.4/bootstrap-select.js"></script>
+<script type="text/javascript">
 
+$(document).ready(function() {
+$('.selectpicker').selectpicker({
+  noneSelectedText: 'Seçim Yapmalısınız'
+});
+});
+</script>
 @stop
