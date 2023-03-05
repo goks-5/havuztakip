@@ -190,10 +190,10 @@ $(this).closest('div').prev().find('input').trigger( "input" );
 })
 $("#inputFilter").change(function() {
     var filter = $(this).val();
-    //alert(filter);
+    console.log(filter);
     $(".islem option").each(function() {
         var match = $(this).text().search(new RegExp(filter, "i"));
-        //alert(match);
+        console.log(match);
         if (match < 0 && $(this).text() != "--select--")  {                   
             $(this).attr("disabled",true);
         }
