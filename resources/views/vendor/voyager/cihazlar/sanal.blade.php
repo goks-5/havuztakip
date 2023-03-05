@@ -116,8 +116,8 @@
     <span class='formul_response' ></span>
   </div>
         <div class="col-sm-6">
-          <input id='inputFilter' />
-          <select class="selectpicker islem" size="10">
+          <input id='inputFilter'  class="form-control" placeholder="Arama Yap"/>
+          <select class="selectpicker islem" id="deviceTag" size="10">
             @foreach ($devices as $device)
             @php
             $tags = json_decode($device->tags,true);
@@ -191,7 +191,7 @@ $(this).closest('div').prev().find('input').trigger( "input" );
 $("#inputFilter").change(function() {
     var filter = $(this).val();
     console.log(filter);
-    $(".islem option").each(function() {
+    $("#deviceTag option").each(function() {
         var match = $(this).text().search(new RegExp(filter, "i"));
         console.log(match);
         if (match < 0 && $(this).text() != "--select--")  {                   
