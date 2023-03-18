@@ -226,7 +226,7 @@
                 var filter = $(this).val();
                 console.log(filter);
                 $(this).nextAll('.islem:first').children(".deviceTagOption").each(function() {
-                    console.log(this);
+                    console.log($(this));
                     var match = $(this).text().search(new RegExp(filter, "i"));
                     console.log(match);
                     if (match < 0 && $(this).text() != "--select--") {
