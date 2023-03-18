@@ -147,7 +147,7 @@
                                                             @php
                                                                 $tags = json_decode($device->tags, true);
                                                             @endphp
-                                                            <optgroup label="{{ $device->name }}">
+                                                            <optgroup label="{{ $device->name }}" class='tagOptgroup'>
                                                                 @foreach ($tags as $key => $tag)
                                                                     <option
                                                                         value='[{{ $device->id }}_{{ $key }}]'
@@ -199,6 +199,9 @@
         select option[disabled] {
             display: none;
         }
+        select optgroup[disabled] {
+            display: none;
+        }
     </style>
 
 @stop
@@ -229,6 +232,20 @@
                         $(this).attr("disabled", true);
                     } else
                         $(this).attr("disabled", false);
+
+                });
+                $(".tagOptgroup").each(function() {
+                   activeCount = 0;
+                    $(this).children('.deviceTagOption').each(function () {
+                        if(! $(this).prop('disabled')){
+                            ++activeCount;
+                        }
+                    });
+                if(activeCount > 0){
+                    $(this).attr("disabled", false);
+                }else{
+                    $(this).attr("disabled", true);
+                }
 
                 });
             });
