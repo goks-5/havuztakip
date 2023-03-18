@@ -218,8 +218,8 @@
                 $(this).closest('div').prev().find('input').trigger("input");
                 $('#form-formula').val(JSON.stringify($('.formul').serializeJSON().__formuls));
 
-            })
-            $(".inputFilter").keyup(function() {
+            });
+            $(document).on('keyup', ".inputFilter", function() {
                 var filter = $(this).val();
                 console.log(filter);
                 $(".deviceTagOption").each(function() {
