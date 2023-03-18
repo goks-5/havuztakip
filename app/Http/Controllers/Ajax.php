@@ -321,6 +321,8 @@ class Ajax extends Controller
                         $degistir2["[" . $data->id . "_" . $key . "]"] =  " <br> [" . $data->name . "_" . $tags[$key - 300] . " Haftalık]";
                     } elseif ($key > 399 && $key < 500 && isset($tags[$key - 400])) {
                         $degistir2["[" . $data->id . "_" . $key . "]"] =  " <br> [" . $data->name . "_" . $tags[$key - 400] . " Aylık]";
+                    }elseif ($key > 499 && $key < 600 && isset($tags[$key - 500])) {
+                        $degistir2["[" . $data->id . "_" . $key . "]"] =  " <br> [" . $data->name . "_" . $tags[$key - 500] . " Yıllık]";
                     }
                 }
             }

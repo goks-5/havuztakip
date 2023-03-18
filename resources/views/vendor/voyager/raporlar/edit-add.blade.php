@@ -34,17 +34,21 @@
                 <div class="form-group  col-md-3 ">
                   <label class="control-label" for="name">Dönem</label>
                   <div>
-                    <div class="custom-control custom-radio custom-control-inline col-md-4">
+                    <div class="custom-control custom-radio custom-control-inline col-md-3">
                       <input type="radio" id="daily" name="period" class="custom-control-input" value="1">
                       <label class="custom-control-label" for="daily">Günlük</label>
                     </div>
-                    <div class="custom-control custom-radio custom-control-inline col-md-4">
+                    <div class="custom-control custom-radio custom-control-inline col-md-3">
                       <input type="radio" id="weekly" name="period" class="custom-control-input"  value="2">
                       <label class="custom-control-label" for="weekly">Haftalık</label>
                     </div>
-                    <div class="custom-control custom-radio custom-control-inline col-md-4">
+                    <div class="custom-control custom-radio custom-control-inline col-md-3">
                       <input type="radio" id="monthly" name="period" class="custom-control-input"  value="3">
                       <label class="custom-control-label" for="monthly">Aylık</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline col-md-3">
+                      <input type="radio" id="yearly" name="period" class="custom-control-input"  value="4">
+                      <label class="custom-control-label" for="yearly">Yıllık</label>
                     </div>
                   </div>
                 </div>
@@ -103,7 +107,7 @@
                     <optgroup label="{{$device->name}}" >
                       @foreach ($tags as $key => $tag)
                       @if($key > 99)
-                       <option value='{{$device->id}}_{{$key}}' class="@if($key < 300) daily @elseif($key < 400) weekly @else monthly @endif " >{{$tag}}</option>
+                       <option value='{{$device->id}}_{{$key}}' class="@if($key < 300) daily @elseif($key < 400) weekly  @elseif($key < 500) monthly @else yearly @endif " >{{$tag}}</option>
                         @endif
 
                         @endforeach
@@ -201,6 +205,10 @@ $("input:radio[name='order_direction'][value='{{$report->order_direction ?? 'des
     case "3":
     $('.monthly').parent().show();
       $('.monthly').show();
+      break;
+      case "4":
+    $('.yearly').parent().show();
+      $('.yearly').show();
       break;
   }
 

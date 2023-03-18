@@ -61,11 +61,17 @@ class Reports extends VoyagerBaseController
                 $dataDiff = 300;
                 $dateparam = "week";
                 break;
-            default:
+            case 3:
                 $dateStart = Carbon::parse(strtotime($date . " -$report->lenght month"))
                     ->startOfDay()->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->toDateTimeString();
                 $dataDiff = 400;
                 $dateparam = "month";
+                break;
+            default:
+                $dateStart = Carbon::parse(strtotime($date . " -$report->lenght year"))
+                    ->startOfDay()->startOfYear()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->toDateTimeString();
+                $dataDiff = 500;
+                $dateparam = "year";
                 break;
         }
 
