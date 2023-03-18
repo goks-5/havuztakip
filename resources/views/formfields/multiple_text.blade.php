@@ -5,7 +5,7 @@
 <div class='con_{{ $row->field }}'>
     <div class="form-group mtextrow">
         <div class="row">
-            <div class="col-sm-5">
+            <div class="col-sm-4">
                 <input type="text" data-name="" data-index="0" class="form-control multiple_{{ $row->field }}"
                     name="__{{ $row->field }}[0]"
                     placeholder="0. {{ old($row->field, $options->placeholder ?? $row->getTranslatedAttribute('display_name')) }}">
@@ -75,6 +75,13 @@
                     <input class="form-check-input multiple_{{ $row->field }}" type="checkbox" data-index="400"
                         data-name=" Aylık" value="" id="{{ $row->field }}_400" name="__{{ $row->field }}[400]">
                     <label class="form-check-label" for="{{ $row->field }}_400">Aylık</label>
+                </div>
+            </div>
+            <div class="col-sm-1">
+                <div class="form-check">
+                    <input class="form-check-input multiple_{{ $row->field }}" type="checkbox" data-index="500"
+                        data-name=" Yıllık" value="" id="{{ $row->field }}_500" name="__{{ $row->field }}[500]">
+                    <label class="form-check-label" for="{{ $row->field }}_500">Yıllık</label>
                 </div>
             </div>
             <div class="col-sm-1">
