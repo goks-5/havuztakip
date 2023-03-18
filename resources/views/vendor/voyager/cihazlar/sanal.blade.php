@@ -191,9 +191,9 @@
 @section('css')
     <style>
         .formul_response {
-            font-weight: bolder;
+            font-weight: bold;
             padding: 12px;
-            font-size: large;
+            font-size: 10px;
         }
 
         select option[disabled] {
@@ -340,6 +340,9 @@
                 $newRow.find('.formul').each(function() {
                     this.value = '';
                 });
+                $newRow.find('.formul_response').each(function() {
+                    this.html('');
+                });
                 $newRow.find('.type').each(function() {
                     this.name = "__type[" + $currentRow.index() + "]";
                     this.id = "type_" + $currentRow.index();
@@ -359,8 +362,7 @@
                 }
             });
 
-            $('.formul').on('input', function() {
-
+            $(document).on('change', ".formul", function() {
                 var responseSpan = $(this).nextAll('.formul_response:first');
 
                 $(this).val(this.value.replace(',', '.'));
