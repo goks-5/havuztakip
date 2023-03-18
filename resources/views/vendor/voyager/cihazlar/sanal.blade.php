@@ -212,8 +212,7 @@
     <script>
         $(document).ready(function() {
 
-            $(document).find('.formul').trigger('input');
-            
+                    
 
             $(document).on('dblclick', ".islem", function() {
 
@@ -379,6 +378,8 @@
                 });
 
             });
+
+            $(document).find('.formul').trigger('input');
 
         });
     </script>
