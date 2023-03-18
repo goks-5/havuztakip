@@ -225,6 +225,7 @@
             $(document).on('keyup', ".inputFilter", function() {
                 var filter = $(this).val();
                 console.log(filter);
+                console.log($(this).nextAll('.islem:first').children('.deviceTagOption'));
                 $(this).nextAll('.islem:first').children('.deviceTagOption').each(function() {
                     console.log($(this));
                     var match = $(this).text().search(new RegExp(filter, "i"));
