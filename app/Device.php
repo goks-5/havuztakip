@@ -247,7 +247,8 @@ class Device extends Model
                 $query->Where('tags', 'LIKE', '% Saatlik"%')
                     ->orWhere('tags', 'LIKE', '% Günlük"%')
                     ->orWhere('tags', 'LIKE', '% Haftalık"%')
-                    ->orWhere('tags', 'LIKE', '% Aylık"%');
+                    ->orWhere('tags', 'LIKE', '% Aylık"%')
+                    ->orWhere('tags', 'LIKE', '% Yıllık"%');
             })
                 ->orderBy("diff_at")->limit(500)->get();
         } else {
