@@ -140,7 +140,7 @@
                                                     <span class='formul_response'></span>
                                                 </div>
                                                 <div class="col-sm-6">
-                                                    <input id='inputFilter' class="form-control" placeholder="Arama Yap"
+                                                    <input  class="form-control inputFilter" placeholder="Arama Yap"
                                                         style="width: 400px; margin-bottom: 12px;" />
                                                     <select class="selectpicker islem" id="deviceTag" size="10">
                                                         @foreach ($devices as $device)
@@ -219,7 +219,7 @@
                 $('#form-formula').val(JSON.stringify($('.formul').serializeJSON().__formuls));
 
             })
-            $("#inputFilter").keyup(function() {
+            $(".inputFilter").keyup(function() {
                 var filter = $(this).val();
                 console.log(filter);
                 $(".deviceTagOption").each(function() {
