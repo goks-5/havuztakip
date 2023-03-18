@@ -212,9 +212,8 @@
     <script>
         $(document).ready(function() {
 
-            $(document).find('.formul').each(function() {
-                    $(this).trigger("input");
-                });
+            $(document).find('.formul').trigger("input");
+            
 
             $(document).on('dblclick', ".islem", function() {
 
