@@ -362,7 +362,7 @@
                 }
             });
 
-            $(document).on('change', ".formul", function() {
+            $(document).on('input', ".formul", function() {
                 var responseSpan = $(this).nextAll('.formul_response:first');
 
                 $(this).val(this.value.replace(',', '.'));
