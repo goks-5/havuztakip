@@ -341,7 +341,7 @@
                     this.value = '';
                 });
                 $newRow.find('.formul_response').each(function() {
-                    this.html('');
+                    $(this).html('');
                 });
                 $newRow.find('.type').each(function() {
                     this.name = "__type[" + $currentRow.index() + "]";
