@@ -212,7 +212,7 @@
     <script>
         $(document).ready(function() {
 
-            $(this).find('.formul').each(function() {
+            $(document).find('.formul').each(function() {
                     $(this).trigger("input");
                 });
 
