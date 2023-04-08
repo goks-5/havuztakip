@@ -204,6 +204,15 @@ class Devices extends VoyagerBaseController
             return json_encode($return, 1);
         }
     }
+
+    public function deviceInfos($id = null)
+    {
+         $key = Cache::get('device_field_details_' . $id);
+         dd($key );
+    }
+
+
+
     public function addVirtual($id = null)
     {
         $this->authorize('virtual', app('App\Device'));

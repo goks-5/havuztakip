@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 use App\Device;
 use App\DeviceData;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class Api extends Controller
@@ -73,6 +75,9 @@ class Api extends Controller
 
         if(!empty($parameters['fieldDetail'])){
             $device->field_detail =  $parameters['fieldDetail'];   
+            $key = Cache::get('device_field_details_' . $device->id);
+            $key[date('Y-m-d H:i')] = $parameters['fieldDetail'];
+            Cache::put('device_field_details_' . $device->id, $key, Carbon::now()->addDays(2));
         }
  
 
