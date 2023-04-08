@@ -49,6 +49,7 @@ Route::group(['prefix' => ''], function () {
     Route::get('/gorevler/{status?}', ['uses' => 'Maintenances@tasks', 'as' => 'tasks']);
     Route::post('/gorevler', ['uses' => 'Maintenances@addEdit', 'as' => 'task_edit']);
     Route::get('/cihazlar/sanal/{id?}', ['uses' => 'Devices@addVirtual', 'as' => 'sanalekle']);
+    Route::get('/cihazlar/infos/{id?}', ['uses' => 'Devices@deviceInfos', 'as' => 'deviceInfos']);
     Route::get('/cihazlar/reset_token/{id}', ['uses' => 'Devices@ResetToken', 'as' => 'reset_token']);
     Route::post('/cihazlar/sanal', ['uses' => 'Devices@saveVirtual', 'as' => 'sanalkaydet']);
     Route::get('/cihazlar/manuel', ['uses' => 'Devices@addManuel', 'as' => 'manuelekle']);
