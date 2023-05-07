@@ -20,7 +20,7 @@ class CreateTrigersTable extends Migration
 
         if (!Schema::hasTable('trigers')) {
             Schema::create('trigers', function (Blueprint $table) {
-                $table->id();
+                $table->increments('id');
                 $table->string('device_tags');
                 $table->string('condition')->default('==');
                 $table->string('level')->default('0');
