@@ -18,7 +18,7 @@ class CreateTrigersTable extends Migration
     public function up()
     {
 
-        if (!Schema::hasTable('tblCategory')) {
+        if (!Schema::hasTable('trigers')) {
             Schema::create('trigers', function (Blueprint $table) {
                 $table->id();
                 $table->string('device_tags');
