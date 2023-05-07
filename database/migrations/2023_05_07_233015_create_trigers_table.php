@@ -40,7 +40,7 @@ class CreateTrigersTable extends Migration
             'controller' => 'App\\Http\\Controllers\\Trigers',
             'generate_permissions' => 1,
             'server_side' => 0,
-            'details' => 'trigers'
+            'details' => '{"order_column":null,"order_display_column":null,"order_direction":"asc","default_search_key":null,"scope":null}'
         ]);
 
         $type->save();
@@ -113,12 +113,12 @@ class CreateTrigersTable extends Migration
 
 
         $menu = Menu::where('name', 'admin')->firstOrFail();
-        $parent = MenuItem::where('icon', 'voyager-dashboard')->first();
+        $parent = MenuItem::where('icon_class', 'voyager-dashboard')->first();
 
 
         $menuItem = MenuItem::firstOrNew([
             'menu_id' => $menu->id,
-            'title'   => __('voyager::seeders.menu_items.dashboard'),
+            'title'   => 'Mesaj Tetikleyici',
             'url'     => '',
             'route'   => 'voyager.trigers.index',
         ]);
