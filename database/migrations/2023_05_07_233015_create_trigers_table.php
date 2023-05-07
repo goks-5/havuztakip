@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use TCG\Voyager\Models\Menu;
 use TCG\Voyager\Models\MenuItem;
 
-class AddDeviceInfoFieldsToDevices extends Migration
+class CreateTrigersTable extends Migration
 {
     /**
      * Run the migrations.
