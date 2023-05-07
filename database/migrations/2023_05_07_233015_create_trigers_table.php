@@ -43,7 +43,7 @@ class CreateTrigersTable extends Migration
             'details' => 'trigers'
         ]);
 
-
+        $type->save();
         
         DB::table('data_rows')->insert(
             array(
