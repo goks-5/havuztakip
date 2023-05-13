@@ -81,15 +81,6 @@
                             </div>
 
 
-                            <div class="form-group  col-md-12 ">
-                                <label class="control-label" for="name">Yetkili Kişiler</label>
-                                <select class="form-control select2" name="users" multiple>
-                                    <option value>None</option>
-                                    @foreach ($users as $user)
-                                        <option value="{{ $user->email }}">{{ $user->email }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
 
 
 
@@ -146,6 +137,15 @@
                                 @endif
                             @endforeach
 
+                            <div class="form-group  col-md-12 ">
+                                <label class="control-label" for="name">Gönderilecek Mailler</label>
+                                <select class="form-control select2" name="users" multiple>
+                                    <option value>None</option>
+                                    @foreach ($users as $user)
+                                        <option value="{{ $user->email }}">{{ $user->email }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div><!-- panel-body -->
 
                         <div class="panel-footer">
