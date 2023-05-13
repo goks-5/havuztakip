@@ -8,4 +8,8 @@ use TCG\Voyager\Traits\Spatial;
 class Company extends Model
 {
     
+    public function users(){ 
+        return $this->belongsToMany(User::class);
+    }
+
 }
