@@ -22,7 +22,7 @@ class VoyagerBaseController extends Base
 {
     use BreadRelationshipParser;
 
-    private $companymodels = ["App\Report", "App\Equipment", "App\Field", "App\Maintenance", "App\Device", "App\DashboardRow", "App\Staff", "App\Fault", "App\ProductionTag", "App\CompanySetting", "App\GroupTag", "App\TagAccess", "App\ReplacementPart", "App\StockMovement"];
+    private $companymodels = ["App\Triger", "App\Report", "App\Equipment", "App\Field", "App\Maintenance", "App\Device", "App\DashboardRow", "App\Staff", "App\Fault", "App\ProductionTag", "App\CompanySetting", "App\GroupTag", "App\TagAccess", "App\ReplacementPart", "App\StockMovement"];
     private $dashboardmodels = ["App\DashboardRow"];
     private $optionsModels = ["App\Note"];
     //***************************************
