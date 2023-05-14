@@ -11,7 +11,7 @@ class Trigers extends VoyagerBaseController
 
     public function store(Request $request)
     {
-        dd($request);
+     
         return parent::store($request);
     }
 
@@ -22,7 +22,7 @@ class Trigers extends VoyagerBaseController
 
     public function insertUpdateData($request, $slug, $rows, $data)
     {
-        dd($request);
+      
         return parent::insertUpdateData($request, $slug, $rows, $data);
     }
 }
