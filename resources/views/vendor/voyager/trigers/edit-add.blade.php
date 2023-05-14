@@ -58,6 +58,7 @@
                             @php
                                 $devices = App\Device::where('company_id', Auth::user()->company_id)->get();
                                 $users = App\Company::find(Auth::user()->company_id)->users;
+                                $emails = $edit ?  json_decode($dataTypeContent->users) : [];
                             @endphp
 
                             <div class="form-group col-sm-12">
@@ -70,8 +71,9 @@
                                         <optgroup label="{{ $device->name }}">
                                             @foreach ($tags as $key => $tag)
                                                 @if ($key > 99)
-                                                    <option value='{{ $device->id }}_{{ $key }}'
-                                                        class="@if ($key < 300) daily @elseif($key < 400) weekly  @elseif($key < 500) monthly @else yearly @endif ">
+                                                    <option value='{{ $device->id }}_{{ $key }}' 
+                                                        class="@if ($key < 300) daily @elseif($key < 400) weekly  @elseif($key < 500) monthly @else yearly @endif "
+                                                        @if($edit  && ($device->id . '_' . $key ) ==  $dataTypeContent->device_tags ) selected @endif>
                                                         {{ $tag }}</option>
                                                 @endif
                                             @endforeach
@@ -142,7 +144,9 @@
                                 <select class="form-control select2" name="users[]" multiple>
                                     <option value>None</option>
                                     @foreach ($users as $user)
-                                        <option value="{{ $user->email }}">{{ $user->email }}</option>
+                                        <option value="{{ $user->email }}"
+                                            @if($edit  && in_array($user->email,$emails) ) selected @endif
+                                            >{{ $user->email }}</option>
                                     @endforeach
                                 </select>
                             </div>
