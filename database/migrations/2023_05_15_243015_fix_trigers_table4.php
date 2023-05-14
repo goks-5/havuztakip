@@ -4,7 +4,7 @@ use App\DataType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class FixTrigersTable3 extends Migration
+class FixTrigersTable4 extends Migration
 {
     /**
      * Run the migrations.
