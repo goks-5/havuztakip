@@ -11,9 +11,7 @@ class Trigers extends VoyagerBaseController
 
     public function store(Request $request)
     {
-        $news = $request->input('users');
-
-        dd($news);
+        dd($request);
         return parent::store($request);
     }
 
