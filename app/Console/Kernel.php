@@ -6,6 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use  App\Device;
 use App\DeviceData;
+use App\Triger;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Log;
 
@@ -46,6 +47,10 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             Device::diffData();
         })->everyMinute();
+
+        $schedule->call(function () {
+            Triger::check();
+        })->everyFiveMinutes();
 
         $schedule->call(function () {
             $root_path = base_path();
