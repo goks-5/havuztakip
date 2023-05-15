@@ -29,28 +29,49 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function () {
-            DeviceData::deleteOldData(93);
-        })->everyFiveMinutes();
-
-        if ((float)date("i") < 32) {
+        try {
             $schedule->call(function () {
-                Device::hourly();
+                DeviceData::deleteOldData(93);
             })->everyFiveMinutes();
+        } catch (\Throwable $th) {
+            //throw $th;
         }
 
-        $schedule->call(function () {
-            Device::virtualData();
-            Device::remoteData();
-        })->everyMinute();
+        try {
+            if ((float)date("i") < 32) {
+                $schedule->call(function () {
+                    Device::hourly();
+                })->everyFiveMinutes();
+            }
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
 
-        $schedule->call(function () {
-            Device::diffData();
-        })->everyMinute();
+        try {
+            $schedule->call(function () {
+                Device::virtualData();
+                Device::remoteData();
+            })->everyMinute();
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
 
-        $schedule->call(function () {
-            Triger::check();
-        })->everyFiveMinutes();
+        try {
+            $schedule->call(function () {
+                Device::diffData();
+            })->everyMinute();
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
+        try {
+            $schedule->call(function () {
+                Triger::check();
+            })->everyFiveMinutes();
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
 
         $schedule->call(function () {
             $root_path = base_path();
