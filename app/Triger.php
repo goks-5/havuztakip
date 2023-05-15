@@ -19,7 +19,7 @@ class Triger extends Model
             $deviceTag = explode('_', $triger->device_tags);
             $device = Device::where('id', $deviceTag[0])->first();
             $lastdata = json_decode($device->last_data, true);
-            $tags = json_decode($device->last_data, true);
+            $tags = json_decode($device->tags, true);
             $tag = $tags[$deviceTag[1]];
             $data = (float)$lastdata[$deviceTag[1]];
             $alarm = false;
@@ -46,9 +46,10 @@ class Triger extends Model
     public static function sendTriger($triger, $subject)
     {
         $emails = json_decode($triger->users);
+        $html = $triger->mail_body;
         foreach ($emails as $email) {
-            Mail::raw($triger->mail_body, function ($msg) use ($email, $subject) {
-                $msg->to($email)->subject($subject);
+            Mail::send([],[], function ($msg) use ($html,$email, $subject) {
+                $msg->to($email)->subject($subject)->setBody($html, 'text/html');;
             });
         }
     }
