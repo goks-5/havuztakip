@@ -33,10 +33,19 @@ class Triger extends Model
                 $alarm = true;
             }
 
+            if ($triger->condition == '!=') {
+                if ($data != (float)$triger->level ) {
+                    $alarm = true;
+                    $triger->level = $data;
+                }
+                $triger->last_status = 0;
+            }
+
             if ($triger->last_status == 0 && $alarm) {
                 self::sendTriger($triger, $device->name . ' ' . $tag . ' ' . $triger->condition . ' ' . $triger->level . ' ( ' . $data . ' )');
                 $triger->last_status = 1;
             } elseif (!$alarm && $triger->last_status <> 0) {
+                self::sendTriger($triger, 'Alarm End' . $device->name . ' ' . $tag . ' !' . $triger->condition . ' ' . $triger->level . ' ( ' . $data . ' )');
                 $triger->last_status = 0;
             }
             $triger->save();
