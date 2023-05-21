@@ -45,7 +45,7 @@ class Triger extends Model
                 self::sendTriger($triger, $device->name . ' ' . $tag . ' ' . $triger->condition . ' ' . $triger->level . ' ( ' . $data . ' )');
                 $triger->last_status = 1;
             } elseif (!$alarm && $triger->last_status <> 0) {
-                self::sendTriger($triger, 'Alarm End' . $device->name . ' ' . $tag . ' !' . $triger->condition . ' ' . $triger->level . ' ( ' . $data . ' )');
+                self::sendTriger($triger, 'Alarm End ' . $device->name . ' ' . $tag . ' !' . $triger->condition . ' ' . $triger->level . ' ( ' . $data . ' )');
                 $triger->last_status = 0;
             }
             $triger->save();
