@@ -67,7 +67,7 @@ class Kernel extends ConsoleKernel
         try {
             $schedule->call(function () {
                 Triger::check();
-            })->everyFiveMinutes();
+            })->everyMinute();
         } catch (\Throwable $th) {
             //throw $th;
         }
