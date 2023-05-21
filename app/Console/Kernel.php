@@ -32,7 +32,7 @@ class Kernel extends ConsoleKernel
         try {
             $schedule->call(function () {
                 DeviceData::deleteOldData(93);
-            })->everyFiveMinutes();
+            })->everyThirtyMinutes();
         } catch (\Throwable $th) {
             //throw $th;
         }
