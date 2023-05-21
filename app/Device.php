@@ -250,7 +250,7 @@ class Device extends Model
                     ->orWhere('tags', 'LIKE', '% Aylık"%')
                     ->orWhere('tags', 'LIKE', '% Yıllık"%');
             })
-                ->orderBy("diff_at")->limit(500)->get();
+                ->orderBy("diff_at","desc")->limit(500)->get();
         } else {
             $devices = Device::where('id', $id)->get();
         }
