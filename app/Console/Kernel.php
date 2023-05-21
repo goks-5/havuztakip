@@ -34,7 +34,7 @@ class Kernel extends ConsoleKernel
                 DeviceData::deleteOldData(93);
             })->everyThirtyMinutes();
         } catch (\Throwable $th) {
-            //throw $th;
+            log::error($th->getMessage(),$th->getTrace());
         }
 
         try {
@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel
                 })->everyFiveMinutes();
             }
         } catch (\Throwable $th) {
-            //throw $th;
+            log::error($th->getMessage(),$th->getTrace());
         }
 
         try {
@@ -53,7 +53,7 @@ class Kernel extends ConsoleKernel
                 Device::remoteData();
             })->everyMinute();
         } catch (\Throwable $th) {
-            //throw $th;
+            log::error($th->getMessage(),$th->getTrace());
         }
 
 
@@ -62,7 +62,7 @@ class Kernel extends ConsoleKernel
                 Triger::check();
             })->everyMinute();
         } catch (\Throwable $th) {
-            //throw $th;
+            log::error($th->getMessage(),$th->getTrace());
         }
 
         try {
@@ -70,7 +70,7 @@ class Kernel extends ConsoleKernel
                 Device::diffData();
             })->everyMinute();
         } catch (\Throwable $th) {
-            //throw $th;
+            log::error($th->getMessage(),$th->getTrace());
         }
 
         $schedule->call(function () {
