@@ -56,13 +56,6 @@ class Kernel extends ConsoleKernel
             //throw $th;
         }
 
-        try {
-            $schedule->call(function () {
-                Device::diffData();
-            })->everyMinute();
-        } catch (\Throwable $th) {
-            //throw $th;
-        }
 
         try {
             $schedule->call(function () {
@@ -72,6 +65,13 @@ class Kernel extends ConsoleKernel
             //throw $th;
         }
 
+        try {
+            $schedule->call(function () {
+                Device::diffData();
+            })->everyMinute();
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
 
         $schedule->call(function () {
             $root_path = base_path();
