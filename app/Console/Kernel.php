@@ -38,6 +38,14 @@ class Kernel extends ConsoleKernel
         }
 
         try {
+            $schedule->call(function () {
+                Device::fillHourly();
+            })->hourly();
+        } catch (\Throwable $th) {
+            log::error($th->getMessage(),$th->getTrace());
+        }
+
+        try {
             if ((float)date("i") < 32) {
                 $schedule->call(function () {
                     Device::hourly();
