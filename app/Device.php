@@ -131,13 +131,25 @@ class Device extends Model
         $devices = Device::where('mac', '<>', '00:00:00:00:00:00')
             ->where('last_at', '<', date('Y-m-d H:i:s', strtotime("-50 minute")))
             ->get();
+        dump('Offline cihazlara Saatlik data giriliyor' . count($devices) . " Adet cihaz var.");
+        Log::info('Offline cihazlara Saatlik data giriliyor' . count($devices) . " Adet cihaz var.");
         foreach ($devices as $device) {
 
             $lastdata = json_decode($device->last_data, true);
             if (is_array($lastdata)) {
-                foreach ($lastdata as $key => $ld) {
-                   dump($device->name , $key , $ld);
+                $tagCount = 0;
+                foreach ($lastdata as $data_id => $value) {
+                    if ($data_id < 100) {
+                        $start = Carbon::now()->startOfHour();
+                        $device_data = DeviceData::where(["device_id" => $device->id, "data_id" => $data_id, 'hourly' => $start])->first();
+                        if (!$device_data) {
+                            DeviceData::insert(["device_id" => $device->id, "data_id" => $data_id, "value" => $value, 'created_at' => $start, 'hourly' => $start]);
+                            ++$tagCount;
+                        }
+                    }
                 }
+                dump($device->name  . " ofline cihazına " .  $tagCount . ' Etiketine Saatlik Veri Girildi ');
+                Log::info($device->name  . " ofline cihazına " .  $tagCount . ' Etiketine Saatlik Veri Girildi ');
             }
         }
     }
