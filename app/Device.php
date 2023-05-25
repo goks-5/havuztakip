@@ -126,6 +126,22 @@ class Device extends Model
         }
     }
 
+    public static function fillHourly()
+    {
+        $devices = Device::where('mac', '<>', '00:00:00:00:00:00')
+            ->where('last_at', '<', date('Y-m-d H:i:s', strtotime("-50 minute")))
+            ->get();
+        foreach ($devices as $device) {
+
+            $lastdata = json_decode($device->last_data, true);
+            if (is_array($lastdata)) {
+                foreach ($lastdata as $key => $ld) {
+                   dump($device->name , $key , $ld);
+                }
+            }
+        }
+    }
+
     public static function virtualData()
     {
         $virtual = DB::table('devices')->where('mac', '00:00:00:00:00:00')->get();
@@ -250,7 +266,7 @@ class Device extends Model
                     ->orWhere('tags', 'LIKE', '% Aylık"%')
                     ->orWhere('tags', 'LIKE', '% Yıllık"%');
             })
-            ->where('last_at', '>', date('Y-m-d H:i:s', strtotime("-24 hour")))
+                ->where('last_at', '>', date('Y-m-d H:i:s', strtotime("-24 hour")))
                 ->orderBy("diff_at")->limit(500)->get();
         } else {
             $devices = Device::where('id', $id)->get();
