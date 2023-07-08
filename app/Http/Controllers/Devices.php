@@ -208,7 +208,7 @@ class Devices extends VoyagerBaseController
 
     public function deviceInfos($id = null)
     {
-        $dates = Cache::get('device_field_details_' . $id);
+        $dates = Cache::get('device_field_details_' . $id) ?? [];
         $datas = [];
         foreach ($dates as $date => $infos) {
             foreach ($infos as $info => $value) {
