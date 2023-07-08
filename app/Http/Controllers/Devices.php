@@ -33,15 +33,16 @@ class Devices extends VoyagerBaseController
         return view('voyager::cihazlar.veri', $data);
     }
 
-    public function ResetToken($id){
+    public function ResetToken($id)
+    {
 
         $this->authorize('delete', app('App\Device'));
         $device = Device::where('company_id', Auth::user()->company_id)->where('id', $id)->first();
-        if($device){
+        if ($device) {
             $device->token = null;
             $device->save();
             return back()->with(['message' => "Cihaz Tokenı sıfırlandı", 'alert-type' => 'success']);
-        }else{
+        } else {
             return back()->with(['message' => "Token sıfırlama yetkiniz yok", 'alert-type' => 'warning']);
         }
     }
@@ -207,8 +208,21 @@ class Devices extends VoyagerBaseController
 
     public function deviceInfos($id = null)
     {
-         $key = Cache::get('device_field_details_' . $id);
-         dd($key );
+        $dates = Cache::get('device_field_details_' . $id);
+        $datas = [];
+        foreach ($dates as $date => $infos) {
+            foreach ($infos as $info => $value) {
+                $type = is_numeric($value) ? 'number' : 'string';
+                if ($type == 'number') {
+                    $datas[$type][$info]['values'][$date] = $value;
+                    $datas[$type][$info]['name'] = strtoupper($info);
+                } else {
+                    $datas[$type][$info]['value'] = $value;
+                    $datas[$type][$info]['name'] = strtoupper($info);
+                }
+            }
+        }
+        return view('voyager::cihazlar.infos', $datas);
     }
 
 
@@ -460,7 +474,7 @@ class Devices extends VoyagerBaseController
                 "edit" => 1,
                 "add" => 1,
                 "details" => "{}"
-            ]);        
+            ]);
             $dataType->editRows->push((object)[
                 "data_type_id" => 17,
                 "field" => "tags_last_change",
