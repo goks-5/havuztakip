@@ -5,7 +5,7 @@
 @section('page_header')
     <div class="container-fluid">
         <h1 class="page-title">
-            <i class="voyager-bar-chart"></i> Cihaz Verileri
+            <i class="voyager-bar-chart"></i> Cihaz Sinyal Detayları
         </h1>
 
         @include('voyager::multilingual.language-selector')
@@ -20,10 +20,17 @@
                 <div class="panel panel-bordered">
                     <div class="panel-body">
                         @if ($string ?? false)
-                            @dump($string)
+                            @foreach ($string as $stringInfo)
+                                <div class="command">
+                                    <code>{{ $stringInfo->name }}</code>
+                                    <small>{{ $stringInfo->value }}</small>
+                                </div>
+                            @endforeach
                         @endif
                         @if ($number ?? false)
-                            @dump($number)
+                            @foreach ($number as $key => $numberInfo)
+                                <div id="chart_{{ $key }}" style="width: 100%; height: 500px;"></div>
+                            @endforeach
                         @endif
 
 
@@ -43,8 +50,35 @@
 
 @section('javascript')
 
-    <script>
-        
-    </script>
+    @if ($number ?? false)
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+        <script type="text/javascript">
+            google.charts.load('current', {
+                'packages': ['corechart']
+            });
+            google.charts.setOnLoadCallback(drawChart);
+
+            function drawChart() {
+                @foreach ($number as $key => $numberInfo)
+                    var data_{{ $key }} = google.visualization.arrayToDataTable([
+                        ['Date', '{{ $numberInfo->name }}'],
+                        @foreach ($numberInfo->values as $date => $value)
+                            ['{{ $date }}', {{ $value }}],
+                        @endforeach
+                    ]);
+                    var options_{{ $key }} = {
+                        title: '{{ $numberInfo->name }}',
+                        curveType: 'function',
+                        legend: {
+                            position: 'bottom'
+                        }
+                    };
+                    var chart_{{ $key }} = new google.visualization.LineChart(document.getElementById('curve_chart'));
+                    chart_{{ $key }}.draw(data_{{ $key }}, options_{{ $key }});
+                @endforeach
+            }
+        </script>
+    @endif
 
 @stop
