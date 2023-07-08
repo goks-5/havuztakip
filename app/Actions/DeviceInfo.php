@@ -18,7 +18,7 @@ class DeviceInfo extends AbstractAction
 
     public function getPolicy()
     {
-        return 'show';
+        return 'read';
     }
 
     public function getAttributes()
