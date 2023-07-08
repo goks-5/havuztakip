@@ -37,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
     Voyager::addAction(\App\Actions\DeviceAction::class);
     Voyager::addAction(\App\Actions\ReportAction::class);
     Voyager::addAction(\App\Actions\ResetToken::class);
+    Voyager::addAction(\App\Actions\DeviceInfo::class);
     if (env('REDIRECT_HTTPS')) {
       URL::forceScheme('https');
     }
