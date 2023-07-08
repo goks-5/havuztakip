@@ -74,7 +74,7 @@
                             position: 'bottom'
                         }
                     };
-                    var chart_{{ $key }} = new google.visualization.LineChart(document.getElementById('curve_chart'));
+                    var chart_{{ $key }} = new google.visualization.LineChart(document.getElementById('chart_{{ $key }}'));
                     chart_{{ $key }}.draw(data_{{ $key }}, options_{{ $key }});
                 @endforeach
             }
