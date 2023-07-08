@@ -22,8 +22,8 @@
                         @if ($string ?? false)
                             @foreach ($string as $stringInfo)
                                 <div class="command">
-                                    <code>{{ $stringInfo->name }}</code>
-                                    <small>{{ $stringInfo->value }}</small>
+                                    <code>{{ $stringInfo['name'] }}</code>
+                                    <small>{{ $stringInfo['value'] }}</small>
                                 </div>
                             @endforeach
                         @endif
@@ -62,13 +62,13 @@
             function drawChart() {
                 @foreach ($number as $key => $numberInfo)
                     var data_{{ $key }} = google.visualization.arrayToDataTable([
-                        ['Date', '{{ $numberInfo->name }}'],
-                        @foreach ($numberInfo->values as $date => $value)
+                        ['Date', '{{ $numberInfo['name'] }}'],
+                        @foreach ($numberInfo['values'] as $date => $value)
                             ['{{ $date }}', {{ $value }}],
                         @endforeach
                     ]);
                     var options_{{ $key }} = {
-                        title: '{{ $numberInfo->name }}',
+                        title: '{{ $numberInfo['name'] }}',
                         curveType: 'function',
                         legend: {
                             position: 'bottom'
