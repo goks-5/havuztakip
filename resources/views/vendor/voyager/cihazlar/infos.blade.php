@@ -58,14 +58,11 @@
                 'packages': ['corechart']
             });
             google.charts.setOnLoadCallback(drawChart);
-
             function drawChart() {
                 @foreach ($number as $key => $numberInfo)
                     var data_{{ $key }} = google.visualization.arrayToDataTable([
                         ['Date', '{{ $numberInfo['name'] }}'],
-                        @foreach ($numberInfo['values'] as $date => $value)
-                            ['{{ $date }}', {{ $value }}],
-                        @endforeach
+                        @foreach ($numberInfo['values'] as $date => $value) ['{{ $date }}', {{ $value }}], @endforeach
                     ]);
                     var options_{{ $key }} = {
                         title: '{{ $numberInfo['name'] }}',

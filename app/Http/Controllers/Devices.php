@@ -214,6 +214,7 @@ class Devices extends VoyagerBaseController
             foreach ($infos as $info => $value) {
                 $type = is_numeric($value) ? 'number' : 'string';
                 if ($type == 'number') {
+                    $date = date('H:i',strtotime($date));
                     $datas[$type][$info]['values'][$date] = $value;
                     $datas[$type][$info]['name'] = strtoupper($info);
                 } else {
