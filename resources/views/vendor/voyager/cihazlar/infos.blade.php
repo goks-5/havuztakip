@@ -32,27 +32,19 @@
                                 <div id="chart_{{ $key }}" style="width: 100%; height: 500px;"></div>
                             @endforeach
                         @endif
-
-
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-
 @stop
 
 @section('css')
 
-
 @stop
-
 @section('javascript')
-
     @if ($number ?? false)
         <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-
         <script type="text/javascript">
             google.charts.load('current', {
                 'packages': ['corechart']
@@ -61,8 +53,7 @@
             function drawChart() {
                 @foreach ($number as $key => $numberInfo)
                     var data_{{ $key }} = google.visualization.arrayToDataTable([
-                        ['Date', '{{ $numberInfo['name'] }}'],
-                        @foreach ($numberInfo['values'] as $date => $value) ['{{ $date }}', {{ $value }}], @endforeach
+                        ['Date', '{{ $numberInfo['name'] }}'], @foreach ($numberInfo['values'] as $date => $value)['{{ $date }}', {{ $value }}], @endforeach
                     ]);
                     var options_{{ $key }} = {
                         title: '{{ $numberInfo['name'] }}',
@@ -77,5 +68,4 @@
             }
         </script>
     @endif
-
 @stop
