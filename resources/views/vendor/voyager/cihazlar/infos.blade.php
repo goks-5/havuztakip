@@ -63,10 +63,10 @@
                             hAxis: {title: "Saat"},
                             seriesType: "area",
                             series: {
-                                0: {color: '#FF0000',visibleInLegend: false,areaOpacity: 1},
-                                1: {color: '#FFA500',visibleInLegend: false,areaOpacity: 1},
-                                2: {color: '#FFFF00',visibleInLegend: false,areaOpacity: 1},
-                                3: {color: '#00FF00',visibleInLegend: false,areaOpacity: 1},
+                                0: {color: '#F00000',visibleInLegend: false,areaOpacity: 0.9},
+                                1: {color: '#F0A000',visibleInLegend: false,areaOpacity: 0.9},
+                                2: {color: '#F0F000',visibleInLegend: false,areaOpacity: 0.9},
+                                3: {color: '#00F000',visibleInLegend: false,areaOpacity: 0.9},
                                 4: {color: '#01579B',type: "line"}
                             },
                           //  isStacked: true,
