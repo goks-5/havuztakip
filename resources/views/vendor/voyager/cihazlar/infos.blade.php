@@ -61,10 +61,16 @@
                         ]);
                         var options_{{ $key }} = {
                             title: '{{ $numberInfo['name'] }}',
-                            vAxis: {title: "Rssi"},
+                            vAxis: {title: "Rssi",  ticks: [0, -35, -65, -75,-85,-95]},
                             hAxis: {title: "Saat"},
                             seriesType: "area",
-                            series: {1: {type: "line"}},
+                            series: {
+                                0: {type: "line" ,    color: '#01579B'},
+                                1: {areaOpacity: 0.6, color: '#A5FF00',visibleInLegend: false},
+                                2: {areaOpacity: 0.6, color: '#FFFF00',visibleInLegend: false},
+                                3: {areaOpacity: 0.6, color: '#FFA500',visibleInLegend: false},
+                                4: {areaOpacity: 0.6, color: '#FF0000',visibleInLegend: false},
+                            },
                             curveType: 'function',
                             legend: {
                                 position: 'bottom'
