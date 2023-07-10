@@ -52,18 +52,44 @@
             google.charts.setOnLoadCallback(drawChart);
             function drawChart() {
                 @foreach ($number as $key => $numberInfo)
-                    var data_{{ $key }} = google.visualization.arrayToDataTable([
-                        ['Date', '{{ $numberInfo['name'] }}'], @foreach ($numberInfo['values'] as $date => $value)['{{ $date }}', {{ $value }}], @endforeach
-                    ]);
-                    var options_{{ $key }} = {
-                        title: '{{ $numberInfo['name'] }}',
-                        curveType: 'function',
-                        legend: {
-                            position: 'bottom'
-                        }
-                    };
-                    var chart_{{ $key }} = new google.visualization.LineChart(document.getElementById('chart_{{ $key }}'));
-                    chart_{{ $key }}.draw(data_{{ $key }}, options_{{ $key }});
+                    @if($key == 'rssi')
+                        var data_{{ $key }} = google.visualization.arrayToDataTable([
+                                ['Date', '{{ $numberInfo['name'] }}' , 'Excellent' ,'Good','Fair','Poor'], 
+                            @foreach ($numberInfo['values'] as $date => $value)
+                                ['{{ $date }}', {{ $value }} , 0, 65, 75, 85], 
+                            @endforeach
+                        ]);
+                        var options_{{ $key }} = {
+                            title: '{{ $numberInfo['name'] }}',
+                            vAxis: {title: "Rssi"},
+                            hAxis: {title: "Saat"},
+                            seriesType: "area",
+                            series: {1: {type: "line"}}
+                            curveType: 'function',
+                            legend: {
+                                position: 'bottom'
+                            }
+                        };
+           
+                        var chart_{{ $key }} = new google.visualization.ComboChart(document.getElementById('chart_{{ $key }}'));
+                        chart_{{ $key }}.draw(data_{{ $key }}, options_{{ $key }});
+                    @else
+                        var data_{{ $key }} = google.visualization.arrayToDataTable([
+                            ['Date', '{{ $numberInfo['name'] }}'], 
+                            @foreach ($numberInfo['values'] as $date => $value)
+                            ['{{ $date }}', {{ $value }}], 
+                            @endforeach
+                        ]);
+                        var options_{{ $key }} = {
+                            title: '{{ $numberInfo['name'] }}',
+                            curveType: 'function',
+                            legend: {
+                                position: 'bottom'
+                            }
+                        };
+                        var chart_{{ $key }} = new google.visualization.LineChart(document.getElementById('chart_{{ $key }}'));
+                        chart_{{ $key }}.draw(data_{{ $key }}, options_{{ $key }});
+                    @endif
                 @endforeach
             }
         </script>
