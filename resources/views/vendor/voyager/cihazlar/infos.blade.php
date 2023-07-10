@@ -64,7 +64,7 @@
                             vAxis: {title: "Rssi"},
                             hAxis: {title: "Saat"},
                             seriesType: "area",
-                            series: {1: {type: "line"}}
+                            series: {1: {type: "line"}},
                             curveType: 'function',
                             legend: {
                                 position: 'bottom'
