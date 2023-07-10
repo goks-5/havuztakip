@@ -70,7 +70,8 @@
                                 4: {color: '#01579B',type: "line"}
                             },
                           //  isStacked: true,
-                           // curveType: 'function',
+                            curveType: 'function',
+                            max:-75,
                             legend: {
                                 position: 'bottom'
                             }
