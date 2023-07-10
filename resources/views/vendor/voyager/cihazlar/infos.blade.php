@@ -54,12 +54,12 @@
                 @foreach ($number as $key => $numberInfo)
                     @if($key == 'rssi')
                         var data_{{ $key }} = google.visualization.arrayToDataTable([
-                                ['Saat', '{{ $numberInfo['name'] }}' , 'Excellent' ,'Good','Fair','Poor'], 
-                            @foreach ($numberInfo['values'] as $date => $value)['{{ $date }}', -95, -85, -75, -65, {{ $value }} ],@endforeach
+                                ['Saat' ,'Poor' ,'Fair','Good', 'Excellent', '{{ $numberInfo['name'] }}'], 
+                            @foreach ($numberInfo['values'] as $date => $value)['{{ $date }}', -100, -85, -75, -65, {{ $value }} ],@endforeach
                         ]);
                         var options_{{ $key }} = {
                             title: '{{ $numberInfo['name'] }}',
-                            vAxis: {title: "Rssi",  ticks: [0, -35, -65, -75,-85,-95]},
+                            vAxis: {title: "Rssi",  ticks: [-35, -65,]},
                             hAxis: {title: "Saat"},
                             seriesType: "area",
                             series: {
@@ -69,6 +69,7 @@
                                 3: {color: '#00FF00',visibleInLegend: false},
                                 4: {color: '#01579B',type: "line"}
                             },
+                            isStacked: true,
                            // curveType: 'function',
                             legend: {
                                 position: 'bottom'
