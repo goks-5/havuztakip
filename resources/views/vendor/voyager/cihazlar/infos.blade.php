@@ -71,7 +71,6 @@
                             },
                           //  isStacked: true,
                             curveType: 'function',
-                            max:-75,
                             legend: {
                                 position: 'bottom'
                             }

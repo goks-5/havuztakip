@@ -9,7 +9,7 @@ composer install --no-interaction --no-dev --prefer-dist
 
 php artisan migrate --force
 
-# php artisan cache:clear
+php artisan cache:clear
 
 php artisan route:clear
 
