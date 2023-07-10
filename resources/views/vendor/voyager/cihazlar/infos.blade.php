@@ -55,9 +55,7 @@
                     @if($key == 'rssi')
                         var data_{{ $key }} = google.visualization.arrayToDataTable([
                                 ['Date', '{{ $numberInfo['name'] }}' , 'Excellent' ,'Good','Fair','Poor'], 
-                            @foreach ($numberInfo['values'] as $date => $value)
-                                ['{{ $date }}', {{ $value }} , 0, -65, -75, -85], 
-                            @endforeach
+                            @foreach ($numberInfo['values'] as $date => $value)['{{ $date }}', {{ $value }} , -65, -75, -85, -955],@endforeach
                         ]);
                         var options_{{ $key }} = {
                             title: '{{ $numberInfo['name'] }}',
@@ -66,7 +64,7 @@
                             seriesType: "area",
                             series: {
                                 0: {type: "line" ,    color: '#01579B'},
-                                1: {areaOpacity: 0.6, color: '#A5FF00',visibleInLegend: false},
+                                1: {areaOpacity: 0.6, color: '#00FF00',visibleInLegend: false},
                                 2: {areaOpacity: 0.6, color: '#FFFF00',visibleInLegend: false},
                                 3: {areaOpacity: 0.6, color: '#FFA500',visibleInLegend: false},
                                 4: {areaOpacity: 0.6, color: '#FF0000',visibleInLegend: false},
