@@ -56,7 +56,7 @@
                         var data_{{ $key }} = google.visualization.arrayToDataTable([
                                 ['Date', '{{ $numberInfo['name'] }}' , 'Excellent' ,'Good','Fair','Poor'], 
                             @foreach ($numberInfo['values'] as $date => $value)
-                                ['{{ $date }}', {{ $value }} , 0, 65, 75, 85], 
+                                ['{{ $date }}', {{ $value }} , 0, -65, -75, -85], 
                             @endforeach
                         ]);
                         var options_{{ $key }} = {
