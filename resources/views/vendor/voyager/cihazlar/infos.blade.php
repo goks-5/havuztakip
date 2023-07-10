@@ -54,8 +54,8 @@
                 @foreach ($number as $key => $numberInfo)
                     @if($key == 'rssi')
                         var data_{{ $key }} = google.visualization.arrayToDataTable([
-                                ['Date', '{{ $numberInfo['name'] }}' , 'Excellent' ,'Good','Fair','Poor'], 
-                            @foreach ($numberInfo['values'] as $date => $value)['{{ $date }}', {{ $value }} , -65, -75, -85, -95],@endforeach
+                                ['Saat', '{{ $numberInfo['name'] }}' , 'Excellent' ,'Good','Fair','Poor'], 
+                            @foreach ($numberInfo['values'] as $date => $value)['{{ $date }}', -95, -85, -75, -65, {{ $value }} ],@endforeach
                         ]);
                         var options_{{ $key }} = {
                             title: '{{ $numberInfo['name'] }}',
@@ -63,13 +63,13 @@
                             hAxis: {title: "Saat"},
                             seriesType: "area",
                             series: {
-                                0: {type: "line" ,    color: '#01579B'},
-                                1: {areaOpacity: 0.6, color: '#00FF00',visibleInLegend: false},
-                                2: {areaOpacity: 0.6, color: '#FFFF00',visibleInLegend: false},
-                                3: {areaOpacity: 0.6, color: '#FFA500',visibleInLegend: false},
-                                4: {areaOpacity: 0.6, color: '#FF0000',visibleInLegend: false},
+                                0: {color: '#FF0000',visibleInLegend: false},
+                                1: {color: '#FFA500',visibleInLegend: false},
+                                2: {color: '#FFFF00',visibleInLegend: false},
+                                3: {color: '#00FF00',visibleInLegend: false},
+                                4: {color: '#01579B',type: "line"}
                             },
-                            curveType: 'function',
+                           // curveType: 'function',
                             legend: {
                                 position: 'bottom'
                             }
@@ -79,7 +79,7 @@
                         chart_{{ $key }}.draw(data_{{ $key }}, options_{{ $key }});
                     @else
                         var data_{{ $key }} = google.visualization.arrayToDataTable([
-                            ['Date', '{{ $numberInfo['name'] }}'], 
+                            ['Saat', '{{ $numberInfo['name'] }}'], 
                             @foreach ($numberInfo['values'] as $date => $value)
                             ['{{ $date }}', {{ $value }}], 
                             @endforeach
