@@ -54,8 +54,8 @@
                 @foreach ($number as $key => $numberInfo)
                     @if($key == 'rssi')
                         var data_{{ $key }} = google.visualization.arrayToDataTable([
-                                ['Saat' ,'Poor' ,'Fair','Good', 'Excellent', '{{ $numberInfo['name'] }}'], 
-                            @foreach ($numberInfo['values'] as $date => $value)['{{ $date }}', -100, -85, -75, -65, {{ $value }} ],@endforeach
+                                ['Saat' ,'Offline','Poor' ,'Fair','Good', 'Excellent', '{{ $numberInfo['name'] }}'], 
+                            @foreach ($numberInfo['values'] as $date => $value)['{{ $date }}', -115, -100, -85, -75, -65, {{ $value }} ],@endforeach
                         ]);
                         var options_{{ $key }} = {
                             title: '{{ $numberInfo['name'] }}',
@@ -63,11 +63,12 @@
                             hAxis: {title: "Saat"},
                             seriesType: "area",
                             series: {
-                                0: {color: '#F00000',visibleInLegend: false,areaOpacity: 0.7},
-                                1: {color: '#F0A000',visibleInLegend: false,areaOpacity: 0.7},
-                                2: {color: '#F0F000',visibleInLegend: false,areaOpacity: 0.7},
-                                3: {color: '#00F000',visibleInLegend: false,areaOpacity: 0.7},
-                                4: {color: '#01579B',type: "line"}
+                                0: {color: '#422350',visibleInLegend: false,areaOpacity: 0.7},
+                                1: {color: '#F00000',visibleInLegend: false,areaOpacity: 0.7},
+                                2: {color: '#F0A000',visibleInLegend: false,areaOpacity: 0.7},
+                                3: {color: '#F0F000',visibleInLegend: false,areaOpacity: 0.7},
+                                4: {color: '#00F000',visibleInLegend: false,areaOpacity: 0.7},
+                                5: {color: '#01579B',type: "line"}
                             },
                           //  isStacked: true,
                             curveType: 'function',

@@ -235,8 +235,8 @@ class Devices extends VoyagerBaseController
                 if(isset($datas['number']['rssi']['values'][$date])){
                     $rssiValue[$date] = $datas['number']['rssi']['values'][$date];
                     $lastDate = strtotime($date); 
-                }else if((strtotime($date) - 60) > $lastDate) {
-                    $rssiValue[$date] = -110 ;
+                }else if((strtotime($date)) > $lastDate) {
+                    $rssiValue[$date] = -105 ;
                 }
             }
             $datas['number']['rssi']['values'] = $rssiValue;
