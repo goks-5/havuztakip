@@ -63,7 +63,7 @@
                             hAxis: {title: "Saat"},
                             seriesType: "area",
                             series: {
-                                0: {color: '#422350',visibleInLegend: false,areaOpacity: 0.7},
+                                0: {color: '#822390',visibleInLegend: false,areaOpacity: 0.7},
                                 1: {color: '#F00000',visibleInLegend: false,areaOpacity: 0.7},
                                 2: {color: '#F0A000',visibleInLegend: false,areaOpacity: 0.7},
                                 3: {color: '#F0F000',visibleInLegend: false,areaOpacity: 0.7},
