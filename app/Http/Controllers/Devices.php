@@ -215,6 +215,9 @@ class Devices extends VoyagerBaseController
                 $type = is_numeric($value) ? 'number' : 'string';
                 if ($type == 'number') {
                     $date = date('H:i',strtotime($date));
+                    if(!isset($start)){
+                     $start = strtotime($date);   
+                    }
                     $datas[$type][$info]['values'][$date] = $value;
                     $datas[$type][$info]['name'] = strtoupper($info);
                 } else {
@@ -222,6 +225,21 @@ class Devices extends VoyagerBaseController
                     $datas[$type][$info]['name'] = strtoupper($info);
                 }
             }
+        }
+
+        if(isset($start)){
+            $rssiValue = [];
+            $lastDate= $start;
+            for ($i=$start; $i < strtotime(date('H:i')) ; $i = $i + 60) { 
+                $date = date('H:i',$i);
+                if(isset($datas['number']['rssi']['values'][$date])){
+                    $rssiValue[$date] = $datas['number']['rssi']['values'][$date];
+                    $lastDate = strtotime($date); 
+                }else if((strtotime($date)) > $lastDate) {
+                    $rssiValue[$date] = -100 ;
+                }
+            }
+            $datas['number']['rssi']['values'] = $rssiValue;
         }
         return view('voyager::cihazlar.infos', $datas);
     }
