@@ -212,7 +212,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
   .nav-tabs>li.active>a:focus {
     top: 0px !important;
   }
-  .boardDelete {
+  .boardDelete .boardCopy .boardpaste {
     position: absolute!important;
     margin: 0px!important;
     padding: 0px!important;
@@ -222,10 +222,10 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
     z-index: 2;
     right: 5px;
   }
-  .boardDelete i{
+  .boardDelete>i .boardCopy>i .boardpaste>i {
     font-size: 16px!important;
   }
-  .boardDelete i:hover {
+  .boardDelete>i:hover .boardCopy>i:hover .boardpaste>i:hover{
     border-radius: 9px;
     background: #9E9E9E;
     color: #000!important;
@@ -367,6 +367,8 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
 
         navigator.clipboard.readText().then(function(clipboardData) {
             source = clipboardData;
+            console.log(source);
+            console.log(target);
             $.ajax({
             url: '{{route('dashboarddata')}}' + '/' + source + '/' + target , 
             method: "GET",
