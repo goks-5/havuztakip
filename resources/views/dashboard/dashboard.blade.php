@@ -386,7 +386,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
                       },
                       error: function(xhr, status, error) {
                       alert("Veri alınamadı:");
-                      console.log(error));
+                      console.log(error);
                       }
                       });
               } else{
@@ -398,7 +398,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
            
         }).catch(function(error) {
             alert("Panodan veri alınamadı: ");
-            console.log(error));
+            console.log(error);
         });
 
         
