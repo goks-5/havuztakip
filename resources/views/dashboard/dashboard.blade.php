@@ -213,7 +213,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
     top: 0px !important;
   }
   .boardDelete ,
-  .boardCopy ,
+  .boardcopy ,
   .boardpaste {
     position: absolute!important;
     margin: 0px!important;
@@ -225,12 +225,12 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
     right: 5px;
   }
   .boardDelete i ,
-  .boardCopy i ,
+  .boardcopy i ,
   .boardpaste i {
     font-size: 16px!important;
   }
   .boardDelete i:hover ,
-   .boardCopy i:hover ,
+   .boardcopy i:hover ,
    .boardpaste i:hover
    {
     border-radius: 9px;
