@@ -375,9 +375,9 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
 
 
         navigator.clipboard.readText().then(function(pano) {
-          sourceboard = pano.replace('enerjiboard-', '');;
+         var sourceboard = pano.replace('enerjiboard-', '');;
            if(sourceboard != pano ){      
-                if ($sourceboard != target){
+                if (sourceboard != target){
                   $.ajax({
                       url: '{{route('dashboarddata')}}' + '/' + sourceboard + '/' + target , 
                       method: "GET",
