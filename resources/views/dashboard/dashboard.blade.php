@@ -366,6 +366,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
 
         // Artık textarea'ya ihtiyaç yok, kaldırabiliriz
         document.body.removeChild(textarea);
+        alert("Board panoya kopyalandı ");
 
     });
 
