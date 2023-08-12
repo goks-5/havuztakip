@@ -97,6 +97,7 @@
                     $(".resizable").resizable('enable');
                     $(".resizable").draggable('enable');
                     $('.boardlink').attr('contenteditable', true);
+                    $('.boardlink').css('padding-right','75px');
                     $(".toolSettings").show();
                     $(".edithide").show();
                 } else {

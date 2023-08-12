@@ -13,9 +13,10 @@
       @foreach ($boards as $key => $value)
       <li class="@if($value->id == $board->id)active @endif" >
       <a class="boardlink" href="{{route('dashboardnew' , $value->id)}}" data-id="{{$value->id}}">{{$value->title}}</a>
-      <a class="boardDelete deleteModal edithide" data-action_type="delete_board" data-board="{{$value->id}}"><i class="voyager-x"></i></a>
-      <a class="boardcopy edithide" data-board="{{$value->id}}"><i class="voyager-wand"></i></a>
+       <a class="boardcopy edithide" data-board="{{$value->id}}"><i class="voyager-wand"></i></a>
       <a class="boardpaste edithide" data-board="{{$value->id}}"><i class="voyager-wand"></i></a>
+      <a class="boardDelete deleteModal edithide" data-action_type="delete_board" data-board="{{$value->id}}"><i class="voyager-x"></i></a>
+     
       </li>
       @endforeach
       <li style="min-width: unset;"  class="edithide">
@@ -366,30 +367,27 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
         // Artık textarea'ya ihtiyaç yok, kaldırabiliriz
         document.body.removeChild(textarea);
 
-        alert("Veri panoya kopyalandı: " + boardData);
     });
+
     $(".boardpaste").click(function() {
         var target = $(this).data("board"); // data-board değerini al
 
 
         navigator.clipboard.readText().then(function(clipboardData) {
             source = clipboardData;
-            console.log(source);
-            console.log(target);
-            $.ajax({
+            if ($source != target){
+              $.ajax({
             url: '{{route('dashboarddata')}}' + '/' + source + '/' + target , 
             method: "GET",
             success: function(response) {
-                if (response === 'sucsess') {
-                    alert("Veri türü 'false' olarak geldi.");
-                } else {
-                    alert("Veri türü 'false' değil.");
-                }
+              location.reload();
             },
             error: function(xhr, status, error) {
                 console.error("Veri alınamadı:", error);
             }
         });
+            } 
+           
         }).catch(function(err) {
             console.error("Panodan veri alınamadı: ", err);
         });
