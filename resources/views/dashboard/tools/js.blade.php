@@ -85,6 +85,7 @@
             @if (Session::has('message'))
                 $('#editOnOff').bootstrapToggle('on');
                 $('.boardlink').attr('contenteditable', true);
+                $('.boardlink').css('padding-right','60px');
             @else
                 $(".resizable").resizable('disable');
                 $(".resizable").draggable('disable');

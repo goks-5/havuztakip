@@ -374,13 +374,14 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
         var target = $(this).data("board"); // data-board değerini al
 
 
-        navigator.clipboard.readText().then(function(clipboardData) {
-            source = clipboardData;
-            if(source.startsWith('enerjiboard-') ){
-                source = source.replace('enerjiboard-', '');
-                if ($source != target){
+        navigator.clipboard.readText().then(function(sboard) {
+              console.log(sboard);
+            if(sboard.startsWith('enerjiboard-') ){
+        
+              sboard = sboard.replace('enerjiboard-', '');
+                if ($sboard != target){
                       $.ajax({
-                      url: '{{route('dashboarddata')}}' + '/' + source + '/' + target , 
+                      url: '{{route('dashboarddata')}}' + '/' + sboard + '/' + target , 
                       method: "GET",
                       success: function(response) {
                       location.reload();
