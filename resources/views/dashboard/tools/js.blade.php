@@ -97,13 +97,14 @@
                     $(".resizable").resizable('enable');
                     $(".resizable").draggable('enable');
                     $('.boardlink').attr('contenteditable', true);
-                    $('.boardlink').css('padding-right','75px');
+                    $('.boardlink').css('padding-right','60px');
                     $(".toolSettings").show();
                     $(".edithide").show();
                 } else {
                     $(".resizable").resizable('disable');
                     $(".resizable").draggable('disable');
                     $('.boardlink').attr('contenteditable', false);
+                    $('.boardlink').css('padding-right','20px');
                     $(".toolSettings").hide();
                     $(".edithide").hide();
                 }

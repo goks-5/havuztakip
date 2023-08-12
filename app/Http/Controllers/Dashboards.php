@@ -66,7 +66,7 @@ class Dashboards extends VoyagerBaseController
       ->where('id', $target)
       ->first();
 
-    if ($sourceDashboard && $targetDashboard) {
+    if ($sourceDashboard && $targetDashboard && $sourceDashboard->id != $targetDashboard->id) {
 
       $sourceTools = DashboardTool::where('dashboard_id', $sourceDashboard->id)
         ->orderBy('order')->get();

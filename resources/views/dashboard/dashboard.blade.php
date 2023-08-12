@@ -13,8 +13,8 @@
       @foreach ($boards as $key => $value)
       <li class="@if($value->id == $board->id)active @endif" >
       <a class="boardlink" href="{{route('dashboardnew' , $value->id)}}" data-id="{{$value->id}}">{{$value->title}}</a>
-       <a class="boardcopy edithide" data-board="{{$value->id}}"><i class="voyager-wand"></i></a>
-      <a class="boardpaste edithide" data-board="{{$value->id}}"><i class="voyager-wand"></i></a>
+       <a class="boardcopy edithide" data-board="enerjiboard-{{$value->id}}" style="right: 45px;"><i class="voyager-images"></i></a>
+      <a class="boardpaste edithide" data-board="{{$value->id}}" style="right: 25px;"><i class="voyager-wand"></i></a>
       <a class="boardDelete deleteModal edithide" data-action_type="delete_board" data-board="{{$value->id}}"><i class="voyager-x"></i></a>
      
       </li>
@@ -375,21 +375,29 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
 
         navigator.clipboard.readText().then(function(clipboardData) {
             source = clipboardData;
-            if ($source != target){
-              $.ajax({
-            url: '{{route('dashboarddata')}}' + '/' + source + '/' + target , 
-            method: "GET",
-            success: function(response) {
-              location.reload();
-            },
-            error: function(xhr, status, error) {
-                console.error("Veri alınamadı:", error);
+            if(source.startsWith('enerjiboard-') ){
+                source = source.replace('enerjiboard-', '');
+                if ($source != target){
+                      $.ajax({
+                      url: '{{route('dashboarddata')}}' + '/' + source + '/' + target , 
+                      method: "GET",
+                      success: function(response) {
+                      location.reload();
+                      },
+                      error: function(xhr, status, error) {
+                      alert("Veri alınamadı:", error);
+                      }
+                      });
+              } else{
+                alert("Hedefle kaynak aynı olamaz ");
+              }
+            }else{
+              alert("Panodan board yok ");
             }
-        });
-            } 
+           
            
         }).catch(function(err) {
-            console.error("Panodan veri alınamadı: ", err);
+            alert("Panodan veri alınamadı: ", err);
         });
 
         
