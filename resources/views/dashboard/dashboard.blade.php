@@ -376,8 +376,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
 
         navigator.clipboard.readText().then(function(pano) {
           sourceboard = pano.replace('enerjiboard-', '');;
-           if(sourceboard != pano ){        
-              sboard = sboard
+           if(sourceboard != pano ){      
                 if ($sourceboard != target){
                   $.ajax({
                       url: '{{route('dashboarddata')}}' + '/' + sourceboard + '/' + target , 
@@ -393,7 +392,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
                 alert("Hedefle kaynak aynı olamaz ");
               }
             }else{
-              alert("Panodan board yok ");
+              alert("Panoda board yok ");
             }         
            
         }).catch(function(err) {
