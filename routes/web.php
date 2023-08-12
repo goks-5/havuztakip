@@ -45,6 +45,7 @@ Route::group(['prefix' => ''], function () {
     Route::get('/update', 'Controller@updateFromGit')->name('updateFromGit');
     Route::get('/dashboard', 'Dashboards@ajaxdata')->name('dashboarddata');
     Route::get('/dashboard/{id}', 'Dashboards@dashboard')->name('dashboardnew');
+    Route::get('/dashboard/{source}/{target}', 'Dashboards@copy')->name('dashboardcopy');
     Route::get('/firmadegistir/{id?}', 'Companies@switch')->name('switch_company');
     Route::get('/gorevler/{status?}', ['uses' => 'Maintenances@tasks', 'as' => 'tasks']);
     Route::post('/gorevler', ['uses' => 'Maintenances@addEdit', 'as' => 'task_edit']);

@@ -14,6 +14,8 @@
       <li class="@if($value->id == $board->id)active @endif" >
       <a class="boardlink" href="{{route('dashboardnew' , $value->id)}}" data-id="{{$value->id}}">{{$value->title}}</a>
       <a class="boardDelete deleteModal edithide" data-action_type="delete_board" data-board="{{$value->id}}"><i class="voyager-x"></i></a>
+      <a class="boardcopy edithide" data-board="{{$value->id}}"><i class="voyager-wand"></i></a>
+      <a class="boardpaste edithide" data-board="{{$value->id}}"><i class="voyager-wand"></i></a>
       </li>
       @endforeach
       <li style="min-width: unset;"  class="edithide">
@@ -337,5 +339,55 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
       $('#addBoard').modal('show');
     });
   });
+
+
+  $(document).ready(function() {
+    $(".boardcopy").click(function() {
+        var boardData = $(this).data("board"); // data-board değerini al
+
+        // Bir textarea oluşturarak içine veriyi yerleştir
+        var textarea = document.createElement("textarea");
+        textarea.value = boardData;
+
+        // Dokümanın sonuna textarea elemanını ekle
+        document.body.appendChild(textarea);
+
+        // Veriyi seç ve kopyala
+        textarea.select();
+        document.execCommand("copy");
+
+        // Artık textarea'ya ihtiyaç yok, kaldırabiliriz
+        document.body.removeChild(textarea);
+
+        alert("Veri panoya kopyalandı: " + boardData);
+    });
+    $(".boardpaste").click(function() {
+        var target = $(this).data("board"); // data-board değerini al
+
+
+        navigator.clipboard.readText().then(function(clipboardData) {
+            source = clipboardData;
+            $.ajax({
+            url: '{{route('dashboarddata')}}' + '/' + source + '/' + target , 
+            method: "GET",
+            success: function(response) {
+                if (response === 'sucsess') {
+                    alert("Veri türü 'false' olarak geldi.");
+                } else {
+                    alert("Veri türü 'false' değil.");
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Veri alınamadı:", error);
+            }
+        });
+        }).catch(function(err) {
+            console.error("Panodan veri alınamadı: ", err);
+        });
+
+        
+    });
+});
+  
 </script>
 @stop
