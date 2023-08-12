@@ -375,9 +375,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
 
 
         navigator.clipboard.readText().then(function(sboard) {
-            
-            if(sboard.startsWith('enerjiboard-') ){
-              enerjiboard-6
+           if(sboard.startsWith('enerjiboard-') ){        
               sboard = sboard.replace('enerjiboard-', '');
                 if ($sboard != target){
                       $.ajax({
