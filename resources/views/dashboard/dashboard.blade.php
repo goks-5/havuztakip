@@ -375,9 +375,9 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
 
 
         navigator.clipboard.readText().then(function(sboard) {
-              console.log(sboard);
+            
             if(sboard.startsWith('enerjiboard-') ){
-        
+              enerjiboard-6
               sboard = sboard.replace('enerjiboard-', '');
                 if ($sboard != target){
                       $.ajax({
@@ -395,8 +395,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
               }
             }else{
               alert("Panodan board yok ");
-            }
-           
+            }         
            
         }).catch(function(err) {
             alert("Panodan veri alınamadı: ", err);
