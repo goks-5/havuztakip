@@ -66,11 +66,11 @@ class sendReportsMail extends Command
 
 
     public function sendMail($mails,$data,$title){
-        $path = 'exports/' . Str::slug($title . date('Y-m-d H:i')) . '.xlsx';
+        $path = 'exports/' . Str::slug($title . date('_Y-m-d H:i')) . '.xlsx';
         Excel::store(new ReportExport(array_values($data)), $path);
         $emailContent = "Enerji Yönetim den otomatik oluşturulan raporu ekden indirebilirsiniz.";
         foreach($mails as $mail){
-            Mail::to($mail)->send(new ExcelMail(storage_path($path),$title, $emailContent));
+            Mail::to($mail)->send(new ExcelMail(storage_path('app/'.$path),$title, $emailContent));
         }
 
     }
