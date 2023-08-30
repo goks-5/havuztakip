@@ -48,11 +48,16 @@ class sendReportsMail extends Command
                     $validEmails[] = $trimmedEmail;
                 }
             }
+            dump(count($validEmails));
             try {
                 if ($this->checkIsSend($report) && !empty($validEmails)) {
                     $excelData = $this->excelData($report);
+
+            dump(count($excelData));
                     if(!empty($excelData)){
                         $report->report_send_date = $this->reportDate($report);
+
+            dump(count($report->report_send_date));
                         $report->save();
                         $this->sendMail($validEmails,$excelData, "Enerji Yönetim Rapor : " . $report->name);
                     }
