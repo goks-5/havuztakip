@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-class addMailToReportsTable extends Migration
+class addReportSendDateReportsTable extends Migration
 {
     /**
      * Run the migrations.
