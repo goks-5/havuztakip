@@ -18,7 +18,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        \App\Console\Commands\sendReportsMail::class,
     ];
 
     /**
@@ -80,6 +80,9 @@ class Kernel extends ConsoleKernel
         } catch (\Throwable $th) {
             log::error($th->getMessage(),$th->getTrace());
         }
+
+        $schedule->command('mail:reports')
+        ->everyFifteenMinutes();
 
         $schedule->call(function () {
             $root_path = base_path();
