@@ -66,7 +66,7 @@ class sendReportsMail extends Command
 
     public function sendMail($mails,$data,$title){
         $path = public_path('exports/' . Str::slug($title) );
-        Excel::store(new $data, $path);
+        Excel::store($data, $path);
         $emailContent = "Enerji Yönetim den otomatik oluşturulan raporu ekden indirebilirsiniz.";
         foreach($mails as $mail){
             Mail::to($mail)->send(new ExcelMail($path,$title, $emailContent));
