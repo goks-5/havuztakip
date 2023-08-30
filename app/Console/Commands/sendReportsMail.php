@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\CompanySetting;
 use App\Device;
+use App\Exports\ReportExport;
 use App\Report;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
@@ -66,7 +67,7 @@ class sendReportsMail extends Command
 
     public function sendMail($mails,$data,$title){
         $path = public_path('exports/' . Str::slug($title) );
-        Excel::store($data, $path);
+        Excel::store(new ReportExport(array_values($data)), $path);
         $emailContent = "Enerji Yönetim den otomatik oluşturulan raporu ekden indirebilirsiniz.";
         foreach($mails as $mail){
             Mail::to($mail)->send(new ExcelMail($path,$title, $emailContent));
