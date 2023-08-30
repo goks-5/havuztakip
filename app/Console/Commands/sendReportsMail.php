@@ -48,17 +48,13 @@ class sendReportsMail extends Command
                     $validEmails[] = $trimmedEmail;
                 }
             }
-            dump(count($validEmails));
             try {
                 if ($this->checkIsSend($report) && !empty($validEmails)) {
                     $excelData = $this->excelData($report);
 
-            dump(count($excelData));
                     if(!empty($excelData)){
                         $report->report_send_date = $this->reportDate($report);
-
-            dump(count($report->report_send_date));
-                        $report->save();
+                         $report->save();
                         $this->sendMail($validEmails,$excelData, "Enerji Yönetim Rapor : " . $report->name);
                     }
                 }
@@ -73,9 +69,7 @@ class sendReportsMail extends Command
         $dateStart = Carbon::parse($this->reportDate($report)); 
         $now = Carbon::now()->subHour();
         $sendDate = Carbon::parse($report->report_send_date);
-        dump($dateStart,$now,$sendDate,$now->gt($dateStart), $dateStart->gt($sendDate));
-
-        return $now->gt($dateStart)  && $dateStart->gt($sendDate) ;
+        return $now->gt($dateStart)  &&  (is_null($report->report_send_date) || $dateStart->gt($sendDate)) ;
 
     }
 
