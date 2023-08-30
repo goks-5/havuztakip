@@ -29,7 +29,7 @@ class sendReportsMail extends Command
      *
      * @var string
      */
-    protected $description = 'Send Mail Reports';
+    protected $description = 'Send Mail Reports ';
 
 
     /**

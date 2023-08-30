@@ -17,7 +17,7 @@ class ExcelMail extends Mailable
     {
         $this->excelPath = $excelPath;
         $this->excelTitle = $excelTitle;
-        $this->emailContent = $emailContent;
+        $this->emailContent = $emailContent; 
     }
 
     public function build()
