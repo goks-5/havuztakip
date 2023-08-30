@@ -65,7 +65,12 @@ class sendReportsMail extends Command
     }
 
     protected function checkIsSend($report):Bool {
-        return  $this->reportDate($report) > $report->report_send_date ;
+        $dateStart = Carbon::parse($this->reportDate($report)); 
+        $now = Carbon::now()->subHour();
+        $sendDate = Carbon::parse($report->report_send_date);
+        
+        return $now->gt($dateStart)  && $dateStart->gt($sendDate) ;
+
     }
 
     protected function reportDate($report){
