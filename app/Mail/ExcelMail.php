@@ -10,19 +10,19 @@ class ExcelMail extends Mailable
     use Queueable, SerializesModels;
 
     public $excelPath;
-    public $excelTitle;
+    public $emailTitle;
     public $emailContent;
 
-    public function __construct($excelPath,$excelTitle, $emailContent)
+    public function __construct($excelPath,$emailTitle, $emailContent)
     {
         $this->excelPath = $excelPath;
-        $this->excelTitle = $excelTitle;
+        $this->emailTitle = $emailTitle;
         $this->emailContent = $emailContent; 
     }
 
     public function build()
     {
-        return $this->subject($this->excelTitle)
+        return $this->subject($this->emailTitle)
                     ->attach($this->excelPath)
                     ->view('emails.excel_mail');
     }
