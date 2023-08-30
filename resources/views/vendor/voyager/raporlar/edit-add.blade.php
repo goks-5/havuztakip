@@ -115,7 +115,10 @@
                     @endforeach
                   </select>
                 </div>
-
+                <div class="form-group  col-md-12 ">
+                  <label class="control-label" for="name">Mail Adresleri (Rapor gönderilecek kişiler virgülle ayrılmış)</label>
+                  <input type="text" class="form-control" name="mail_to" placeholder="Mail Adresleri" value="{{$report->mail_to ?? ''}}">
+                </div>
               </div>
               <div class="panel-footer">
                 <button type="submit" class="btn btn-primary save">Kaydet</button>
