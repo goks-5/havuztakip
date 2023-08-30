@@ -73,7 +73,8 @@ class sendReportsMail extends Command
         $dateStart = Carbon::parse($this->reportDate($report)); 
         $now = Carbon::now()->subHour();
         $sendDate = Carbon::parse($report->report_send_date);
-        
+        dump($dateStart,$now,$sendDate,$now->gt($dateStart), $dateStart->gt($sendDate));
+
         return $now->gt($dateStart)  && $dateStart->gt($sendDate) ;
 
     }
