@@ -70,7 +70,7 @@ class sendReportsMail extends Command
         Excel::store(new ReportExport(array_values($data)), $path);
         $emailContent = "Enerji Yönetim den otomatik oluşturulan raporu ekden indirebilirsiniz.";
         foreach($mails as $mail){
-            Mail::to($mail)->send(new ExcelMail($path,$title, $emailContent));
+            Mail::to($mail)->send(new ExcelMail(storage_path($path),$title, $emailContent));
         }
 
     }
