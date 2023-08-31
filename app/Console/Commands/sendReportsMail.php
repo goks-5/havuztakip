@@ -60,7 +60,7 @@ class sendReportsMail extends Command
                     }
                 }
             } catch (\Throwable $th) {
-                Log::error($th->getMessage(),$th);
+                Log::error($th->getMessage());
             }
             
         }
