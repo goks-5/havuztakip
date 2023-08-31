@@ -10,6 +10,7 @@ use App\Report;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Str;
@@ -59,7 +60,7 @@ class sendReportsMail extends Command
                     }
                 }
             } catch (\Throwable $th) {
-                dump($th);
+                Log::error($th->getMessage(),$th);
             }
             
         }
