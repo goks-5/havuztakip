@@ -82,7 +82,7 @@ class Kernel extends ConsoleKernel
         }
 
         $schedule->command('mail:reports')
-        ->everyMinute();
+        ->everyFifteenMinutes();
 
         $schedule->call(function () {
             $root_path = base_path();
