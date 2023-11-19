@@ -2,7 +2,7 @@
     value="{{ old($row->field, $dataTypeContent->{$row->field} ?? ($options->default ?? '')) }}">
     <input type="hidden" id="form-type" name="type" value="{{ old('type',$dataTypeContent->type ?? '') }}">
     <input type="hidden" id="form-offset" name="offset" value="{{ old('offset',$dataTypeContent->offset ?? '') }}">
-    <input type="hidden" id="form-multiplier" name="multiplier" value="{{ old('type',$dataTypeContent->multiplier ?? '') }}">
+    <input type="hidden" id="form-multiplier" name="multiplier" value="{{ old('multiplier',$dataTypeContent->multiplier ?? '') }}">
 
 <div class='con_{{ $row->field }}'>
     <div class="form-group mtextrow">
@@ -130,17 +130,17 @@
 
             }
             var kayitlitype = JSON.parse('[]');
-            if ($('#form-type').val().length > 0) {
+            if ($('#form-type').val().length > 0 && $('#form-type').val() != 'null' ) {
                 kayitlitype = JSON.parse($('#form-type').val());
             }
             
             var kayitlioffset = JSON.parse('[]');
-            if ($('#form-offset').val().length > 0) {
+            if ($('#form-offset').val().length > 0 && $('#form-offset').val() != 'null') {
                 kayitlioffset = JSON.parse($('#form-offset').val());
             }
 
             var kayitlimultiplier = JSON.parse('[]');
-            if ($('#form-multiplier').val().length > 0) {
+            if ($('#form-multiplier').val().length > 0 && $('#form-multiplier').val() != 'null') {
                 kayitlimultiplier = JSON.parse($('#form-multiplier').val());
             }
             
