@@ -15,8 +15,8 @@ class addColumnsToDevicesTable extends Migration
     public function up()
     {
         Schema::table('devices', function (Blueprint $table) {
-            $table->float('multiplier')->after('type');
-            $table->float('offset')->after('multiplier');
+            $table->float('multiplier')->default(1)->after('type');
+            $table->float('offset')->default(0)->after('multiplier');
         });
 
     }
