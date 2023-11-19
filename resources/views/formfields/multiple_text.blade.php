@@ -199,7 +199,7 @@
                 }
             }
     
-            $('.con_{{ $row->field }}').on('.ginput', function() {
+            $('.con_{{ $row->field }}').on('input', function() {
                 $('.con_{{ $row->field }}').each(function() {
 
                     $(this).find('.ginput').each(function() {
