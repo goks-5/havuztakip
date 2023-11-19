@@ -41,17 +41,21 @@ class Api extends Controller
         $multiplier = json_decode($device->multiplier, true);
         $offset = json_decode($device->offset, true);
 
-
-        Log::info('multiplier',$multiplier);
-        Log::info('offset',$offset);
         // fix data
         
         
         foreach ($parameters['data'] as $key => $value) {
-            $offsetValue = floatval($offset[$key] ?? 0);
-            $multiplierValue = floatval($multiplier[$key] ?? 1);
-            Log::info('multiplier',$multiplierValue);
-            Log::info('offset',$offsetValue);
+
+            if (isset($offset[$key]) && !empty($offset[$key])) {
+                $offsetValue = floatval($offset[$key]);
+            } else {
+                $offsetValue = 0; 
+            }
+            if (isset($multiplier[$key]) && !empty($multiplier[$key])) {
+                $multiplierValue = floatval($multiplier[$key]);
+            } else {
+                $multiplierValue = 1; 
+            }
             $parameters['data'][$key] = ($value + $offsetValue) * $multiplierValue;
         }
 
