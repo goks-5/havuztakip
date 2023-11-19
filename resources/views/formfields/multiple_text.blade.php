@@ -8,7 +8,7 @@
     <div class="form-group mtextrow">
         <div class="row">
             <div class="col-sm-2">
-                <input type="text" data-name="" data-index="0" class="form-control multiple_{{ $row->field }}"
+                <input type="text" data-name="" data-index="0" class="form-control ginput multiple_{{ $row->field }}"
                     name="__{{ $row->field }}[0]"
                     placeholder="0. {{ old($row->field, $options->placeholder ?? $row->getTranslatedAttribute('display_name')) }}">
             </div>
@@ -67,42 +67,42 @@
 
             <div class="col-sm-1">
                 <div class="form-check">
-                    <input class="form-check-input multiple_{{ $row->field }}" type="checkbox" data-index="100"
+                    <input class="form-check-input  ginput multiple_{{ $row->field }}" type="checkbox" data-index="100"
                         data-name=" Saatlik" value="" id="{{ $row->field }}_100" name="__{{ $row->field }}[100]">
                     <label class="form-check-label" for="{{ $row->field }}_100">Saatlik</label>
                 </div>
             </div>
             <div class="col-sm-1">
                 <div class="form-check">
-                    <input class="form-check-input multiple_{{ $row->field }}" type="checkbox" data-index="200"
+                    <input class="form-check-input  ginput multiple_{{ $row->field }}" type="checkbox" data-index="200"
                         data-name=" Günlük" value="" id="{{ $row->field }}_200" name="__{{ $row->field }}[200]">
                     <label class="form-check-label" for="{{ $row->field }}_200">Günlük</label>
                 </div>
             </div>
             <div class="col-sm-1">
                 <div class="form-check">
-                    <input class="form-check-input multiple_{{ $row->field }}" type="checkbox" data-index="300"
+                    <input class="form-check-input  ginput multiple_{{ $row->field }}" type="checkbox" data-index="300"
                         data-name=" Haftalık" value="" id="{{ $row->field }}_300" name="__{{ $row->field }}[300]">
                     <label class="form-check-label" for="{{ $row->field }}_300">Haftalık</label>
                 </div>
             </div>
             <div class="col-sm-1">
                 <div class="form-check">
-                    <input class="form-check-input multiple_{{ $row->field }}" type="checkbox" data-index="400"
+                    <input class="form-check-input  ginput multiple_{{ $row->field }}" type="checkbox" data-index="400"
                         data-name=" Aylık" value="" id="{{ $row->field }}_400" name="__{{ $row->field }}[400]">
                     <label class="form-check-label" for="{{ $row->field }}_400">Aylık</label>
                 </div>
             </div>
             <div class="col-sm-1">
                 <div class="form-check">
-                    <input class="form-check-input multiple_{{ $row->field }}" type="checkbox" data-index="500"
+                    <input class="form-check-input  ginput multiple_{{ $row->field }}" type="checkbox" data-index="500"
                         data-name=" Yıllık" value="" id="{{ $row->field }}_500" name="__{{ $row->field }}[500]">
                     <label class="form-check-label" for="{{ $row->field }}_500">Yıllık</label>
                 </div>
             </div>
             <div class="col-sm-1">
                 <div class="form-check">
-                    <input class="form-check-input multiple_{{ $row->field }}" type="checkbox" data-index="1000"
+                    <input class="form-check-input  ginput multiple_{{ $row->field }}" type="checkbox" data-index="1000"
                         data-name=" Son Değişim" value="" id="{{ $row->field }}_1000"
                         name="__{{ $row->field }}[1000]">
                     <label class="form-check-label" for="{{ $row->field }}_1000">Değişim İzle</label>
@@ -237,7 +237,7 @@
                     this.id = "multiplier_" + $currentRow.index();
 
                 });
-                $newRow.find('input').each(function() {
+                $newRow.find('.ginput').each(function() {
                     this.value = '';
                     var yindex = ($currentRow.index() * 1) + ($(this).data('index') * 1);
                     this.name = "__{{ $row->field }}[" + yindex + "]";
