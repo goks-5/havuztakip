@@ -199,10 +199,10 @@
                 }
             }
     
-            $('.con_{{ $row->field }}').on('input', function() {
+            $('.con_{{ $row->field }}').on('.ginput', function() {
                 $('.con_{{ $row->field }}').each(function() {
 
-                    $(this).find('input').each(function() {
+                    $(this).find('.ginput').each(function() {
                         if ($(this).data('name') == "") {
                             value = this.value;
                         }
