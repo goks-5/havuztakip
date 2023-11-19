@@ -9,6 +9,7 @@ use App\Device;
 use App\DeviceData;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
+use PhpParser\Node\Expr\Cast\Double;
 
 class Api extends Controller
 {
@@ -40,8 +41,11 @@ class Api extends Controller
         $offset = json_decode($device->offset, true);
 
         // fix data
+        dump( $multiplier,$offset );
         foreach ($parameters['data'] as $key => $value) {
-            $parameters['data'][$key] = ($value + ($offset[$key] ?? 0)) * ($multiplier[$key] ?? 1) ;
+            $offsetValue = floatval($offset[$key] ?? 0);
+            $multiplierValue = floatval($multiplier[$key] ?? 1);
+            $parameters['data'][$key] = ($value + $offsetValue) * $multiplierValue;
         }
 
         $replace = array_replace($old, $parameters['data']);
