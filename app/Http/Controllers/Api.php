@@ -11,6 +11,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use PhpParser\Node\Expr\Cast\Double;
 
+use Illuminate\Support\Facades\Log;
 class Api extends Controller
 {
     /**
@@ -40,11 +41,17 @@ class Api extends Controller
         $multiplier = json_decode($device->multiplier, true);
         $offset = json_decode($device->offset, true);
 
+
+        Log::info('multiplier',$multiplier);
+        Log::info('offset',$offset);
         // fix data
-        dump( $multiplier,$offset );
+        
+        
         foreach ($parameters['data'] as $key => $value) {
             $offsetValue = floatval($offset[$key] ?? 0);
             $multiplierValue = floatval($multiplier[$key] ?? 1);
+            Log::info('multiplier',$multiplierValue);
+            Log::info('offset',$offsetValue);
             $parameters['data'][$key] = ($value + $offsetValue) * $multiplierValue;
         }
 
