@@ -155,7 +155,7 @@
                         $row.clone().insertAfter('.mtextrow:last');
                     }
                     var $currentRow = $('.mtextrow:last');
-                    $currentRow.find('input').each(function() {
+                    $currentRow.find('.ginput').each(function() {
 
                         this.value = item + $(this).data('name');
                         var yindex = (index * 1) + ($(this).data('index') * 1);
