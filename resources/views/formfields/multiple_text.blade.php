@@ -1,14 +1,30 @@
 <input type="hidden" id="form-{{ $row->field }}" name="{{ $row->field }}"
     value="{{ old($row->field, $dataTypeContent->{$row->field} ?? ($options->default ?? '')) }}">
-<input type="hidden" id="form-type" name="type" value="{{ old('type',$dataTypeContent->type ?? '') }}">
+    <input type="hidden" id="form-type" name="type" value="{{ old('type',$dataTypeContent->type ?? '') }}">
+    <input type="hidden" id="form-offset" name="offset" value="{{ old('offset',$dataTypeContent->offset ?? '') }}">
+    <input type="hidden" id="form-multiplier" name="multiplier" value="{{ old('type',$dataTypeContent->multiplier ?? '') }}">
 
 <div class='con_{{ $row->field }}'>
     <div class="form-group mtextrow">
         <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-2">
                 <input type="text" data-name="" data-index="0" class="form-control multiple_{{ $row->field }}"
                     name="__{{ $row->field }}[0]"
                     placeholder="0. {{ old($row->field, $options->placeholder ?? $row->getTranslatedAttribute('display_name')) }}">
+            </div>
+
+            <div class="col-sm-1">
+                <input type="number" class="form-control offset"
+                    step="0.01"
+                    name="__offset[0]"
+                    placeholder="OffSet">
+            </div>
+
+            <div class="col-sm-1">
+                <input type="number" class="form-control multiplier"
+                    step="0.01"
+                    name="__multiplier[0]"
+                    placeholder="Multiplier">
             </div>
 
             <div class="col-sm-2">
@@ -117,8 +133,18 @@
             if ($('#form-type').val().length > 0) {
                 kayitlitype = JSON.parse($('#form-type').val());
             }
-            console.log(kayitlitype); 
+            
+            var kayitlioffset = JSON.parse('[]');
+            if ($('#form-offset').val().length > 0) {
+                kayitlioffset = JSON.parse($('#form-offset').val());
+            }
 
+            var kayitlimultiplier = JSON.parse('[]');
+            if ($('#form-multiplier').val().length > 0) {
+                kayitlimultiplier = JSON.parse($('#form-multiplier').val());
+            }
+            
+      
             for (elem in kayitli) {
                 write_{{ $row->field }}(kayitli[elem], elem);
             }
@@ -156,6 +182,20 @@
 
                     });
 
+                    $currentRow.find('.offset').each(function() {
+                        $(this).val(kayitlioffset[index]);
+                        this.name = "__offset[" + $currentRow.index() + "]";
+                        this.id = "offset_" + $currentRow.index();
+
+                    });
+
+                    $currentRow.find('.multiplier').each(function() {
+                        $(this).val(kayitlimultiplier[index]);
+                        this.name = "__multiplier[" + $currentRow.index() + "]";
+                        this.id = "multiplier_" + $currentRow.index();
+
+                    });
+
                 }
             }
     
@@ -173,6 +213,8 @@
                 $('#form-{{ $row->field }}').val(JSON.stringify($('.multiple_{{ $row->field }}')
                     .serializeJSON().__{{ $row->field }}));
                 $('#form-type').val(JSON.stringify($('.type').serializeJSON().__type));
+                $('#form-offset').val(JSON.stringify($('.offset').serializeJSON().__offset));
+                $('#form-multiplier').val(JSON.stringify($('.multiplier').serializeJSON().__multiplier));
             });
 
 
@@ -185,6 +227,16 @@
                         this.id = "type_" + $currentRow.index();
 
                     });
+                $newRow.find('.offset').each(function() {
+                    this.name = "__offset[" + $currentRow.index() + "]";
+                    this.id = "offset_" + $currentRow.index();
+
+                });
+                $newRow.find('.multiplier').each(function() {
+                    this.name = "__multiplier[" + $currentRow.index() + "]";
+                    this.id = "multiplier_" + $currentRow.index();
+
+                });
                 $newRow.find('input').each(function() {
                     this.value = '';
                     var yindex = ($currentRow.index() * 1) + ($(this).data('index') * 1);

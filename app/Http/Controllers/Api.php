@@ -35,6 +35,15 @@ class Api extends Controller
         if (!is_array($old)) {
             $old = array();
         }
+
+        $multiplier = json_decode($device->multiplier, true);
+        $offset = json_decode($device->offset, true);
+
+        // fix data
+        foreach ($parameters['data'] as $key => $value) {
+            $parameters['data'][$key] = ($value + ($offset[$key] ?? 0)) * ($multiplier[$key] ?? 1) ;
+        }
+
         $replace = array_replace($old, $parameters['data']);
         ksort($replace);
         foreach ($parameters['data'] as $key => $value) {
