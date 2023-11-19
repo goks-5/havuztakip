@@ -17,6 +17,9 @@ class addColumnsToDevicesTable2 extends Migration
         Schema::table('devices', function (Blueprint $table) {
             $table->dropColumn('multiplier');
             $table->dropColumn('offset');
+        });
+
+        Schema::table('devices', function (Blueprint $table) {
             $table->json('multiplier')->after('type');
             $table->json('offset')->after('multiplier');
         });
