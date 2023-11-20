@@ -15,14 +15,12 @@
 
             <div class="col-sm-1">
                 <input type="number" class="form-control offset"
-                    step="0"
                     name="__offset[0]"
                     placeholder="OffSet">
             </div>
 
             <div class="col-sm-1">
                 <input type="number" class="form-control multiplier"
-                    step="0"
                     name="__multiplier[0]"
                     placeholder="Multiplier">
             </div>
