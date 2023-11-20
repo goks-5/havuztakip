@@ -56,7 +56,7 @@ class Api extends Controller
             } else {
                 $multiplierValue = 1; 
             }
-            $parameters['data'][$key] = ($value + $offsetValue) * $multiplierValue;
+            $parameters['data'][$key] = ($value  * $multiplierValue ) +  $offsetValue;
         }
 
         $replace = array_replace($old, $parameters['data']);
