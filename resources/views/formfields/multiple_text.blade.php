@@ -13,17 +13,20 @@
                     placeholder="0. {{ old($row->field, $options->placeholder ?? $row->getTranslatedAttribute('display_name')) }}">
             </div>
 
+
+            <div class="col-sm-1">
+                <input type="number" class="form-control multiplier"
+                    name="__multiplier[0]"
+                    placeholder="Çarpan (Multiplier)">
+            </div>
+
             <div class="col-sm-1">
                 <input type="number" class="form-control offset"
                     name="__offset[0]"
                     placeholder="OffSet">
             </div>
 
-            <div class="col-sm-1">
-                <input type="number" class="form-control multiplier"
-                    name="__multiplier[0]"
-                    placeholder="Multiplier">
-            </div>
+
 
             <div class="col-sm-2">
                 <select class="form-control type" name="__type[0]" id="type_0">
