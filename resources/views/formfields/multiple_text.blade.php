@@ -16,13 +16,15 @@
 
             <div class="col-sm-1">
                 <input type="number" class="form-control multiplier"
+                    step="0.000001"
                     name="__multiplier[0]"
                     placeholder="Çarpan (Multiplier)">
             </div>
 
             <div class="col-sm-1">
                 <input type="number" class="form-control offset"
-                    name="__offset[0]"
+                step="0.000001"
+                name="__offset[0]"
                     placeholder="OffSet">
             </div>
 
