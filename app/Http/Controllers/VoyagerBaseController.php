@@ -50,7 +50,7 @@ class VoyagerBaseController extends Base
 
         $getter = $dataType->server_side ? 'paginate' : 'get';
 
-        $search = (object) ['value' => $request->get('s'), 'key' => $request->get('key'), 'filter' => $request->get('filter')];
+        $search = (object) ['value' => $request->get('s'), 'key' => $request->get('key'), 'filter' => $request->get('filter') ,'gt' => $request->get('gt') ];
         //print_r($search);die;
         $searchNames = [];
         if ($dataType->server_side) {
@@ -107,6 +107,12 @@ class VoyagerBaseController extends Base
                 $search_filter = ($search->filter == 'equals') ? '=' : 'LIKE';
                 $search_value = ($search->filter == 'equals') ? $search->value : '%' . $search->value . '%';
                 $query->where($search->key, $search_filter, $search_value);
+            }
+            if ($search->gt != '' && is_numeric($search->gt)) {
+                $numberOfMonths = (int) $search->gt;
+                $dateToCompare = now()->subMonths($numberOfMonths);
+            
+                $query->where('created_at', '>', $dateToCompare);
             }
 
             if ($orderBy && in_array($orderBy, $dataType->fields())) {
