@@ -23,7 +23,7 @@ class Fault extends Model
 
     private function filterOldRecords()
     {
-        $thresholdDate = Carbon::now()->subMonths(13);
+        $thresholdDate = Carbon::now()->subMonths(1);
 
     
         $this->where('created_at', '>=', $thresholdDate);
