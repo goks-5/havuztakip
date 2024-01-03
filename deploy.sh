@@ -19,4 +19,4 @@ php artisan view:clear
 
 php artisan up
 
-php artisan mysqlVarible:set  
+## php artisan mysqlVarible:set  
