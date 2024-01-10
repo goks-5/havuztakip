@@ -373,7 +373,7 @@ class VoyagerBaseController extends Base
         event(new BreadDataUpdated($dataType, $data));
 
         if (auth()->user()->can('browse', $model)) {
-            $redirect = redirect()->route("voyager.{$dataType->slug}.index");
+            $redirect = redirect()->route("voyager.{$dataType->slug}.index", ['gt' => 1]);
         } else {
             $redirect = redirect()->back();
         }
@@ -537,7 +537,7 @@ class VoyagerBaseController extends Base
             event(new BreadDataDeleted($dataType, $data));
         }
 
-        return redirect()->route("voyager.{$dataType->slug}.index")->with($data);
+        return back()->with($data);
     }
 
     public function restore(Request $request, $id)
