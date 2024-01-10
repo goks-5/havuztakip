@@ -81,11 +81,11 @@
     
                     <div class="form-group">
                         <label for="startdate">Başlangıç Tarihi:</label>
-                        <input type="date" class="form-control" id="startdate" name="startdate" required>
+                        <input type="date" class="form-control" id="startdate" name="startdate" required  value="{{ request('startdate') }}">
                     </div>
                     <div class="form-group">
                         <label for="enddate">Bitiş Tarihi:</label>
-                        <input type="date" class="form-control" id="enddate" name="enddate" required>
+                        <input type="date" class="form-control" id="enddate" name="enddate" required  value="{{ request('enddate') }}">
                     </div>
                     <button type="submit" class="btn btn-primary">Gönder</button>
                 </form>
