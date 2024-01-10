@@ -467,7 +467,7 @@ class VoyagerBaseController extends Base
 
         if (!$request->has('_tagging')) {
             if (auth()->user()->can('browse', $data)) {
-                $redirect = redirect()->route("voyager.{$dataType->slug}.index");
+                $redirect = redirect()->route("voyager.{$dataType->slug}.index", ['gt' => 1]);
             } else {
                 $redirect = redirect()->back();
             }
