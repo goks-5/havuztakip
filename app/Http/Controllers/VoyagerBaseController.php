@@ -50,7 +50,13 @@ class VoyagerBaseController extends Base
 
         $getter = $dataType->server_side ? 'paginate' : 'get';
 
-        $search = (object) ['value' => $request->get('s'), 'key' => $request->get('key'), 'filter' => $request->get('filter') ,'gt' => $request->get('gt') ];
+        $search = (object) ['value' => $request->get('s'),
+         'key' => $request->get('key'),
+          'filter' => $request->get('filter') ,
+          'gt' => $request->get('gt') ,
+          'startdate' => $request->get('startdate') ,
+          'enddate' => $request->get('enddate') ,
+         ];
         //print_r($search);die;
         $searchNames = [];
         if ($dataType->server_side) {
@@ -115,6 +121,12 @@ class VoyagerBaseController extends Base
                 $query->where('created_at', '>', $dateToCompare);
             }
 
+            if($search->startdate  != '' and $search->enddate  != '' ){
+
+                $query->whereBetween('created_at', [$search->startdate, $search->enddate . ' 23:59:59']);
+
+
+            }
             if ($orderBy && in_array($orderBy, $dataType->fields())) {
                 $querySortOrder = (!empty($sortOrder)) ? $sortOrder : 'desc';
                 $dataTypeContent = call_user_func([

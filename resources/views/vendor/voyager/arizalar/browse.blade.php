@@ -67,6 +67,30 @@
 
 @endphp
     <div class="page-content browse container-fluid">
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">Tarih Aralığı Formu</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ route('voyager.'.$dataType->slug.'.index') }}" method="get">
+                    <!-- Query string değerleri için gizli inputlar -->
+                    <input type="hidden" name="s" value="{{ request('s') }}">
+                    <input type="hidden" name="key" value="{{ request('key') }}">
+                    <input type="hidden" name="filter" value="{{ request('filter') }}">
+    
+                    <div class="form-group">
+                        <label for="startdate">Başlangıç Tarihi:</label>
+                        <input type="date" class="form-control" id="startdate" name="startdate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="enddate">Bitiş Tarihi:</label>
+                        <input type="date" class="form-control" id="enddate" name="enddate" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Gönder</button>
+                </form>
+            </div>
+        </div>
         @include('voyager::alerts')
         <div class="row">
             <div class="col-md-12">
