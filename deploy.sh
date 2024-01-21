@@ -5,6 +5,8 @@ df -lh /
 git reset --hard
 git pull
 
+composer require microsoft/msphpsql
+
 composer install --no-interaction --no-dev --prefer-dist
 
 php artisan migrate --force
