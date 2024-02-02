@@ -419,21 +419,7 @@
 
         function period(data) {
             Object.keys(data).forEach(function(k) {
-                jsonData = data[k]
-                var datatable = new google.visualization.DataTable();
-
-                jsonData.cols.forEach(function(col) {
-                    datatable.addColumn(col.type, col.label);
-      });
-
-      // Satır verilerini ekle
-      jsonData.rows.forEach(function(row) {
-        var values = row.c.map(function(cell) {
-          return cell.v;
-        });
-        datatable.addRow(values);
-      });
-
+                var datatable = new google.visualization.DataTable(data[k]);
                 var table = new google.visualization.Table(document.getElementById(k));
                 table.draw(datatable, {
                     width: '100%',
