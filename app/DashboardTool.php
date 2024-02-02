@@ -72,7 +72,7 @@ class DashboardTool extends Model
         if ($devices) {
             $lastdata = json_decode($devices->last_data, true);
             return $lastdata[$settings['device_index']] ?? "-";
-        }else{
+        } else {
             return "-";
         }
     }
@@ -82,7 +82,7 @@ class DashboardTool extends Model
         $devices = Device::where('id', $settings['device'])->first();
         if ($devices) {
             return $devices->last_at;
-        }else{
+        } else {
             return "-";
         }
     }
@@ -93,7 +93,7 @@ class DashboardTool extends Model
         if ($devices) {
             $lastdata = json_decode($devices->last_data, true);
             return $lastdata[$settings['device_index']] ?? "-";
-        }else{
+        } else {
             return "-";
         }
     }
@@ -117,19 +117,17 @@ class DashboardTool extends Model
 
     public function period($settings, $tool)
     {
-        $value['cols'][] = ['id' => 0, 'label' => 'Cihaz', 'type' => 'string'];
+        if ($settings['data_type'] ?? 0) {
+            $value['cols'][] = ['id' => 0, 'label' => 'Tarih', 'type' => 'string'];
+        } else {
+            $value['cols'][] = ['id' => 0, 'label' => 'Cihaz', 'type' => 'string'];
+        }
+
         $devices = array();
         $timearray = array();
         $colindex = 1;
         setlocale(LC_TIME, 'tr_TR.utf8');
 
-        if($settings['data_type'] ?? 0){
-            $rowIndex = 'cols';
-            $colIndex = 'rows';
-        }else{
-            $rowIndex = 'rows';
-            $colIndex = 'cols';
-        }
 
         foreach ($settings['devices'] as $key => $device) {
             if (!isset($devices[$device['device']])) {
@@ -138,20 +136,34 @@ class DashboardTool extends Model
             $cdevice =   $devices[$device['device']];
             $tags = json_decode($cdevice->tags, true);
 
-            $value[ $rowIndex ][$key]['c'][0]['v'] = $tags[$device['device_index']];
-
             $rows = Device::getdatas($device['device'], $device['device_index'], $settings['hour'], 'desc');
-            $c = array();
-            foreach ($rows as $row) {
-                $time = Carbon::createFromTimestamp(strtotime($row->created_at));
-                $time = $time->formatLocalized('%a %d %b %Y');
-                if (!in_array($time, $timearray)) {
-                    $timearray[] = $time;
-                    $value[$colIndex][] = ['id' => $colindex, 'label' => $time, 'type' => 'number'];
-                    ++$colindex;
+            if ($settings['data_type'] ?? 0) {
+                $value['cols'][] = ['id' => $colindex, 'label' =>  $tags[$device['device_index']], 'type' => 'string'];
+                ++$colindex;
+
+                foreach ($rows as $row) {
+                    $time = Carbon::createFromTimestamp(strtotime($row->created_at));
+                    $time = $time->formatLocalized('%a %d %b %Y');
+                    $timeindex = array_search($time, $timearray);
+                    if (!in_array($time, $timearray)) {
+                        $timearray[] = $time;
+                        $value['rows'][$timeindex + 1]['c'][0]['v'] = $time;
+                    }
+                    $value['rows'][$timeindex + 1]['c'][$key]['v'] = $row->value;
                 }
-                $timeindex = array_search($time, $timearray);
-                $value[ $rowIndex ][$key]['c'][$timeindex + 1]['v'] = $row->value;
+            } else {
+                $value['rows'][$key]['c'][0]['v'] = $tags[$device['device_index']];
+                foreach ($rows as $row) {
+                    $time = Carbon::createFromTimestamp(strtotime($row->created_at));
+                    $time = $time->formatLocalized('%a %d %b %Y');
+                    if (!in_array($time, $timearray)) {
+                        $timearray[] = $time;
+                        $value['cols'][] = ['id' => $colindex, 'label' => $time, 'type' => 'number'];
+                        ++$colindex;
+                    }
+                    $timeindex = array_search($time, $timearray);
+                    $value['rows'][$key]['c'][$timeindex + 1]['v'] = $row->value;
+                }
             }
         }
 
@@ -187,7 +199,7 @@ class DashboardTool extends Model
         $value['fault'][] = ['Durum', 'Adet'];
         $value['fault'][] = ['Yeni Arıza', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Yeni')->count()];
         $value['fault'][] = ['Onay Bekleyen', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Onay |1|')
-                        ->where('created_at', '>=', Carbon::now()->subHours('24')->toDateTimeString())->count()];
+            ->where('created_at', '>=', Carbon::now()->subHours('24')->toDateTimeString())->count()];
         $value['fault'][] = ['Beklemede Olan', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Bekliyor |0|')->count()];
         $value['fault'][] = ['Bakıma Başlanan', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Bakıma Başlandı |0|')->count()];
         $value['fault'][] = ['Parça Bekleyen', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Malzeme Bekliyor |2|')->count()];
@@ -199,11 +211,11 @@ class DashboardTool extends Model
     public function faults_table($settings, $tool)
     {
         $faults = Fault::where('company_id', Auth::user()->company_id)
-        ->whereIn('status', $settings['status'])
-        ->orderBy('created_at','desc')
-        ->limit($settings['limit'])->get();
+            ->whereIn('status', $settings['status'])
+            ->orderBy('created_at', 'desc')
+            ->limit($settings['limit'])->get();
         $return = [];
-        foreach ($faults as $fault){
+        foreach ($faults as $fault) {
             $return[] = [
                 'id' => $fault->id,
                 'equipment' => $fault->equipment->name,
@@ -215,10 +227,10 @@ class DashboardTool extends Model
                 'reporting_user' => $fault->reporting_user,
                 'status' => $fault->status,
 
-            ] ;
+            ];
         }
 
-        return $return ;
+        return $return;
     }
 
     public function backgroud($settings, $tool)
@@ -269,9 +281,10 @@ class DashboardTool extends Model
 
                 $result[$tag->id]['tags'][] = [
                     'name' => $device[$dt['device']]->name . ' - ' . $devicetags[$dt['device_index']],
-                    'value' => Cache::remember('pt_' . $tag->id .'_'. $device[$dt['device']]->name . '_' . $devicetags[$dt['device_index']],300, function () use ($dt , $st , $et)  {
-                        return  DB::select(" SELECT device_date_sub({$dt['device']},{$dt['device_index']},'{$st}','{$et}') as sub_value")[0]->sub_value ;
-                })];
+                    'value' => Cache::remember('pt_' . $tag->id . '_' . $device[$dt['device']]->name . '_' . $devicetags[$dt['device_index']], 300, function () use ($dt, $st, $et) {
+                        return  DB::select(" SELECT device_date_sub({$dt['device']},{$dt['device_index']},'{$st}','{$et}') as sub_value")[0]->sub_value;
+                    })
+                ];
             }
         }
 
