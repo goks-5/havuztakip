@@ -147,8 +147,8 @@ class DashboardTool extends Model
                     $timeindex = array_search($time, $timearray);
                     if (!in_array($time, $timearray)) {
                         $timearray[] = $time;
-                        $value['rows'][$timeindex]['c'][0]['v'] = $time;
                     }
+                    $value['rows'][$timeindex]['c'][0]['v'] = $time;
                     $value['rows'][$timeindex]['c'][$key + 1]['v'] = $row->value;
                 }
             } else {
