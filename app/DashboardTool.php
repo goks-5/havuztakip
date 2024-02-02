@@ -122,6 +122,15 @@ class DashboardTool extends Model
         $timearray = array();
         $colindex = 1;
         setlocale(LC_TIME, 'tr_TR.utf8');
+
+        if($settings['data_type'] ?? 0){
+            $rowIndex = 'cols';
+            $colIndex = 'rows';
+        }else{
+            $rowIndex = 'rows';
+            $colIndex = 'cols';
+        }
+
         foreach ($settings['devices'] as $key => $device) {
             if (!isset($devices[$device['device']])) {
                 $devices[$device['device']] = Device::where('id', $device['device'])->first();
@@ -129,7 +138,7 @@ class DashboardTool extends Model
             $cdevice =   $devices[$device['device']];
             $tags = json_decode($cdevice->tags, true);
 
-            $value['rows'][$key]['c'][0]['v'] = $tags[$device['device_index']];
+            $value[ $rowIndex ][$key]['c'][0]['v'] = $tags[$device['device_index']];
 
             $rows = Device::getdatas($device['device'], $device['device_index'], $settings['hour'], 'desc');
             $c = array();
@@ -138,11 +147,11 @@ class DashboardTool extends Model
                 $time = $time->formatLocalized('%a %d %b %Y');
                 if (!in_array($time, $timearray)) {
                     $timearray[] = $time;
-                    $value['cols'][] = ['id' => $colindex, 'label' => $time, 'type' => 'number'];
+                    $value[$colIndex][] = ['id' => $colindex, 'label' => $time, 'type' => 'number'];
                     ++$colindex;
                 }
                 $timeindex = array_search($time, $timearray);
-                $value['rows'][$key]['c'][$timeindex + 1]['v'] = $row->value;
+                $value[ $rowIndex ][$key]['c'][$timeindex + 1]['v'] = $row->value;
             }
         }
 
