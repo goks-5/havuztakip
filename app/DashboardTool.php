@@ -123,6 +123,12 @@ class DashboardTool extends Model
             $value['cols'][] = ['id' => 0, 'label' => 'Cihaz', 'type' => 'string'];
         }
 
+        if ($settings['order_asc'] ?? 0) {
+            $order = "desc";
+        } else {
+            $order = "asc";
+        }
+
         $devices = array();
         $timearray = array();
         $colindex = 1;
@@ -136,7 +142,7 @@ class DashboardTool extends Model
             $cdevice =   $devices[$device['device']];
             $tags = json_decode($cdevice->tags, true);
 
-            $rows = Device::getdatas($device['device'], $device['device_index'], $settings['hour'], 'desc');
+            $rows = Device::getdatas($device['device'], $device['device_index'], $settings['hour'], $order);
             if ($settings['data_type'] ?? 0) {
                 $value['cols'][] = ['id' => $colindex, 'label' =>  $tags[$device['device_index']], 'type' => 'string'];
                 ++$colindex;
