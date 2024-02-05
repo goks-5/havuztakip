@@ -123,10 +123,10 @@ class DashboardTool extends Model
             $value['cols'][] = ['id' => 0, 'label' => 'Cihaz', 'type' => 'string'];
         }
 
-        if ($settings['order_asc'] ?? 0) {
-            $order = "desc";
-        } else {
+        if ($settings['order_asc'] ?? 0) {         
             $order = "asc";
+        } else {
+            $order = "desc";
         }
 
         $devices = array();
