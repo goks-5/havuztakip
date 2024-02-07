@@ -146,14 +146,18 @@ class DashboardTool extends Model
             if ($settings['data_type'] ?? 0) {
                 $value['cols'][] = ['id' => $colindex, 'label' =>  $tags[$device['device_index']], 'type' => 'string'];
                 ++$colindex;
-
                 foreach ($rows as $row) {
                     $time = Carbon::createFromTimestamp(strtotime($row->created_at));
                     $time = $time->formatLocalized('%a %d %b %Y');
                     $timeindex = array_search($time, $timearray);
                     if (!in_array($time, $timearray)) {
                         $timearray[] = $time;
-                    }
+                    }           
+                }
+                foreach ($rows as $row) {
+                    $time = Carbon::createFromTimestamp(strtotime($row->created_at));
+                    $time = $time->formatLocalized('%a %d %b %Y');
+                    $timeindex = array_search($time, $timearray);
                     $value['rows'][$timeindex]['c'][0]['v'] = $time;
                     $value['rows'][$timeindex]['c'][$key + 1]['v'] = $row->value;
                 }
