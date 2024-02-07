@@ -144,7 +144,7 @@ class DashboardTool extends Model
 
             $rows = Device::getdatas($device['device'], $device['device_index'], $settings['hour'], $order);
             if ($settings['data_type'] ?? 0) {
-                $value['cols'][] = ['id' => $colindex, 'label' =>  $tags[$device['device_index']], 'type' => 'string'];
+                $value['cols'][] = ['id' => $colindex, 'label' =>  $tags[$device['device_index']], 'type' => 'number'];
                 ++$colindex;
                 foreach ($rows as $row) {
                     $time = Carbon::createFromTimestamp(strtotime($row->created_at));
