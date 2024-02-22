@@ -273,13 +273,20 @@ class DashboardTool extends Model
 
             foreach ($data_tags as $dt) {
                 if (!isset($device[$dt['device']])) {
-                    $device[$dt['device']] = Device::select(
+                    $tempDevice =  Device::select(
                         "name",
                         "tags"
                     )
                         ->where('id', $dt['device'])
                         ->first();
+                    if( $tempDevice){
+                        $device[$dt['device']] = $tempDevice;
+                    }else{
+                    continue;
+                    }                       
                 }
+              
+
                 $devicetags = json_decode($device[$dt['device']]->tags, true);
 
                 $st = date('Y-m-d H:i:s', strtotime($tag->start_time));
