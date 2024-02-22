@@ -93,17 +93,18 @@ foreach($dataTypeContent as $data){
   )
   ->where('id', $point['device'])
   ->first();
+  if( $tempDevice){
+                        $device[$dt['device']] = $tempDevice;
+                    }else{
+                    continue;
+                    }  
   }
 
   $devicetags= json_decode($device[$point['device']]->tags,true);
   $numericvalue = preg_replace('~\D~', '', $devicetags[$point['device_index']]);
   $nonnumericvalue = trim(trim(trim($devicetags[$point['device_index']] ,$numericvalue ),'.'));
   $pointColums [$nonnumericvalue] = $nonnumericvalue;
-  if( $tempDevice){
-                        $device[$dt['device']] = $tempDevice;
-                    }else{
-                    continue;
-                    }   
+  
   }
 }
 @endphp
