@@ -161,12 +161,17 @@ foreach($dataTypeContent as $data){
                                       foreach ($points as $point) {
 
                                         if (!isset($device[$point['device']])) {
-                                            $device[$point['device']] = DB::table('devices')->select(
+                                            $tempDevice = DB::table('devices')->select(
                                                 "name",
                                                 "tags"
                                             )
                                       ->where('id', $point['device'])
                                       ->first();
+                                            if( $tempDevice){
+                                                 $device[$point['device']]  = $tempDevice;
+                                            }else{
+                                                  continue;
+                                            }  
                                         }
                                         $devicetags= json_decode($device[$point['device']]->tags,true);
                                         $st = date('Y-m-d H:i:s', strtotime($data->start_time));
