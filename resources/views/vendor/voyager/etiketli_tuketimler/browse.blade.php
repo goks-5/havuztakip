@@ -94,7 +94,7 @@ foreach($dataTypeContent as $data){
   ->where('id', $point['device'])
   ->first();
   if( $tempDevice){
-                        $device[$dt['device']] = $tempDevice;
+    $device[$point['device']]  = $tempDevice;
                     }else{
                     continue;
                     }  
