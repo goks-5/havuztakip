@@ -87,7 +87,7 @@ foreach($dataTypeContent as $data){
   foreach ($points as $point) {
 
   if (!isset($device[$point['device']])) {
-  $device[$point['device']] = DB::table('devices')->select(
+    $tempDevice = DB::table('devices')->select(
   "name",
   "tags"
   )
@@ -99,7 +99,11 @@ foreach($dataTypeContent as $data){
   $numericvalue = preg_replace('~\D~', '', $devicetags[$point['device_index']]);
   $nonnumericvalue = trim(trim(trim($devicetags[$point['device_index']] ,$numericvalue ),'.'));
   $pointColums [$nonnumericvalue] = $nonnumericvalue;
-
+  if( $tempDevice){
+                        $device[$dt['device']] = $tempDevice;
+                    }else{
+                    continue;
+                    }   
   }
 }
 @endphp
