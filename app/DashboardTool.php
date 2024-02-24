@@ -276,7 +276,7 @@ class DashboardTool extends Model
                     $tempDevice =  Device::select(
                         "name",
                         "tags"
-                    )
+                    )->withTrashed() 
                         ->where('id', $dt['device'])
                         ->first();
                     if( $tempDevice){

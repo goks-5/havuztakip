@@ -90,7 +90,7 @@ foreach($dataTypeContent as $data){
     $tempDevice = DB::table('devices')->select(
   "name",
   "tags"
-  )
+  )->withTrashed() 
   ->where('id', $point['device'])
   ->first();
   if( $tempDevice){
@@ -164,7 +164,7 @@ foreach($dataTypeContent as $data){
                                             $tempDevice = DB::table('devices')->select(
                                                 "name",
                                                 "tags"
-                                            )
+                                            )->withTrashed() 
                                       ->where('id', $point['device'])
                                       ->first();
                                             if( $tempDevice){
