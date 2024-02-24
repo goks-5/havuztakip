@@ -75,7 +75,7 @@
                             </form>
                         @endif
 @php
-use App\Models\Device;
+use App\Device;
 $device = array();
 $pointColums = array();
 foreach($dataTypeContent as $data){
