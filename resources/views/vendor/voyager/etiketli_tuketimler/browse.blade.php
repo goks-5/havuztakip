@@ -87,7 +87,7 @@ foreach($dataTypeContent as $data){
   foreach ($points as $point) {
 
   if (!isset($device[$point['device']])) {
-    $tempDevice = DB::table('devices')->select(
+    $tempDevice = Device::select(
   "name",
   "tags"
   )->withTrashed() 
@@ -161,7 +161,7 @@ foreach($dataTypeContent as $data){
                                       foreach ($points as $point) {
 
                                         if (!isset($device[$point['device']])) {
-                                            $tempDevice = DB::table('devices')->select(
+                                            $tempDevice = Device::select(
                                                 "name",
                                                 "tags"
                                             )->withTrashed() 
