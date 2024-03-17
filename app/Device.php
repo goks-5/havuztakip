@@ -576,19 +576,23 @@ class Device extends Model
             $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find($device->company_id);
             $start = Carbon::now()->subHours($setting['day_start_hour'])->startOfDay()->addHours($setting['day_start_hour']);
         }
+
         switch ($hour) {
             case 'D':
                 $start = $start->format('Y-m-d H:i:s');
+                $hour = 24 ;
                 break;
             case 'W':
                 $start->startOfWeek($setting['week_start_day'])->addHours($setting['day_start_hour'])->format('Y-m-d H:i:s');
+                $hour = 168 ;
                 break;
             case 'M':
                 $start->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->format('Y-m-d H:i:s');
+                $hour = 720 ;
                 break;
             case 'Y':
                 $start->startOfYear()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->format('Y-m-d H:i:s');
-
+                $hour = 8640 ;
                 break;
             default:
                 $start = date('Y-m-d H:i:s', strtotime("- $hour hour"));
