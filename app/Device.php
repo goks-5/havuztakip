@@ -15,7 +15,7 @@ class Device extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['token', 'last_data', 'tags', 'tags_last_change', 'last_at', 'company_id', 'product', 'hardware', 'software','multiplier','offset'];
+    protected $fillable = ['token', 'last_data', 'tags', 'tags_last_change', 'last_at', 'company_id', 'product', 'hardware', 'software', 'multiplier', 'offset'];
     public static function hourly()
     {
         //  DB::enableQueryLog();
@@ -570,10 +570,37 @@ class Device extends Model
 
     public static function getdatas($device_id, $data_id, $hour, $order = 'asc')
     {
+
+        if (!is_numeric($hour)) {
+            $device = Device::find($device_id);
+            $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find($device->company_id);
+            $start = Carbon::parse($time)->subHours($setting['day_start_hour'])->startOfDay()->addHours($setting['day_start_hour']);
+        }
+        switch ($hour) {
+            case 'D':
+                $start = $start->format('Y-m-d H:i:s');
+                break;
+            case 'W':
+                $start->startOfWeek($setting['week_start_day'])->addHours($setting['day_start_hour'])->format('Y-m-d H:i:s');
+                break;
+            case 'M':
+                $start->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->format('Y-m-d H:i:s');
+                break;
+            case 'Y':
+                $start->startOfYear()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->format('Y-m-d H:i:s');
+
+                break;
+            default:
+                $start = date('Y-m-d H:i:s', strtotime("- $hour hour"));
+                break;
+        }
+
+
+
         $values = DB::table('device_datas')
             ->where('device_id', $device_id)
             ->where('data_id', $data_id)
-            ->whereBetween('created_at', [date('Y-m-d H:i:s', strtotime("- $hour hour")), date('Y-m-d H:i:s')])
+            ->whereBetween('created_at', [$start, date('Y-m-d H:i:s')])
             ->groupBy(DB::raw("FLOOR(UNIX_TIMESTAMP(created_at)/($hour / 6))"))->orderBy('created_at', $order);
 
         //  return $values->get(DB::raw(' if(max(value) - avg(value) > avg(value) - min(value),min(value),max(value) ) value, min(`created_at`) created_at'));
