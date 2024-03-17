@@ -574,7 +574,7 @@ class Device extends Model
         if (!is_numeric($hour)) {
             $device = Device::find($device_id);
             $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find($device->company_id);
-            $start = Carbon::parse($time)->subHours($setting['day_start_hour'])->startOfDay()->addHours($setting['day_start_hour']);
+            $start = $now->subHours($setting['day_start_hour'])->startOfDay()->addHours($setting['day_start_hour']);
         }
         switch ($hour) {
             case 'D':
