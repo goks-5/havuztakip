@@ -11,7 +11,7 @@
 
     <ul class="nav nav-tabs">
       @foreach ($boards as $key => $value)
-      <li class="@if($value->id == $board->id)active @endif" >
+      <li class="@if($value->id == $board->id)active @endif" data-id="{{$value->id}}">
       <a class="boardlink" href="{{route('dashboardnew' , $value->id)}}" data-id="{{$value->id}}">{{$value->title}}</a>
        <a class="boardcopy edithide" data-board="enerjiboard-{{$value->id}}" style="right: 45px;"><i class="voyager-images"></i></a>
       <a class="boardpaste edithide" data-board="{{$value->id}}" style="right: 25px;"><i class="voyager-wand"></i></a>
@@ -406,4 +406,106 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
 });
   
 </script>
+
+<script type="text/javascript">
+// Sürükle ve bırak işlevselliği için yeni eklenen kod bloğu
+document.addEventListener('DOMContentLoaded', function() {
+    var draggedItem = null;
+
+    document.querySelectorAll('.nav-tabs > li').forEach(function(item) {
+        item.setAttribute('draggable', true);
+
+        item.addEventListener('dragstart', function(e) {
+            draggedItem = this; // Sürüklenen öğeyi kaydet
+            e.dataTransfer.effectAllowed = 'move'; // Sadece taşıma işlemine izin ver
+        }, false);
+
+        item.addEventListener('dragover', function(e) {
+            e.preventDefault(); // Drop olayını etkinleştirmek için
+            this.classList.add('over'); // Stil değişikliği için (opsiyonel)
+        }, false);
+
+        item.addEventListener('dragleave', function(e) {
+            this.classList.remove('over'); // Stil değişikliğini geri al (opsiyonel)
+        }, false);
+
+        item.addEventListener('drop', function(e) {
+            e.stopPropagation(); // Tarayıcı öntanımlı davranışını önle
+            if (draggedItem !== this) {
+                var allTabs = Array.from(document.querySelectorAll('.nav-tabs > li'));
+                var draggedIndex = allTabs.indexOf(draggedItem);
+                var droppedIndex = allTabs.indexOf(this);
+
+                if (draggedIndex < droppedIndex) {
+                    this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(draggedItem, this);
+                }
+            }
+            this.classList.remove('over'); // Stil değişikliğini geri al (opsiyonel)
+        }, false);
+    });
+});
+</script>
+
+<script type="text/javascript">
+document.addEventListener('DOMContentLoaded', function() {
+    var tabsContainer = document.querySelector('.nav-tabs');
+    var draggedItem = null;
+
+    // Sayfa yüklenirken tab sırasını geri yükle
+    var savedOrder = localStorage.getItem('tabOrder');
+    if (savedOrder) {
+        applyTabOrder(JSON.parse(savedOrder));
+    }
+
+    document.querySelectorAll('.nav-tabs > li').forEach(function(item) {
+        item.setAttribute('draggable', true);
+
+        item.addEventListener('dragstart', function(e) {
+            draggedItem = this;
+            e.dataTransfer.effectAllowed = 'move';
+        }, false);
+
+        item.addEventListener('dragover', function(e) {
+            e.preventDefault();
+        }, false);
+
+        item.addEventListener('drop', function(e) {
+            e.stopPropagation();
+            if (draggedItem !== this) {
+                var allTabs = Array.from(document.querySelectorAll('.nav-tabs > li'));
+                var draggedIndex = allTabs.indexOf(draggedItem);
+                var droppedIndex = allTabs.indexOf(this);
+
+                if (draggedIndex < droppedIndex) {
+                    this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                } else {
+                    this.parentNode.insertBefore(draggedItem, this);
+                }
+
+                // Yeni sıralamayı kaydet
+                saveTabOrder();
+            }
+        }, false);
+    });
+
+    function saveTabOrder() {
+        var tabOrder = Array.from(document.querySelectorAll('.nav-tabs > li'))
+                            .map(function(item) { return item.dataset.id; });
+        localStorage.setItem('tabOrder', JSON.stringify(tabOrder));
+    }
+
+    function applyTabOrder(order) {
+        var currentOrder = Array.from(document.querySelectorAll('.nav-tabs > li'));
+        order.forEach(function(id) {
+            var tab = currentOrder.find(function(tab) { return tab.dataset.id === id; });
+            if (tab) {
+                tabsContainer.appendChild(tab);
+            }
+        });
+    }
+});
+</script>
+
 @stop
