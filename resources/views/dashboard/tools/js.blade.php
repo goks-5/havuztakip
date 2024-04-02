@@ -395,18 +395,19 @@
 
 
                     t.row.add([
-                        '<p title="Raporlayan : ' +
-                        data[k][s]['reporting_user'] +
-                        ' , Bakımcı : ' + data[k][s]['staff'] +
-                        '">' + data[k][s]['status'] + '</p>',
-                         data[k][s]['equipment'] +
-                        ' - ' + data[k][s]['fault_code'] +
-                        '<br>' +  data[k][s]['fault_comment'] ,
-                        '<p title="Kabul Edilme : ' + data[k][s]['accepted_at'] +
-                        '">' + data[k][s]['created_at'] + '</p>',
-                        actionbtn
+                    '<p title="Raporlayan : ' +
+                    data[k][s]['reporting_user'] + // mevcut bildiren personel verisi
+                    ' , Bakımcı : ' + data[k][s]['staff'] +
+                    '">' + data[k][s]['status'] + '</p>',
+                    data[k][s]['equipment'] +
+                    ' - ' + data[k][s]['fault_code'] +
+                    '<br>' +  data[k][s]['fault_comment'],
+                    '<p title="Kabul Edilme : ' + data[k][s]['accepted_at'] +
+                    '">' + data[k][s]['created_at'] + '</p>',
+                    data[k][s]['reporting_user'], // Yeni eklenen sütun için bildiren personel verisi
+                    actionbtn
+                ]).draw(false);
 
-                    ]).draw(false);
                 });
             });
         }
