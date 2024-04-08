@@ -23,6 +23,12 @@ class Api extends Controller
     {
         $parameters = $request->all();
         $device = Device::where(['mac' => $parameters['mac'], 'device_id' => $parameters['device_id']])->first();
+        $tags = json_decode($device->tags, true); 
+        foreach ($tags as $deviceDataId => $tag) {
+            if(isset($parameters['data'][$deviceDataId])){
+                $allowedData[$deviceDataId] = $parameters['data'][$deviceDataId]  ;
+            }         
+        }
         $response = ['status'=>'','message'=>'','date' => date('Y-m-d H:i:s'),'timestamp'=>time()];
         $timestamp = strtotime($device->updated_at) + $device->period;
         $changeTags = array_filter(json_decode($device->tags === NULL ? '{}' : $device->tags, true), function ($k) {
@@ -44,7 +50,7 @@ class Api extends Controller
         // fix data
         
         
-        foreach ($parameters['data'] as $key => $value) {
+        foreach ( $allowedData as $key => $value) {
 
             if (isset($offset[$key]) && !empty($offset[$key])) {
                 $offsetValue = floatval($offset[$key]);
@@ -56,18 +62,18 @@ class Api extends Controller
             } else {
                 $multiplierValue = 1; 
             }
-            $parameters['data'][$key] = ($value  * $multiplierValue ) +  $offsetValue;
+            $allowedData[$key] = ($value  * $multiplierValue ) +  $offsetValue;
         }
 
-        $replace = array_replace($old, $parameters['data']);
+        $replace = array_replace($old, $allowedData);
         ksort($replace);
-        foreach ($parameters['data'] as $key => $value) {
+        foreach ( $allowedData as $key => $value) {
             if (isset($changeTags[$key + 1000]) && isset($old[$key]) && $old[$key] != $value)
                 $changeTags[$key + 1000] = date('Y-m-d H:i:s');
         }
         if ($timestamp <= time()) {
             $saveData = [];
-            foreach ($parameters['data'] as $key => $value) {
+            foreach ( $allowedData as $key => $value) {
 
                 $saveData[] = [
                     'device_id' => $device->id,
