@@ -81,8 +81,8 @@ class Kernel extends ConsoleKernel
             log::error($th->getMessage(),$th->getTrace());
         }
 
-        $schedule->command('mail:reports')
-        ->everyFifteenMinutes();
+        $schedule->command('mail:reports')->everyFifteenMinutes();
+        $schedule->command('mail:reports')->dailyAt('00:00');
 
         $schedule->call(function () {
             $root_path = base_path();
