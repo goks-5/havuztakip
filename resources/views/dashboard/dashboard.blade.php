@@ -452,6 +452,14 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
     var tabsContainer = document.querySelector('.nav-tabs');
     var draggedItem = null;
+    var isDraggable = false; // Sürükleyip bırakma başlangıçta kapalı
+
+    // Toggle butonunun durumunu kontrol et
+    $('#editOnOff').change(function() {
+        isDraggable = $(this).prop('checked');
+        // Tab'ların draggable özelliğini toggle durumuna göre ayarla
+        $('.nav-tabs > li').attr('draggable', isDraggable);
+    });
 
     // Sayfa yüklenirken tab sırasını geri yükle
     var savedOrder = localStorage.getItem('tabOrder');
@@ -459,33 +467,40 @@ document.addEventListener('DOMContentLoaded', function() {
         applyTabOrder(JSON.parse(savedOrder));
     }
 
+    // Sürüklenen tab'ları ayarla
     document.querySelectorAll('.nav-tabs > li').forEach(function(item) {
-        item.setAttribute('draggable', true);
-
         item.addEventListener('dragstart', function(e) {
-            draggedItem = this;
-            e.dataTransfer.effectAllowed = 'move';
+            if (isDraggable) {
+                draggedItem = this;
+                e.dataTransfer.effectAllowed = 'move';
+            } else {
+                e.preventDefault(); // Draggable değilse işlemi engelle
+            }
         }, false);
 
         item.addEventListener('dragover', function(e) {
-            e.preventDefault();
+            if (isDraggable) {
+                e.preventDefault();
+            }
         }, false);
 
         item.addEventListener('drop', function(e) {
-            e.stopPropagation();
-            if (draggedItem !== this) {
-                var allTabs = Array.from(document.querySelectorAll('.nav-tabs > li'));
-                var draggedIndex = allTabs.indexOf(draggedItem);
-                var droppedIndex = allTabs.indexOf(this);
+            if (isDraggable) {
+                e.stopPropagation();
+                if (draggedItem !== this) {
+                    var allTabs = Array.from(document.querySelectorAll('.nav-tabs > li'));
+                    var draggedIndex = allTabs.indexOf(draggedItem);
+                    var droppedIndex = allTabs.indexOf(this);
 
-                if (draggedIndex < droppedIndex) {
-                    this.parentNode.insertBefore(draggedItem, this.nextSibling);
-                } else {
-                    this.parentNode.insertBefore(draggedItem, this);
+                    if (draggedIndex < droppedIndex) {
+                        this.parentNode.insertBefore(draggedItem, this.nextSibling);
+                    } else {
+                        this.parentNode.insertBefore(draggedItem, this);
+                    }
+
+                    // Yeni sıralamayı kaydet
+                    saveTabOrder();
                 }
-
-                // Yeni sıralamayı kaydet
-                saveTabOrder();
             }
         }, false);
     });
@@ -506,6 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
 </script>
 
 @stop
