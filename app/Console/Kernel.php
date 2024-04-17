@@ -82,8 +82,7 @@ class Kernel extends ConsoleKernel
         }
 
         $schedule->command('mail:reports')->everyFifteenMinutes();
-        $schedule->command('mail:reports')->dailyAt('00:00');
-
+        
         $schedule->call(function () {
             $root_path = base_path();
             $process = new Process('cd ' . $root_path . '; ./deploy.sh');
