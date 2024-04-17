@@ -66,13 +66,14 @@ class sendReportsMail extends Command
         }
     }
 
-    protected function checkIsSend($report):Bool {
-        $dateStart = Carbon::parse($this->reportDate($report)); 
-        $now = Carbon::now()->subHour();
-        $sendDate = Carbon::parse($report->report_send_date);
-        return $now->gt($dateStart)  &&  (is_null($report->report_send_date) || $dateStart->gt($sendDate)) ;
-
-    }
+    protected function checkIsSend($report): bool {
+        $reportScheduledDate = Carbon::parse($this->reportDate($report));
+        $now = Carbon::now();
+        $sendDate = $report->report_send_date ? Carbon::parse($report->report_send_date) : null;
+    
+        // Şu anki zaman, planlanan rapor tarihi ile aynı gün ve saatte veya sonrasında mı kontrol edilir
+        return $now->gte($reportScheduledDate) && ($sendDate == null || $reportScheduledDate->gt($sendDate));
+    }    
 
     protected function reportDate($report){
         $date = date('Y-m-d H:i');
