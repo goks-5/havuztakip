@@ -2,7 +2,7 @@
 <h5>Veri kaynağı</h5>
 @endif
 @if($options->device == 1)
-  <div class="col-md-6">
+  <div class="col-md-12">
     <label class="control-label">Cihaz</label>
     <select class="form-control select2" id="device">
       @foreach ($devices as $device)
@@ -14,10 +14,9 @@
       @endforeach
     </select>
   </div>
-  <div class="col-md-6">
+  <div class="col-md-12">
     <label class="control-label">Etiket</label>
-    <select class="form-control select2" name="setting[device]" id="deviceTags">
-
+    <select class="form-control select2" multiple="multiple" name="setting[device_tags][]" id="deviceTags">
     </select>
   </div>
   <script type="text/javascript">
@@ -51,7 +50,7 @@
 
   @if($options->device == 2)
 
-    <div class="col-md-6">
+    <div class="col-md-12">
       <label class="control-label">Cihaz</label>
       <select class="form-control select2" id="device">
         @foreach ($devices as $device)
@@ -62,11 +61,10 @@
           @endforeach
       </select>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-12">
       <label class="control-label">Etiket</label>
-      <select class="form-control select2"  id="deviceTags">
-
-      </select>
+      <select class="form-control select2" multiple="multiple" name="setting[device_tags][]" id="deviceTags">
+    </select>
     </div>
     <div class=col-md-12>
       <select name="setting[devices][]" multiple id="multiTag" >
@@ -85,7 +83,6 @@
           selected = $(this).val();
           obj = devices[selected] ;
           $('#deviceTags').empty();
-            $('#deviceTags').append("<option></option>");
           Object.keys(obj).forEach(function(k){
               $('#deviceTags').append("<option value='" + k + "'>" + obj[k] + "</option>");
           });
