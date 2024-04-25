@@ -48,7 +48,9 @@
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <input type="submit" class="voyager-documentation btn btn-success" value="Excel" />
+                                <input type="submit" class="voyager-documentation btn btn-success" value="Excel" />                           
+                                <!-- Excel Butonu Yanına Yeni Sekmede Göster Butonu Ekleyin -->
+                                <a href="#" target="_blank" class="voyager-documentation btn btn-warning" id="view_in_new_tab">Yeni Sekmede Göster</a>
                             </div>
 
                         </form>
