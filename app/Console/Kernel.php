@@ -89,7 +89,7 @@ class Kernel extends ConsoleKernel
             $process->run(function ($type, $buffer) {
                 Log::info("deploy : $buffer");
             });
-        })->dailyAt('02:44');
+        })->dailyAt('23:44');
     }
 
     /**
