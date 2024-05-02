@@ -49,8 +49,7 @@
                             </div>
                             <div class="col-sm-3">
                                 <input type="submit" class="voyager-documentation btn btn-success" value="Excel" />                           
-                                <!-- Excel Butonu Yanına Yeni Sekmede Göster Butonu Ekleyin -->
-                                <a href="#" target="_blank" class="voyager-documentation btn btn-warning" id="view_in_new_tab">Yeni Sekmede Göster</a>
+                                <button type="button" class="voyager-documentation btn btn-info" onclick="openInNewTab();">Yeni Sekmede Göster</button>                
                             </div>
 
                         </form>
@@ -255,6 +254,14 @@
 
         });
 
+        function openInNewTab() {
+            var form = document.querySelector('form'); // Formu seç
+            var formData = new FormData(form);
+            var searchParams = new URLSearchParams(formData).toString(); // FormData'yı sorgu parametrelerine dönüştür
+            var url = "{{ route('yeniSekmedeGoster') }}" + "?" + searchParams; // Yeni rota ve parametreler
+            window.open(url, '_blank'); // Yeni sekmede aç
+        }
+        
     </script>
 
 @stop
