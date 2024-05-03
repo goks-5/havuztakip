@@ -61,7 +61,6 @@ Route::group(['prefix' => ''], function () {
     Route::get('/cihazlar/veriler', ['uses' => 'Devices@DevicesDatas', 'as' => 'veriler']);
     Route::post('/cihazlar/veriler', ['uses' => 'Devices@DeviceDatasSearch', 'as' => 'cihazverilerajax']);
     Route::get('/cihazlar/veriler/{id}', ['uses' => 'Devices@DeviceDatas', 'as' => 'cihazveriler']);
-    Route::get('/cihazlar/yeni-sekmede-goster', ['uses' => 'Devices@yeniSekmedeGoster', 'as' => 'yeniSekmedeGoster']);
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });

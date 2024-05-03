@@ -254,13 +254,7 @@
 
         });
 
-        function openInNewTab() {
-            var form = document.querySelector('form'); // Formu seç
-            var formData = new FormData(form);
-            var searchParams = new URLSearchParams(formData).toString(); // FormData'yı sorgu parametrelerine dönüştür
-            var url = "{{ route('yeniSekmedeGoster') }}" + "?" + searchParams; // Yeni rota ve parametreler
-            window.open(url, '_blank'); // Yeni sekmede aç
-        }
+        
         
     </script>
 
