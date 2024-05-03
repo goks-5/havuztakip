@@ -206,21 +206,6 @@ class Devices extends VoyagerBaseController
         }
     }
 
-    public function yeniSekmedeGoster(Request $request)
-{
-    // İstenen verileri al
-    $data['device_id'] = $request->id;
-    $data['starttime'] = $request->starttime;
-    $data['endtime'] = $request->endtime;
-    
-    // Veritabanından gerekli verileri al (örneğin, DeviceData modelini kullanarak)
-    $deviceData = DeviceData::where('device_id', $data['device_id'])
-                    ->whereBetween('created_at', [$data['starttime'], $data['endtime']])
-
-    // Verileri tablo olarak görüntülemek için bir view döndür
-    return view('voyager::cihazlar.yeni_sekmede_goster', compact('deviceData'));
-}
-
     public function deviceInfos($id = null)
     {
         $dates = Cache::get('device_field_details_' . $id) ?? [];
