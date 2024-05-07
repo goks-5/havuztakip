@@ -71,7 +71,8 @@ class sendReportsMail extends Command
         $now = Carbon::now()->subHour();
         $sendDate = Carbon::parse($report->report_send_date);
         return $now->gt($dateStart)  &&  (is_null($report->report_send_date) || $dateStart->gt($sendDate)) ;
-    } 
+
+    }
 
     protected function reportDate($report){
         $date = date('Y-m-d H:i');
