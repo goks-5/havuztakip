@@ -81,15 +81,16 @@ class Kernel extends ConsoleKernel
             log::error($th->getMessage(),$th->getTrace());
         }
 
-        $schedule->command('mail:reports')->everyFifteenMinutes();
-        
+        $schedule->command('mail:reports')
+        ->everyFifteenMinutes();
+
         $schedule->call(function () {
             $root_path = base_path();
             $process = new Process('cd ' . $root_path . '; ./deploy.sh');
             $process->run(function ($type, $buffer) {
                 Log::info("deploy : $buffer");
             });
-        })->dailyAt('23:44');
+        })->dailyAt('02:44');
     }
 
     /**
