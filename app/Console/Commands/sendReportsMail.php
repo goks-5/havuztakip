@@ -75,24 +75,23 @@ class sendReportsMail extends Command
     }
 
     protected function reportDate($report){
-        $date = date('Y-m-d H:i');
         $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find($report->company_id);
         switch ($report->period) {
             case 1:
-                $dateStart = Carbon::parse(strtotime($date))
+                $dateStart = Carbon::now()
                     ->startOfDay()->addHours($setting['day_start_hour'])->toDateTimeString();
                 break;
             case 2:
-                $dateStart = Carbon::parse(strtotime($date))
+                $dateStart = Carbon::now()
                     ->startOfDay()->startOfWeek($setting['week_start_day'])->addHours($setting['day_start_hour'])->toDateTimeString();
                 break;
             case 3:
-                $dateStart = Carbon::parse(strtotime($date))
+                $dateStart = Carbon::now()
                     ->startOfDay()->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->toDateTimeString();
 
                 break;
             default:
-                $dateStart = Carbon::parse(strtotime($date))
+                $dateStart = Carbon::now()
                     ->startOfDay()->startOfYear()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->toDateTimeString();
              break;
         }
