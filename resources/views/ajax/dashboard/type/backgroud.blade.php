@@ -6,3 +6,8 @@
     <img src="../images/{{$page->img}}" style="max-width: 200px;" />
   @endif
 </div>
+<div class="form-group">
+      <label class="control-label">Katman</label>
+      <input type="number" name="order" class="form-control" value="{{$order ?? '999'}}" />
+</div>
+
