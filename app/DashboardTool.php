@@ -253,6 +253,34 @@ class DashboardTool extends Model
 
         return null;
     }
+
+    public function saveDeviceData(Request $request)
+    {
+    $device = $request->input('device');
+    $label = $request->input('label');
+
+    // Burada veritabanı işlemlerini gerçekleştirin
+    $deviceData = new DeviceData();
+    $deviceData->device = $device;
+    $deviceData->label = $label;
+    $deviceData->save();
+
+    return response()->json(['status' => 'success', 'message' => 'Veri başarıyla kaydedildi']);
+    }
+
+    public function addDashboardVisual(Request $request)
+    {   
+    $device = $request->input('device');
+    $label = $request->input('label');
+
+    // Görsel ekleme işlemleri
+    $data = DeviceData::where('device', $device)->where('label', $label)->first();
+
+    // Görsel ekleme kodları buraya eklenebilir
+    // Örnek: Blade template ile veri gösterme
+    return view('dashboard.visual', ['data' => $data]);
+    }
+
     public function tags($settings, $tool)
     {
         /*

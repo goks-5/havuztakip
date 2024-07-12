@@ -48,7 +48,9 @@
                             case 'tags':
                                 tags(lastdata[k]);
                                 break;
-
+                            case 'card':
+                                card(lastdata[k]);
+                                break;   
                             case 'period':
                                 period(lastdata[k]);
                                 break;
