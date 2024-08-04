@@ -395,6 +395,15 @@ class Device extends Model
 
         if ($first) {
             $firstValue = $first->value;
+            // katsayı değişmişse ilk değeri yeni katsayıya göre hesapla.
+            if($last){
+                if (
+                    ($first->offset !== null && $first->offset !== $last->offset) ||
+                    ($first->multiplier !== null && $first->multiplier !== $last->multiplier)
+                ) {
+                    $firstValue =  (($firstValue - $first->offset) / $first->multiplier) * $last->multiplier  + $last->offset ;
+                }
+            }
         } else {
             $firstValue = $default;
         }
@@ -403,6 +412,9 @@ class Device extends Model
         } else {
             $lastValue = $default;
         }
+
+
+
 
         switch ($type) {
             case 'last':
