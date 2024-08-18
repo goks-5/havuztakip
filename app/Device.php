@@ -306,8 +306,8 @@ class Device extends Model
 
             foreach ($deviceTags as $key => $value) {
                 if ($key >= 100) {
-                    $lastTwoDigits = substr($key, -2);
-                    $newKey = '1' . $lastTwoDigits;
+                    $lastTwoDigits = (integer) substr($key, -2);
+                    $newKey = 100 + $lastTwoDigits;
                     if (!in_array($newKey, $filteredData)) {
                         $filteredData[] = $newKey;
                     }
