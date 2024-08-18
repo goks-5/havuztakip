@@ -377,7 +377,7 @@ class Device extends Model
         //   $startd = Device::echoTimer($startd,$lastd);
 
         if ($type == 'diff' && $targetData_id >= 200) {
-            $type == 'sum';
+            $type = 'sum';
             $data_id = $data_id + 100;
         }
 
