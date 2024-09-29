@@ -237,6 +237,14 @@
             });
         }
 
+        function DeviceData(data) {
+            Object.keys(data).forEach(function(k) {
+                if ($('#' + k).length) {
+                    $('#' + k).html(data[k]);
+                }
+            });
+        }
+        
         function sumTag(data) {
             Object.keys(data).forEach(function(k) {
                 if (data[k].total && $('#' + k).length) {
