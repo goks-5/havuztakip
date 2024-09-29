@@ -56,6 +56,7 @@ $(document).ready(function () {
     }
     
     .tooltip-content {
+        position: absolute;
         background: #f9f9f9;
         border: 1px solid #ccc;
         padding: 8px; /* Slightly adjust padding */
