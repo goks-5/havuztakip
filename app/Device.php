@@ -145,8 +145,13 @@ class Device extends Model
                         $start = Carbon::now()->startOfHour();
                         $device_data = DeviceData::where(["device_id" => $device->id, "data_id" => $data_id, 'hourly' => $start])->first();
                         if (!$device_data) {
+                            $start2 = Carbon::now()->subHour()->startOfHour();
+                            $device_data2 = DeviceData::where(["device_id" => $device->id, "data_id" => $data_id, 'hourly' => $start])->first();
+                            if (!$device_data2) {
+                                DeviceData::insert(["device_id" => $device->id, "data_id" => $data_id, "value" => $value, 'created_at' => $start2, 'hourly' => $start2]);
+                            }
                             DeviceData::insert(["device_id" => $device->id, "data_id" => $data_id, "value" => $value, 'created_at' => $start, 'hourly' => $start]);
-                            ++$tagCount;
+                            ++$tagCount;                           
                         }
                     }
                 }
@@ -306,7 +311,7 @@ class Device extends Model
 
             foreach ($deviceTags as $key => $value) {
                 if ($key >= 100) {
-                    $lastTwoDigits = (integer) substr($key, -2);
+                    $lastTwoDigits = (int) substr($key, -2);
                     $newKey = 100 + $lastTwoDigits;
                     if (!in_array($newKey, $filteredData)) {
                         $filteredData[] = $newKey;
