@@ -193,9 +193,9 @@ class DashboardTool extends Model
             }
             if ( $devices[$device['device']]) {
                 $currrentDevice =  $devices[$device['device']];
-                $tags = json_decode($currrentDevice->tags, true);
+                $deviceTags = json_decode($currrentDevice->tags, true);
                 $lastdata = json_decode($currrentDevice->last_data, true);
-                $label = $tags[$device['device_index']] ??  "-";
+                $label = $deviceTags[$device['device_index']] ??  "-";
                 $value = $lastdata[$device['device_index']] ?? 0;
                 $total['value'] += $value;
                 $tags[] = ['label' => $label , 'value' => $value];
@@ -204,7 +204,7 @@ class DashboardTool extends Model
         return ['total' => $total , 'tags' => $tags];
     }
 
-    
+
     public function device_chart($settings, $tool)
     {
         $value['cols'][] = ['id' => 0, 'label' => 'Tarih', 'type' => 'datetime'];
