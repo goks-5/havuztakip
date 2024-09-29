@@ -4,7 +4,7 @@
         $setting = json_decode($tool->settings, true);
     @endphp
   
-    <div id="content_{{$tool->id}}" style="position: relative;">
+    <div id="content_{{$tool->id}}" >
         <!-- New div for dynamic content -->
         <div id="tool_{{$tool->id}}" class="dynamic-content">
             <!-- This content will be filled dynamically -->
