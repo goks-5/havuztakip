@@ -42,51 +42,45 @@
   </script>
   @endpush
   
-  <!-- Updated CSS for better layout -->
   <style>
-  .dynamic-content {
-      margin-right: 5px; /* Slightly reduce spacing */
-      display: inline-block;
-      vertical-align: middle; /* Align with the info icon */
-  }
-  
-  .info-icon {
-      margin-left: 5px; /* Slightly adjust the spacing */
-      vertical-align: middle; /* Align with the dynamic content */
-      cursor: pointer; /* Show cursor pointer */
-  }
-  
-  .tooltip-content {
-      position: absolute;
-      background: #f9f9f9;
-      border: 1px solid #ccc;
-      padding: 8px; /* Slightly adjust padding */
-      z-index: 1000;
-      width: auto; /* Auto width to adjust based on content */
-      max-width: 300px; /* Add a max-width */
-      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
-      margin-top: 5px; /* Slight space from icon */
-      text-align: left; /* Ensure text is left-aligned */
-      /* Customize tooltip appearance */
-  }
-  
-  .tooltip-content .tooltip-row {
-      display: flex; /* Use flex to align label and value */
-      justify-content: space-between; /* Space out label and value */
-      margin-bottom: 5px; /* Space between rows */
-  }
-  
-  .tooltip-content .tooltip-label {
-      font-weight: bold; /* Bold for label */
-      margin-right: 10px; /* Space between label and value */
-  }
-  
-  .tooltip-content .tooltip-value {
-      margin-left: auto; /* Push value to the right */
-  }
-  
-  .tooltip-content .tooltip-row:last-child {
-      margin-bottom: 0; /* Remove space from last item */
-  }
-  </style>
-  
+    .dynamic-content {
+        margin-right: 5px;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    
+    .info-icon {
+        margin-left: 5px;
+        vertical-align: middle;
+        cursor: pointer;
+    }
+    
+    .tooltip-content {
+        position: absolute;
+        background: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 8px;
+        z-index: 1000;
+        width: auto;
+        max-width: 300px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 5px;
+        text-align: left;
+    }
+    
+    .tooltip-content .tooltip-row {
+        display: flex; /* Align label and value in one row */
+        justify-content: space-between; /* Space between label and value */
+        margin-bottom: 5px; /* Space between rows */
+        white-space: nowrap; /* Prevent line break */
+    }
+    
+    .tooltip-content .tooltip-label {
+        font-weight: bold;
+        margin-right: 10px; /* Space between label and value */
+    }
+    
+    .tooltip-content .tooltip-value {
+        margin-left: auto; /* Push value to the right */
+    }
+    </style>
