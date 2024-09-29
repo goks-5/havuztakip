@@ -42,21 +42,44 @@ $(document).ready(function () {
 </script>
 @endpush
 
-<!-- Optional CSS for tooltip appearance -->
 <style>
-.dynamic-content {
-    margin-right: 10px; /* Adjust spacing as needed */
-    display: inline-block;
-    /* Additional styling for the dynamic content div */
-}
-
-.tooltip-content {
-    position: absolute;
-    background: #f9f9f9;
-    border: 1px solid #ccc;
-    padding: 10px;
-    z-index: 1000;
-    width: 200px; /* Adjust width as needed */
-    /* Customize tooltip appearance */
-}
-</style>
+    .dynamic-content {
+        margin-right: 5px; /* Slightly reduce spacing */
+        display: inline-block;
+        vertical-align: middle; /* Align with the info icon */
+    }
+    
+    .info-icon {
+        margin-left: 5px; /* Slightly adjust the spacing */
+        vertical-align: middle; /* Align with the dynamic content */
+        cursor: pointer; /* Show cursor pointer */
+    }
+    
+    .tooltip-content {
+        position: absolute;
+        background: #f9f9f9;
+        border: 1px solid #ccc;
+        padding: 8px; /* Slightly adjust padding */
+        z-index: 1000;
+        width: auto; /* Auto width to adjust based on content */
+        max-width: 300px; /* Add a max-width */
+        white-space: nowrap; /* Keep content on a single line */
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow for better visibility */
+        margin-top: 5px; /* Slight space from icon */
+        /* Customize tooltip appearance */
+    }
+    
+    .tooltip-content ul {
+        padding-left: 15px; /* Add some padding to the list */
+        margin: 0; /* Remove default margin */
+        list-style-type: disc; /* Use disc style for list */
+    }
+    
+    .tooltip-content li {
+        margin-bottom: 5px; /* Space between list items */
+    }
+    
+    .tooltip-content li:last-child {
+        margin-bottom: 0; /* Remove space from last item */
+    }
+    </style>
