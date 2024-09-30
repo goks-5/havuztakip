@@ -2,50 +2,61 @@
 <h5>Veri kaynağı</h5>
 @endif
 @if($options->device == 1)
-  <div class="col-md-6">
-    <label class="control-label">Cihaz</label>
-    <select class="form-control select2" id="device">
-      @foreach ($devices as $device)
-       @if (count($filter) == 0 || in_array($device->mac,$filter))
-      <option value='{{$device->id}}' @if(isset($settings['device']) && $device->id == $settings['device'] ) selected @endif>
-        {{$device->name}}
-        </option>
-         @endif
-      @endforeach
-    </select>
-  </div>
-  <div class="col-md-6">
-    <label class="control-label">Etiket</label>
-    <select class="form-control select2" name="setting[device]" id="deviceTags">
+    <div class="col-md-6">
+    <label for="devices" class="form-label">Cihaz</label>
+    <input class="form-control" list="devices" id="device" placeholder="Cihaz ara">    
+    <datalist  id="devices">
+    @foreach ($devices as $device)
+          @if (count($filter) == 0 || in_array($device->mac, $filter))
+            <!-- ID yerine cihaz ismini value olarak kullanıyoruz -->
+            <option value="{{$device->name}}" @if(isset($settings['device']) && $device->id == $sett>
+              {{$device->name}}
+            </option>
+          @endif
+        @endforeach
+        </datalist>
+      </div>
+    <div class="col-md-6">
+      <label for="deviceTags" class="form-label">Etiket</label>
+      <input class="form-control" list="deviceTags" id="deviceTagInput" placeholder="Etiket ara">
+      <datalist id="deviceTags">
+        <!-- Etiketler JavaScript ile dinamik olarak eklenecek -->
+      </datalist>
+    </div>
 
-    </select>
-  </div>
-  <script type="text/javascript">
+    <script type="text/javascript">
     $(document).ready(function() {
-
       var devices = [];
+
+      // Cihaz isimlerine göre etiketleri depoluyoruz
       @foreach ($devices as $device)
-      devices[{{$device->id}}] = {!! $device->tags !!} ;
+        devices["{{$device->name}}"] = {!! $device->tags !!};  // Cihaz adını kullanıyoruz
       @endforeach
 
       $('#device').change(function() {
-        device_id = {{$settings['device'] ?? 0 }};
-        device_index = {{$settings['device_index'] ?? 0 }};
-        selected = $(this).val();
-        obj = devices[selected] ;
-        $('#deviceTags').empty();
-        Object.keys(obj).forEach(function(k){
-          if(device_id == selected && device_index == k){
-            $('#deviceTags').append("<option value='{\"device\":" + selected + ",\"device_index\":" + k + "}' selected>" + obj[k] + "</option>");
-          }else{
-            $('#deviceTags').append("<option value='{\"device\":" + selected + ",\"device_index\":" + k + "}'>" + obj[k] + "</option>");
-          }
-          });
+        var selectedDeviceName = $(this).val();  // Seçilen cihaz adı
+        var obj = devices[selectedDeviceName];    // Cihaz adına göre etiketleri çekiyoruz
+
+        if (!obj) {
+          $('#deviceTags').empty();
+          return;
+        }
+
+        console.log("Seçilen cihaz: " + selectedDeviceName);  // Test için cihaz adını konsola yazıy>
+        console.log("Etiketler: ", obj);  // Test için etiketleri konsola yazıyoruz
+
+        $('#deviceTags').empty();  // Eski etiketleri temizliyoruz
+
+        // Nesnenin anahtarları üzerinden döngü
+        Object.keys(obj).forEach(function(key) {
+          var tag = obj[key];  // Her bir etiketi alıyoruz
+          $('#deviceTags').append("<option value='" + tag + "'>" + tag + "</option>");  // Etiketler>
+        });
       });
+
       $('#device').trigger("change");
     });
-
-  </script>
+    </script>
 
   @endif
 
