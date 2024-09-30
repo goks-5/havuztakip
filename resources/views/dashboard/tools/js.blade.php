@@ -510,7 +510,7 @@
         // 6. Create a link to download the file
         var link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = 'grafik_verileri.xlsx'; // Name the file accordingly
+        link.download = 'eys-excel.xlsx'; // Name the file accordingly
 
         // 7. Trigger the download process with a slight delay
         setTimeout(function() {
