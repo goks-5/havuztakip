@@ -49,8 +49,6 @@
 
   @endif
 
-
-
   @if($options->device == 2)
 
     <div class="col-md-6">
