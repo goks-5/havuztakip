@@ -1,3 +1,4 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         function worker() {
@@ -48,7 +49,9 @@
                             case 'tags':
                                 tags(lastdata[k]);
                                 break;
-
+                            case 'card':
+                                card(lastdata[k]);
+                                break;   
                             case 'period':
                                 period(lastdata[k]);
                                 break;
@@ -499,4 +502,45 @@
         window.print();
         document.body.innerHTML = originalContents;
     }
+    function exportToExcel(divName) {
+        console.log("Function triggered");
+
+        // 1. Get the table element containing the data
+        var table = document.getElementById(divName);
+        if (!table) {
+        console.error("Table not found with the given divName:", divName);
+        return;
+        }
+
+        // 2. Make sure each device's data is placed in separate columns
+        var workbook = XLSX.utils.table_to_book(table, {sheet: "Sheet1"});
+
+        // 3. Create the Excel file in binary format
+        var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+
+        // 4. Helper function to convert the data to binary
+        function s2ab(s) {
+        var buf = new ArrayBuffer(s.length);
+        var view = new Uint8Array(buf);
+        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+        return buf;
+        }
+
+        // 5. Correct MIME type for Excel
+        var blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+        // 6. Create a link to download the file
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'grafik_verileri.xlsx'; // Name the file accordingly
+
+        // 7. Trigger the download process with a slight delay
+        setTimeout(function() {
+        link.click(); // Simulate a click on the download link
+        document.body.removeChild(link); // Remove the link from the DOM
+        }, 100); // Delay for 100ms
+
+        document.body.appendChild(link); // Append the link to the document
+    }
+
 </script>

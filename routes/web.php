@@ -33,6 +33,9 @@ Route::post('/ajax/dahboard_tool', 'Ajax@dahboardTool')->name('dahboardTool');
 Route::post('/ajax/boardAction', 'Ajax@boardAction')->name('boardAction');
 Route::get('/ajax/butondata', 'Ajax@manuelAjax')->name('butondata');
 
+Route::post('/save-device-data', [DashboardTool::class, 'saveDeviceData']);
+Route::post('/add-dashboard-visual', [DashboardTool::class, 'addDashboardVisual']);
+
 Route::post('/ajax/dashboardTagsAdd', 'Ajax@dashboardTagsAdd')->name('TagsAdd');
 Route::post('/ajax/toolStyle', 'Ajax@toolStyle')->name('toolStyle');
 Route::get('/ajax/dashboardTagEnd', 'Ajax@dashboardTagEnd')->name('end_tag');

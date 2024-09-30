@@ -28,9 +28,6 @@
   <input class="dashboardmenu" type="checkbox" data-toggle="toggle" data-size="mini" data-width="50" data-on="<i class='voyager-tools'></i>" data-off="<i class='voyager-lock'></i>" id="editOnOff"> </label>
   <a class="dashboardmenu edithide" data-toggle="modal" href="#toolTypeModal" style="right: 80px;font-size: 24px;"><i class="voyager-plus"></i></a>
 
-<i class="fas fa-unlock-alt"></i>
-
-
   @include('voyager::alerts')
   @include('voyager::dimmers')
 
