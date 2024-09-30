@@ -131,7 +131,7 @@ class Device extends Model
     public static function fillHourly()
     {
         $devices = Device::where('mac', '<>', '00:00:00:00:00:00')
-            ->where('last_at', '<', date('Y-m-d H:i:s', strtotime("-50 minute")))
+            ->where('last_at', '<', date('Y-m-d H:i:s', strtotime("-5 minute")))
             ->get();
         dump('Offline cihazlara Saatlik data giriliyor' . count($devices) . " Adet cihaz var.");
         Log::info('Offline cihazlara Saatlik data giriliyor' . count($devices) . " Adet cihaz var.");
@@ -145,11 +145,6 @@ class Device extends Model
                         $start = Carbon::now()->startOfHour();
                         $device_data = DeviceData::where(["device_id" => $device->id, "data_id" => $data_id, 'hourly' => $start])->first();
                         if (!$device_data) {
-                            $start2 = Carbon::now()->subHour()->startOfHour();
-                            $device_data2 = DeviceData::where(["device_id" => $device->id, "data_id" => $data_id, 'hourly' => $start])->first();
-                            if (!$device_data2) {
-                                DeviceData::insert(["device_id" => $device->id, "data_id" => $data_id, "value" => $value, 'created_at' => $start2, 'hourly' => $start2]);
-                            }
                             DeviceData::insert(["device_id" => $device->id, "data_id" => $data_id, "value" => $value, 'created_at' => $start, 'hourly' => $start]);
                             ++$tagCount;                           
                         }
