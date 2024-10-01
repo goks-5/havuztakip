@@ -219,6 +219,7 @@ class Device extends Model
         $tag = preg_replace('/\s+/', '', $tag);
 
         $number = '(?:\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)'; // What is a number
+      //  $number = '(?:0|\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)';
         $hom = (date("j") - 1) * 24 + date("G") - $setting['day_start_hour'];
         if ($hom < 0) {
             $hom = 24 +  (date("j", strtotime("-1 day")) - 1) * 24 + date("G", strtotime("-1 day")) - $setting['day_start_hour'];
@@ -233,7 +234,8 @@ class Device extends Model
         }
         $functions = '(?:sinh?|cosh?|tanh?|abs|acosh?|asinh?|atanh?|exp|log10|deg2rad|rad2deg|sqrt|elseif|else|if|ceil|floor|round)'; // Allowed PHP functions
         $operators = '[+\/*\/=\/<\/>\^%-]'; // Allowed math operators
-        $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
+     //   $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
+        $regexp = '/((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+/';
         $result = 0;
         if (preg_match($regexp, $tag)) {
             $tag = preg_replace('!pi|π!', 'pi()', $tag); // Replace pi with pi function
@@ -247,6 +249,7 @@ class Device extends Model
             eval('  try {
                 $result = ' . $tag . ';
             } catch (Exception $e) {
+                $ex = $e ; 
                 $result = 0;
             }');
         }
