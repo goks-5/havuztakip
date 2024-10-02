@@ -244,13 +244,10 @@ class Device extends Model
             $tag = str_replace('hoy', $hoy, $tag); // hour of year
             $tag = str_replace('hod', $hod, $tag); // hour of day
 
-            try {
-                // $tag değişkeni bir matematiksel ifade ya da mantıksal bir işlemse
-                $result = $tag;  // Direkt olarak işlem
-            } catch (Exception $e) {
-                $ex = $e;
-                $result = 0;
-            }
+           eval('  try {
+                $result = ' . $tag . ';
+                 } catch (Exception $e) {
+                  }');
         }
         return round($result, 2);
     }
