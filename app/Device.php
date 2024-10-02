@@ -234,8 +234,8 @@ class Device extends Model
         }
         $functions = '(?:sinh?|cosh?|tanh?|abs|acosh?|asinh?|atanh?|exp|log10|deg2rad|rad2deg|sqrt|elseif|else|if|ceil|floor|round)'; // Allowed PHP functions
         $operators = '[+\/*\/=\/<\/>\^%-]'; // Allowed math operators
-     //   $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
-        $regexp = '/((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+/';
+        $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
+       // $regexp = '/((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+/';
         $result = 0;
         if (preg_match($regexp, $tag)) {
             $tag = preg_replace('!pi|π!', 'pi()', $tag); // Replace pi with pi function
