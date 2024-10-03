@@ -75,23 +75,10 @@ class Api extends Controller
             $saveData = [];
             foreach ( $allowedData as $key => $value) {
 
-                if (isset($offset[$key]) && !empty($offset[$key])) {
-                    $offsetValue = floatval($offset[$key]);
-                } else {
-                    $offsetValue = 0; 
-                }
-                if (isset($multiplier[$key]) && !empty($multiplier[$key])) {
-                    $multiplierValue = floatval($multiplier[$key]);
-                } else {
-                    $multiplierValue = 1; 
-                }
-                
                 $saveData[] = [
                     'device_id' => $device->id,
                     'data_id' => $key,
                     'value' => $value,
-                    'multiplier' => $multiplierValue,
-                    'offset' => $offsetValue,
                     'created_at' => date('Y-m-d H:i:s')
                 ];
             }

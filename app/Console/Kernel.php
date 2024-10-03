@@ -40,7 +40,7 @@ class Kernel extends ConsoleKernel
         try {
             $schedule->call(function () {
                 Device::fillHourly();
-            })->everyFiveMinutes();
+            })->hourly();
         } catch (\Throwable $th) {
             log::error($th->getMessage(),$th->getTrace());
         }
