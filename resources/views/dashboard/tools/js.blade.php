@@ -59,6 +59,10 @@
                             case 'switch':
                                 fswitch(lastdata[k]);
                                 break;
+                                
+                            case 'sum_tag':
+                                sumTag(lastdata[k]);
+                                break;
 
                         }
                     });
@@ -240,6 +244,24 @@
             Object.keys(data).forEach(function(k) {
                 if ($('#' + k).length) {
                     $('#' + k).html(data[k]);
+                }
+            });
+        }
+        
+        function sumTag(data) {
+            Object.keys(data).forEach(function(k) {
+                if (data[k].total && $('#' + k).length) {
+                    var totalContent = '<strong>' + data[k].total.label + ':</strong> ' + data[k].total.value;
+                    $('#' + k).html(totalContent);
+                }
+
+                if (data[k].tags && $('#' + k + '_tips').length) {
+                    var tagsContent = '<ul>';
+                    data[k].tags.forEach(function(tag) {
+                        tagsContent += '<li><strong>' + tag.label + ':</strong> ' + tag.value + '</li>';
+                    });
+                    tagsContent += '</ul>';
+                    $('#' + k + '_tips').html(tagsContent);
                 }
             });
         }
@@ -469,7 +491,7 @@
             });
         }
 
-
+        
     });
 
 
