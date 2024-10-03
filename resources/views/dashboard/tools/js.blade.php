@@ -481,44 +481,83 @@
         document.body.innerHTML = originalContents;
     }
     function exportToExcel(divName) {
-        console.log("Function triggered");
+    console.log("Function triggered");
 
-        // 1. Get the table element containing the data
-        var table = document.getElementById(divName);
-        if (!table) {
+    // 1. Get the table element containing the data
+    var table = document.getElementById(divName);
+    if (!table) {
         console.error("Table not found with the given divName:", divName);
         return;
+    }
+
+    // 2. Create a new array to store formatted data
+    var tableData = [];
+
+    // 3. Include the headers (i.e., the dates row)
+    var headers = table.getElementsByTagName('thead')[0];
+    if (headers) {
+        var headerRowData = [];
+        var headerCols = headers.getElementsByTagName('th');
+        for (var h = 0; h < headerCols.length; h++) {
+            headerRowData.push(headerCols[h].innerText.trim());
+        }
+        tableData.push(headerRowData); // Add the header row to the table data
+    }
+
+    // 4. Add the rest of the table's data (ignore rows without valid data)
+    var tableRows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    for (var i = 0; i < tableRows.length; i++) {
+        var rowData = [];
+        var tableCols = tableRows[i].getElementsByTagName('td');
+
+        for (var j = 0; j < tableCols.length; j++) {
+            var cellValue = tableCols[j].innerText.trim();
+
+            // Ensure that decimal values are preserved
+            if (!isNaN(cellValue) && cellValue !== '') {
+                cellValue = parseFloat(cellValue).toFixed(2); // Format numbers with two decimal places
+            }
+
+            rowData.push(cellValue);
         }
 
-        // 2. Make sure each device's data is placed in separate columns
-        var workbook = XLSX.utils.table_to_book(table, {sheet: "Sheet1"});
+        // Only push the row if it contains actual data
+        if (rowData.length > 0 && rowData.some(val => val !== '')) {
+            tableData.push(rowData);
+        }
+    }
 
-        // 3. Create the Excel file in binary format
-        var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+    // 5. Create a workbook from the formatted table data
+    var worksheet = XLSX.utils.aoa_to_sheet(tableData);
+    var workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-        // 4. Helper function to convert the data to binary
-        function s2ab(s) {
+    // 6. Create the Excel file in binary format
+    var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
+
+    // 7. Helper function to convert the data to binary
+    function s2ab(s) {
         var buf = new ArrayBuffer(s.length);
         var view = new Uint8Array(buf);
         for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
         return buf;
-        }
+    }
 
-        // 5. Correct MIME type for Excel
-        var blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    // 8. Correct MIME type for Excel
+    var blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-        // 6. Create a link to download the file
-        var link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'eys-excel.xlsx'; // Name the file accordingly
+    // 9. Create a link to download the file
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'grafik_verileri.xlsx'; // Name the file accordingly
 
-        // 7. Trigger the download process with a slight delay
-        setTimeout(function() {
+    // 10. Trigger the download process with a slight delay
+    setTimeout(function() {
         link.click(); // Simulate a click on the download link
         document.body.removeChild(link); // Remove the link from the DOM
-        }, 100); // Delay for 100ms
+    }, 100); // Delay for 100ms
 
-        document.body.appendChild(link); // Append the link to the document
-    }
+    document.body.appendChild(link); // Append the link to the document
+}
 
 </script>
