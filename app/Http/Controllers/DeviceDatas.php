@@ -45,8 +45,11 @@ class DeviceDatas extends VoyagerBaseController
             $searchable = SchemaManager::describeTable(app($dataType->model_name)->getTable())->pluck('name')->toArray();
             $dataRow = Voyager::model('DataRow')->whereDataTypeId($dataType->id)->get();
             foreach ($searchable as $key => $value) {
-                $displayName = $dataRow->where('field', $value)->first()->getTranslatedAttribute('display_name');
-                $searchNames[$value] = $displayName ?: ucwords(str_replace('_', ' ', $value));
+                $row = $dataRow->where('field', $value)->first();
+                if ($row) {
+                    $displayName = $row->getTranslatedAttribute('display_name');
+                    $searchNames[$value] = $displayName ?: ucwords(str_replace('_', ' ', $value));
+                }
             }
         }
 
@@ -83,7 +86,7 @@ class DeviceDatas extends VoyagerBaseController
             $search->device_id = in_array($search->device_id, $deviceIds) ? $search->device_id : $deviceIds[0];
             $search->data_id = isset($search->data_id) ? $search->data_id : 0;
             $search->start = isset($search->start) ? $search->start : str_replace(' ', 'T', Carbon::now()->subDays(1)->format('Y-m-d H:i'));
-            $search->end = isset($search->end) ? $search->end :  str_replace(' ','T',Carbon::now()->addHours(1)->format('Y-m-d H:i'));
+            $search->end = isset($search->end) ? $search->end :  str_replace(' ', 'T', Carbon::now()->addHours(1)->format('Y-m-d H:i'));
             $query->where('device_id', $search->device_id);
             $query->where('data_id', $search->data_id);
             $query->where('created_at', ">=", $search->start);
@@ -227,8 +230,8 @@ class DeviceDatas extends VoyagerBaseController
             "details" => "{}"
         ]);
 
-        $request->merge(['hourly' => Carbon::parse($request->created_at)->format('Y-m-d H:00:00') ]);
-        
+        $request->merge(['hourly' => Carbon::parse($request->created_at)->format('Y-m-d H:00:00')]);
+
         $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
 

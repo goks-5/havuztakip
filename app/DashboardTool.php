@@ -179,6 +179,34 @@ class DashboardTool extends Model
 
         return $value;
     }
+    
+    
+    public function sum_tag($settings, $tool)
+    {
+        $tags = [];
+        $devices = [];
+        $total['label'] = $settings['title'];
+        $total['value'] = 0;
+        $unit = $settings['unit'] ?? "";
+        foreach ($settings['devices'] as $key => $device) {
+            if (!isset($devices[$device['device']])) {
+                $devices[$device['device']] = Device::where('id', $device['device'])->first();
+            }
+            if ( $devices[$device['device']]) {
+                $currrentDevice =  $devices[$device['device']];
+                $deviceTags = json_decode($currrentDevice->tags, true);
+                $lastdata = json_decode($currrentDevice->last_data, true);
+                $label = $deviceTags[$device['device_index']] ??  "-";
+                $value = $lastdata[$device['device_index']] ?? 0;
+                $total['value'] += $value;
+                $tags[] = ['label' => $label, 'value' => $value   . " $unit" ];
+            } 
+        }
+        
+        $total['value'] .=  " $unit";
+        return ['total' => $total , 'tags' => $tags];
+    }
+
     public function device_chart($settings, $tool)
     {
         $value['cols'][] = ['id' => 0, 'label' => 'Tarih', 'type' => 'datetime'];

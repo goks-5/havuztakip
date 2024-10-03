@@ -131,7 +131,7 @@ class Device extends Model
     public static function fillHourly()
     {
         $devices = Device::where('mac', '<>', '00:00:00:00:00:00')
-            ->where('last_at', '<', date('Y-m-d H:i:s', strtotime("-50 minute")))
+            ->where('last_at', '<', date('Y-m-d H:i:s', strtotime("-5 minute")))
             ->get();
         dump('Offline cihazlara Saatlik data giriliyor' . count($devices) . " Adet cihaz var.");
         Log::info('Offline cihazlara Saatlik data giriliyor' . count($devices) . " Adet cihaz var.");
@@ -146,7 +146,7 @@ class Device extends Model
                         $device_data = DeviceData::where(["device_id" => $device->id, "data_id" => $data_id, 'hourly' => $start])->first();
                         if (!$device_data) {
                             DeviceData::insert(["device_id" => $device->id, "data_id" => $data_id, "value" => $value, 'created_at' => $start, 'hourly' => $start]);
-                            ++$tagCount;
+                            ++$tagCount;                           
                         }
                     }
                 }
@@ -219,6 +219,7 @@ class Device extends Model
         $tag = preg_replace('/\s+/', '', $tag);
 
         $number = '(?:\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)'; // What is a number
+      //  $number = '(?:0|\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)';
         $hom = (date("j") - 1) * 24 + date("G") - $setting['day_start_hour'];
         if ($hom < 0) {
             $hom = 24 +  (date("j", strtotime("-1 day")) - 1) * 24 + date("G", strtotime("-1 day")) - $setting['day_start_hour'];
@@ -234,7 +235,8 @@ class Device extends Model
         $functions = '(?:sinh?|cosh?|tanh?|abs|acosh?|asinh?|atanh?|exp|log10|deg2rad|rad2deg|sqrt|elseif|else|if|ceil|floor|round)'; // Allowed PHP functions
         $operators = '[+\/*\/=\/<\/>\^%-]'; // Allowed math operators
         $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
-        $result = 0;
+       // $regexp = '/((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+/';
+       $result = 0;
         if (preg_match($regexp, $tag)) {
             $tag = preg_replace('!pi|π!', 'pi()', $tag); // Replace pi with pi function
             $tag = str_replace('dom', 'date("j")', $tag); // day of month
@@ -244,10 +246,12 @@ class Device extends Model
             $tag = str_replace('hoy', $hoy, $tag); // hour of year
             $tag = str_replace('hod', $hod, $tag); // hour of day
 
-           eval('  try {
+            eval('  try {
                 $result = ' . $tag . ';
-                 } catch (Exception $e) {
-                  }');
+            } catch (Exception $e) {
+                $ex = $e ; 
+                $result = 0;
+            }');
         }
         return round($result, 2);
     }
@@ -297,51 +301,69 @@ class Device extends Model
                 $setting = ['day_start_hour' => 0, 'week_start_day' => 1, 'month_start_day' => 1];
             }
             $baseStart = Carbon::now()->subHours($setting['day_start_hour'])->subMinutes(40)->startOfDay()->addHours($setting['day_start_hour']);
-            foreach (json_decode($device->tags, true) as $data_id => $tag) {
-                if ($data_id > 99) {
-                    $start = clone $baseStart;
-                    $type = 'diff';
-                    if ($data_id > 99 && $data_id < 200) {
-                        $start = Carbon::now()->subMinutes(5)->startOfHour();
-                        $end = clone $start;
-                        $end->addHours(1);
-                        if (isset($types[$data_id - 100])) {
-                            $type = $types[$data_id - 100];
-                        }
-                        $last_data[$data_id]  =  Device::addDiffData($device_id, $data_id - 100, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
+
+
+            $deviceTags = json_decode($device->tags, true);
+
+            $filteredData = [];
+
+            foreach ($deviceTags as $key => $value) {
+                if ($key >= 100) {
+                    $lastTwoDigits = (int) substr($key, -2);
+                    $newKey = 100 + $lastTwoDigits;
+                    if (!in_array($newKey, $filteredData)) {
+                        $filteredData[] = $newKey;
                     }
-                    if ($data_id > 199 && $data_id < 300) {
-                        $end = clone $start;
-                        $end->addHours(24);
-                        if (isset($types[$data_id - 200])) {
-                            $type = $types[$data_id - 200];
-                        }
-                        $last_data[$data_id]  =  Device::addDiffData($device_id, $data_id - 200, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
-                    } elseif ($data_id > 299 && $data_id < 400) {
-                        $start->startOfWeek($setting['week_start_day'])->addHours($setting['day_start_hour']);
-                        $end = clone $start;
-                        $end = $end->addDays(7);
-                        if (isset($types[$data_id - 300])) {
-                            $type = $types[$data_id - 300];
-                        }
-                        $last_data[$data_id]  =   Device::addDiffData($device_id, $data_id - 300, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
-                    } elseif ($data_id > 399 && $data_id < 500) {
-                        $start->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour']);
-                        $end = clone $start;
-                        $end = $end->endOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour']);
-                        if (isset($types[$data_id - 400])) {
-                            $type = $types[$data_id - 400];
-                        }
-                        $last_data[$data_id]  =  Device::addDiffData($device_id, $data_id - 400, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
-                    } elseif ($data_id > 499 && $data_id < 600) {
-                        $start->startOfYear()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour']);
-                        $end = clone $start;
-                        $end = $end->endOfYear()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour']);
-                        if (isset($types[$data_id - 500])) {
-                            $type = $types[$data_id - 500];
-                        }
-                        $last_data[$data_id]  =  Device::addDiffData($device_id, $data_id - 500, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
+                    if (!in_array($key, $filteredData)) {
+                        $filteredData[] = $key;
                     }
+                }
+            }
+            sort($filteredData, SORT_NUMERIC);
+
+            foreach ($filteredData as $key => $data_id) {
+                $start = clone $baseStart;
+                $type = 'diff';
+                if ($data_id > 99 && $data_id < 200) {
+                    $start = Carbon::now()->subMinutes(5)->startOfHour();
+                    $end = clone $start;
+                    $end->addHours(1);
+                    if (isset($types[$data_id - 100])) {
+                        $type = $types[$data_id - 100];
+                    }
+                    $last_data[$data_id]  =  Device::addDiffData($device_id, $data_id - 100, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
+                }
+                if ($data_id > 199 && $data_id < 300) {
+                    $end = clone $start;
+                    $end->addHours(24);
+                    if (isset($types[$data_id - 200])) {
+                        $type = $types[$data_id - 200];
+                    }
+                    $last_data[$data_id]  =  Device::addDiffData($device_id, $data_id - 200, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
+                } elseif ($data_id > 299 && $data_id < 400) {
+                    $start->startOfWeek($setting['week_start_day'])->addHours($setting['day_start_hour']);
+                    $end = clone $start;
+                    $end = $end->addDays(7);
+                    if (isset($types[$data_id - 300])) {
+                        $type = $types[$data_id - 300];
+                    }
+                    $last_data[$data_id]  =   Device::addDiffData($device_id, $data_id - 300, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
+                } elseif ($data_id > 399 && $data_id < 500) {
+                    $start->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour']);
+                    $end = clone $start;
+                    $end = $end->endOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour']);
+                    if (isset($types[$data_id - 400])) {
+                        $type = $types[$data_id - 400];
+                    }
+                    $last_data[$data_id]  =  Device::addDiffData($device_id, $data_id - 400, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
+                } elseif ($data_id > 499 && $data_id < 600) {
+                    $start->startOfYear()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour']);
+                    $end = clone $start;
+                    $end = $end->endOfYear()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour']);
+                    if (isset($types[$data_id - 500])) {
+                        $type = $types[$data_id - 500];
+                    }
+                    $last_data[$data_id]  =  Device::addDiffData($device_id, $data_id - 500, $data_id, $start->toDateTimeString(), $end->toDateTimeString(), $type);
                 }
             }
             DB::table('devices')->where('id', $device->id)->update(['last_data' => json_encode($last_data, true), "diff_at" => date('Y-m-d H:i:s')]);
@@ -356,6 +378,13 @@ class Device extends Model
         // $startd = false;
         //  $lastd = false;
         //   $startd = Device::echoTimer($startd,$lastd);
+
+        if ($type == 'diff' && $targetData_id >= 200) {
+            $type = 'sum';
+            $data_id = $data_id + 100;
+        }
+
+
         $triger = false;
         $first = false;
         $last = false;
@@ -376,7 +405,7 @@ class Device extends Model
             $last = Device::getDayLastValue($device_id, $data_id, $end, $start);
             if ($default == -1) {
                 $lastData = json_decode(Device::find($device_id)->last_data, true);
-                $default = $lastData[$data_id];
+                $default = $lastData[$data_id] ?? 0;
             }
 
             //    $lastd = Device::echoTimer(false,$lastd);
@@ -394,6 +423,15 @@ class Device extends Model
 
         if ($first) {
             $firstValue = $first->value;
+            // katsayı değişmişse ilk değeri yeni katsayıya göre hesapla.
+            if ($last) {
+                if (
+                    ($first->offset !== null && $first->offset !== $last->offset) ||
+                    ($first->multiplier !== null && $first->multiplier !== $last->multiplier)
+                ) {
+                    $firstValue =  (($firstValue - $first->offset) / $first->multiplier) * $last->multiplier  + $last->offset;
+                }
+            }
         } else {
             $firstValue = $default;
         }
@@ -402,6 +440,9 @@ class Device extends Model
         } else {
             $lastValue = $default;
         }
+
+
+
 
         switch ($type) {
             case 'last':
@@ -579,19 +620,19 @@ class Device extends Model
         switch ($hour) {
             case 'D':
                 $start = $start->format('Y-m-d H:i:s');
-                $hour = 24 ;
+                $hour = 24;
                 break;
             case 'W':
                 $start->startOfWeek($setting['week_start_day'])->addHours($setting['day_start_hour'])->format('Y-m-d H:i:s');
-                $hour = 168 ;
+                $hour = 168;
                 break;
             case 'M':
                 $start->startOfMonth()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->format('Y-m-d H:i:s');
-                $hour = 720 ;
+                $hour = 720;
                 break;
             case 'Y':
                 $start->startOfYear()->addDays($setting['month_start_day'] - 1)->addHours($setting['day_start_hour'])->format('Y-m-d H:i:s');
-                $hour = 8640 ;
+                $hour = 8640;
                 break;
             default:
                 $start = date('Y-m-d H:i:s', strtotime("- $hour hour"));
