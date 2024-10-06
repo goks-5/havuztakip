@@ -145,7 +145,7 @@ class Device extends Model
         $operators = '[+\/*\/=\/<\/>\^%-]'; // Allowed math operators
         $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
        // $regexp = '/((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+/';
-        $result = 0;
+       $result = 0;
         if (preg_match($regexp, $tag)) {
             $tag = preg_replace('!pi|π!', 'pi()', $tag); // Replace pi with pi function
             $tag = str_replace('dom', 'date("j")', $tag); // day of month
