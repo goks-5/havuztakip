@@ -58,7 +58,6 @@ class Kernel extends ConsoleKernel
         try {
             $schedule->call(function () {
                 Device::virtualData();
-                Device::remoteData();
             })->everyMinute();
         } catch (\Throwable $th) {
             log::error($th->getMessage(),$th->getTrace());

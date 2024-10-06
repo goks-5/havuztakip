@@ -16,6 +16,7 @@ class Device extends Model
     use SoftDeletes;
 
     protected $fillable = ['token', 'last_data', 'tags', 'tags_last_change', 'last_at', 'company_id', 'product', 'hardware', 'software', 'multiplier', 'offset'];
+ 
     public static function hourly()
     {
         //  DB::enableQueryLog();
@@ -35,98 +36,6 @@ class Device extends Model
         //  dd(DB::getQueryLog());
     }
 
-
-    public static function dosabData()
-    {
-        $sayaclar = DB::table('devices')->where('mac', '00:00:00:00:00:01')->get();
-        foreach ($sayaclar as $sayac) {
-            $id = explode('_', str_replace('DOSAB_', '', $sayac->device_id));
-            $json =  file_get_contents("http://enviys.dosab.org.tr/ajax/meter.instant.ajax.php?i={$id[0]}&t={$id[1]}&o=0");
-
-            $sdata = json_decode($json);
-            dump($sdata);
-            $diff_tags = json_decode($sayac->diff_tags, true);
-            $lastdata = array();
-            $lastdata_old = json_decode($sayac->last_data, true);
-
-            if (isset($sdata->info)) {
-                $info = $sdata->info;
-            }
-
-            if (isset($info->fld_date_time) && strtotime($info->fld_date_time) > strtotime($sayac->last_at)) {
-                if (isset($info->fld_active_energy)) { // Elektrik Sayacı
-                    $tag = ["Aktif Enerji", "Kapasitif Enerji", "İndüktif Enerji", "Gündüz", "Puant", "Gece"];
-                    $lastdata = [
-                        $info->fld_active_energy ?? '',
-                        $info->fld_capacitive_energy ?? '',
-                        $info->fld_inductive_energy ?? '',
-                        $info->fld_active_energy_rate_1 ?? '',
-                        $info->fld_active_energy_rate_2 ?? '',
-                        $info->fld_active_energy_rate_3 ?? ''
-                    ];
-                } elseif (isset($info->fld_base_volume)) { // doğalgaz Sayacı
-                    $tag = ["Düzeltilmemiş Endeks", "Düzeltilmiş Endeks"];
-                    $lastdata = [
-                        $info->fld_measured_volume ?? '',
-                        $info->fld_base_volume ?? ''
-                    ];
-                } elseif (isset($info->fld_volume)) { // Su Sayacı
-                    $tag = ["Endeks"];
-                    $lastdata = [$info->fld_volume ?? ''];
-                }
-
-                if (isset($diff_tags) && count($diff_tags) > 0) {
-                    foreach ($tag as $key => $value) {
-                        foreach ($diff_tags as $diff_key => $diff_value) {
-                            $tag[$key + $diff_key] = $value . ' ' . $diff_value;
-                        }
-                    }
-                }
-
-
-                if (isset($lastdata)) {
-                    foreach ($lastdata as $key => $result) {
-                        if (is_numeric($result)) {
-                            $result = round($result, 2);
-                            DB::table('device_datas')->insert(["device_id" => $sayac->id, "data_id" => $key, "value" => $result, 'created_at' => $sdata->info->fld_date_time, 'hourly' => $sdata->info->fld_date_time]);
-                            $lastdata_old[$key] = $result;
-                        }
-                    }
-                    DB::table('devices')->where('id', $sayac->id)->update(['tags' => json_encode($tag, JSON_UNESCAPED_UNICODE), 'last_data' => json_encode($lastdata_old), "last_at" => $sdata->info->fld_date_time, "updated_at" => date('Y-m-d H:i:s')]);
-                }
-            }
-        }
-    }
-
-    public static function remoteData()
-    {
-        $remotes = DB::table('devices')->where('mac', '00:00:00:00:00:03')->get();
-        foreach ($remotes as $remote) {
-            $formula = json_decode($remote->formula, true);
-            if (isset($formula['token'])) {
-                $tagAccess = TagAccess::where('id', $formula['token_id'])->where('token', $formula['token'])->first();
-                if ($tagAccess) {
-
-                    $tags = json_decode($tagAccess->tags, true);
-                    $tempDevice = array();
-                    $lastData = array();
-                    foreach ($tags as $key => $value) {
-                        $varible = explode('-', $value);
-                        if (!isset($tempDevice[$varible[0]])) {
-                            $device = Device::find($varible[0]);
-                            $tempDevice[$varible[0]]["data"] = json_decode($device->last_data, true);
-                            $tempDevice[$varible[0]]["last_at"] = $device->last_at;
-                        }
-                        if ($tempDevice[$varible[0]]["last_at"] > $remote->last_at) {
-                            DB::table('device_datas')->insert(["device_id" => $remote->id, "data_id" => $key, "value" => $tempDevice[$varible[0]]["data"][$varible[1]], 'created_at' => date('Y-m-d H:i:s')]);
-                        }
-                        $lastData[$key] = $tempDevice[$varible[0]]["data"][$varible[1]];
-                    }
-                    DB::table('devices')->where('id', $remote->id)->update(['last_data' => json_encode($lastData, true), "last_at" => date('Y-m-d H:i:s')]);
-                }
-            }
-        }
-    }
 
     public static function fillHourly()
     {
@@ -325,7 +234,7 @@ class Device extends Model
                 $start = clone $baseStart;
                 $type = 'diff';
                 if ($data_id > 99 && $data_id < 200) {
-                    $start = Carbon::now()->subMinutes(5)->startOfHour();
+                    $start = Carbon::now()->subMinutes(6)->startOfHour();
                     $end = clone $start;
                     $end->addHours(1);
                     if (isset($types[$data_id - 100])) {
