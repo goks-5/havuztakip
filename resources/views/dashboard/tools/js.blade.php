@@ -585,33 +585,81 @@
     document.body.appendChild(link); // Append the link to the document
 }
 
-    function exportToGrafik(divName) {
+    // Genel veri işleme ve grafik oluşturma için kullanılan fonksiyonlar
+
+function getTableData(table) {
+    var data = [];
+    var rows = table.querySelectorAll('tr');
+    rows.forEach(function(row) {
+        var rowData = [];
+        var cells = row.querySelectorAll('th, td');
+        cells.forEach(function(cell) {
+            rowData.push(cell.innerText.trim());
+        });
+        data.push(rowData);
+    });
+    return data;
+}
+
+function processData(data) {
+    var dateMap = {};
+    var processedData = [];
+    var headerRow = data[0];
+    processedData.push(headerRow);
+
+    for (var i = 1; i < data.length; i++) {
+        var row = data[i];
+        var date = row[0];
+        var otherData = row.slice(1);
+
+        if (!dateMap.hasOwnProperty(date)) {
+            var newRow = new Array(headerRow.length).fill("");
+            newRow[0] = date;
+            for (var j = 1; j <= otherData.length; j++) {
+                newRow[j] = otherData[j - 1] !== "" ? otherData[j - 1] : 0;
+            }
+            processedData.push(newRow);
+            dateMap[date] = processedData.length - 1;
+        } else {
+            var rowIndex = dateMap[date];
+            for (var j = 0; j < otherData.length; j++) {
+                if (otherData[j] !== "") {
+                    processedData[rowIndex][j + 1] = otherData[j];
+                }
+            }
+        }
+    }
+
+    var maxColumns = headerRow.length;
+    processedData = processedData.map(row => {
+        while (row.length < maxColumns) {
+            row.push("");
+        }
+        return row;
+    });
+
+    return processedData;
+}
+
+// Excel dosyasını oluşturmak için kullanılan fonksiyon
+function exportToGrafik(divName) {
     console.log("Function triggered");
 
-    // 1. Tablo elementini alın
     var table = document.getElementById(divName);
     if (!table) {
         console.error("Table not found with the given divName:", divName);
         return;
     }
 
-    // 2. Tablo verilerini okuyun
     var data = getTableData(table);
-
-    // 3. Verileri işleyin
     var processedData = processData(data);
 
-    // 4. İşlenmiş verilerden bir çalışma sayfası oluşturun
     var worksheet = XLSX.utils.aoa_to_sheet(processedData);
-
-    // 5. Çalışma kitabını oluşturun ve çalışma sayfasını ekleyin
     var workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
 
-    // 6. Excel dosyasını binary formatta oluşturun
     var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
 
-    // 7. Binary veriyi dönüştürmek için yardımcı fonksiyon
     function s2ab(s) {
         var buf = new ArrayBuffer(s.length);
         var view = new Uint8Array(buf);
@@ -619,15 +667,12 @@
         return buf;
     }
 
-    // 8. Doğru MIME tipi ile Blob oluşturun
     var blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-    // 9. İndirme linkini oluşturun
     var link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = 'grafik_verileri.xlsx';
 
-    // 10. İndirme işlemini başlatın
     setTimeout(function () {
         link.click();
         document.body.removeChild(link);
@@ -636,65 +681,36 @@
     document.body.appendChild(link);
 }
 
-// getTableData fonksiyonu
-function getTableData(table) {
-    var data = [];
-    var rows = table.querySelectorAll('tr');
-    rows.forEach(function(row) {
-        var rowData = [];
-        var cells = row.querySelectorAll('th, td');
-        cells.forEach(function(cell) {
-            rowData.push(cell.innerText.trim()); // Trim ile boşlukları temizle
-        });
-        data.push(rowData);
-    });
-    return data;
-}
-
-// processData fonksiyonu
-function processData(data) {
-    var dateMap = {}; // Tarihleri ve ilgili satır indekslerini tutar
-    var processedData = [];
-    var headerRow = data[0]; // Başlık satırı
-    processedData.push(headerRow); // İlk olarak başlık satırını ekle
-
-    for (var i = 1; i < data.length; i++) {
-        var row = data[i];
-        var date = row[0]; // İlk sütun tarih
-        var otherData = row.slice(1); // Diğer veriler
-
-        if (!dateMap.hasOwnProperty(date)) {
-            // Yeni bir tarih, yeni bir satır oluştur
-            var newRow = new Array(headerRow.length).fill(""); // Başlık sayısı kadar boş sütun ekle
-            newRow[0] = date; // İlk sütuna tarihi yerleştir
-            for (var j = 1; j <= otherData.length; j++) {
-                newRow[j] = otherData[j - 1] !== "" ? otherData[j - 1] : 0; // 0 olan değerleri koru, boş olanları "" yap
-            }
-            processedData.push(newRow);
-            dateMap[date] = processedData.length - 1; // İndeksi kaydet
-        } else {
-            // Tarih zaten var, verileri mevcut satıra ekle
-            var rowIndex = dateMap[date];
-            for (var j = 0; j < otherData.length; j++) {
-                if (otherData[j] !== "") {
-                    processedData[rowIndex][j + 1] = otherData[j];
-                } else {
-                    processedData[rowIndex][j + 1] = 0; // 0 olan verileri koru
-                }
-            }
-        }
+// Grafiği güncellemek için veri işleme sonuçlarını kullanın
+function updateChart(chartInstance, tableId) {
+    var table = document.getElementById(tableId);
+    if (!table) {
+        console.error("Table not found with the given tableId:", tableId);
+        return;
     }
 
-    // Tüm satırları aynı sütun sayısına sahip olacak şekilde doldurun
-    var maxColumns = headerRow.length;
-    processedData = processedData.map(row => {
-        while (row.length < maxColumns) {
-            row.push(""); // Eksik sütunları boşluk ile doldur
-        }
-        return row;
-    });
+    var data = getTableData(table);
+    var processedData = processData(data);
 
-    return processedData;
+    // İşlenmiş verileri kullanarak grafiği güncelleyin
+    var labels = processedData.slice(1).map(row => row[0]); // Tarihler
+    var datasets = [];
+
+    for (var i = 1; i < processedData[0].length; i++) {
+        var datasetData = processedData.slice(1).map(row => parseFloat(row[i]) || 0);
+        datasets.push({
+            label: processedData[0][i],
+            data: datasetData,
+            // İsteğe bağlı olarak grafik rengi ekleyebilirsiniz
+        });
+    }
+
+    chartInstance.data = {
+        labels: labels,
+        datasets: datasets
+    };
+
+    chartInstance.update();
 }
 
 </script>
