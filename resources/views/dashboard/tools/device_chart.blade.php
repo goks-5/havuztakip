@@ -18,8 +18,7 @@
   <a href="#" class="btn btn-primary btn-sm edit" onclick="printDiv('tool_{{$tool->id}}')">
     <i class="fa fa-print"></i> <!-- Print ikonu -->
   </a>
-  <a href="#" class="btn btn-success btn-sm" onclick="exportToExcel('tool_{{$tool->id}}')">
+  <a href="#" class="btn btn-success btn-sm" onclick="exportToGrafik('tool_{{$tool->id}}')">
     <i class="fa fa-file-excel"></i> <!-- Excel ikonu -->
   </a>
 </div>
-
