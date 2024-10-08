@@ -16,7 +16,7 @@ class Device extends Model
     use SoftDeletes;
 
     protected $fillable = ['token', 'last_data', 'tags', 'tags_last_change', 'last_at', 'company_id', 'product', 'hardware', 'software', 'multiplier', 'offset'];
- 
+
     public static function hourly()
     {
         //  DB::enableQueryLog();
@@ -47,6 +47,8 @@ class Device extends Model
         foreach ($devices as $device) {
 
             $lastdata = json_decode($device->last_data, true);
+            $multiplier = json_decode($device->multiplier, true);
+            $offset = json_decode($device->offset, true);
             if (is_array($lastdata)) {
                 $tagCount = 0;
                 foreach ($lastdata as $data_id => $value) {
@@ -54,8 +56,27 @@ class Device extends Model
                         $start = Carbon::now()->startOfHour();
                         $device_data = DeviceData::where(["device_id" => $device->id, "data_id" => $data_id, 'hourly' => $start])->first();
                         if (!$device_data) {
-                            DeviceData::insert(["device_id" => $device->id, "data_id" => $data_id, "value" => $value, 'created_at' => $start, 'hourly' => $start]);
-                            ++$tagCount;                           
+                            if (isset($offset[$data_id]) && !empty($offset[$data_id])) {
+                                $offsetValue = floatval($offset[$data_id]);
+                            } else {
+                                $offsetValue = 0;
+                            }
+                            if (isset($multiplier[$data_id]) && !empty($multiplier[$data_id])) {
+                                $multiplierValue = floatval($multiplier[$data_id]);
+                            } else {
+                                $multiplierValue = 1;
+                            }
+
+                            DeviceData::insert([
+                                "device_id" => $device->id,
+                                "data_id" => $data_id,
+                                "value" => $value,
+                                'created_at' => $start,
+                                'hourly' => $start,
+                                'multiplier' => $multiplierValue,
+                                'houoffsetrly' => $offsetValue
+                            ]);
+                            ++$tagCount;
                         }
                     }
                 }
@@ -128,7 +149,7 @@ class Device extends Model
         $tag = preg_replace('/\s+/', '', $tag);
 
         $number = '(?:\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)'; // What is a number
-      //  $number = '(?:0|\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)';
+        //  $number = '(?:0|\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)';
         $hom = (date("j") - 1) * 24 + date("G") - $setting['day_start_hour'];
         if ($hom < 0) {
             $hom = 24 +  (date("j", strtotime("-1 day")) - 1) * 24 + date("G", strtotime("-1 day")) - $setting['day_start_hour'];
@@ -144,8 +165,8 @@ class Device extends Model
         $functions = '(?:sinh?|cosh?|tanh?|abs|acosh?|asinh?|atanh?|exp|log10|deg2rad|rad2deg|sqrt|elseif|else|if|ceil|floor|round)'; // Allowed PHP functions
         $operators = '[+\/*\/=\/<\/>\^%-]'; // Allowed math operators
         $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
-       // $regexp = '/((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+/';
-       $result = 0;
+        // $regexp = '/((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+/';
+        $result = 0;
         if (preg_match($regexp, $tag)) {
             $tag = preg_replace('!pi|π!', 'pi()', $tag); // Replace pi with pi function
             $tag = str_replace('dom', 'date("j")', $tag); // day of month
@@ -335,8 +356,8 @@ class Device extends Model
             // katsayı değişmişse ilk değeri yeni katsayıya göre hesapla.
             if ($last) {
                 if (
-                    ($first->offset !== null && $first->offset !== $last->offset) ||
-                    ($first->multiplier !== null && $first->multiplier !== $last->multiplier)
+                    ($last->offset !== null && $first->offset !== null && $first->offset !== $last->offset) ||
+                    ($last->multiplier !== null && $first->multiplier !== null && $first->multiplier !== $last->multiplier)
                 ) {
                     $firstValue =  (($firstValue - $first->offset) / $first->multiplier) * $last->multiplier  + $last->offset;
                 }
@@ -416,7 +437,7 @@ class Device extends Model
         if ($data) {
             DB::table('device_datas')->where('id', $data->id)->update(['value' => $value]);
         } else {
-            DB::table('device_datas')->insert(["device_id" => $device_id, "data_id" => $targetData_id, "value" => $value, 'created_at' => $start, 'hourly' => $start]);
+            DB::table('device_datas')->insert(["device_id" => $device_id, "data_id" => $targetData_id, "value" => $value, 'created_at' => $start, 'hourly' => $start, 'multiplier' => 1, 'offset' => 0]);
         }
         return $value;
     }
