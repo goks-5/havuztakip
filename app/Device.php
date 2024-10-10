@@ -146,10 +146,8 @@ class Device extends Model
 
     public static function calculate($tag, $setting)
     {
-        $tag = preg_replace('/\s+/', '', $tag);
+        
 
-        $number = '(?:\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)'; // What is a number
-        //  $number = '(?:0|\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)';
         $hom = (date("j") - 1) * 24 + date("G") - $setting['day_start_hour'];
         if ($hom < 0) {
             $hom = 24 +  (date("j", strtotime("-1 day")) - 1) * 24 + date("G", strtotime("-1 day")) - $setting['day_start_hour'];
@@ -162,29 +160,85 @@ class Device extends Model
         if ($hod < 0) {
             $hod = 24 + $hod;
         }
-        $functions = '(?:sinh?|cosh?|tanh?|abs|acosh?|asinh?|atanh?|exp|log10|deg2rad|rad2deg|sqrt|elseif|else|if|ceil|floor|round)'; // Allowed PHP functions
-        $operators = '[+\/*\/=\/<\/>\^%-]'; // Allowed math operators
-        $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
-        // $regexp = '/((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+/';
-        $result = 0;
-        if (preg_match($regexp, $tag)) {
-            $tag = preg_replace('!pi|π!', 'pi()', $tag); // Replace pi with pi function
-            $tag = str_replace('dom', 'date("j")', $tag); // day of month
-            $tag = str_replace('doy', '(date("z") + 1 )', $tag); // day of year
-            $tag = str_replace('moy', 'date("n")', $tag); // month of year
-            $tag = str_replace('hom', $hom, $tag); // hour of month
-            $tag = str_replace('hoy', $hoy, $tag); // hour of year
-            $tag = str_replace('hod', $hod, $tag); // hour of day
 
-            eval('  try {
-                $result = ' . $tag . ';
-            } catch (Exception $e) {
-                $ex = $e ; 
-                $result = 0;
-            }');
-        }
+        $tag = preg_replace('!pi|π!', pi(), $tag); // Replace pi with pi function
+        $tag = str_replace('dom', date("j"), $tag); // day of month
+        $tag = str_replace('doy', (date("z") + 1 ), $tag); // day of year
+        $tag = str_replace('moy', date("n"), $tag); // month of year
+        $tag = str_replace('hom', $hom, $tag); // hour of month
+        $tag = str_replace('hoy', $hoy, $tag); // hour of year
+        $tag = str_replace('hod', $hod, $tag); // hour of day
+        $tag = preg_replace('/\s+/', '', $tag);
+        
+        $result = self::evalMath($tag);
         return round($result, 2);
     }
+
+
+
+    private static function evalMath($expression)
+    {
+        // İzin verilen matematiksel fonksiyonlar listesi
+        static $function_map = array(
+            'floor'     => 'floor',
+            'ceil'      => 'ceil',
+            'round'     => 'round',         
+            'sin'       => 'sin',
+            'cos'       => 'cos',
+            'tan'       => 'tan',           
+            'asin'      => 'asin',
+            'acos'      => 'acos',
+            'atan'      => 'atan',          
+            'abs'       => 'abs',
+            'log'       => 'log',           
+            'pi'        => 'pi',
+            'exp'       => 'exp',
+            'min'       => 'min',
+            'max'       => 'max',
+            'rand'      => 'rand',
+            'fmod'      => 'fmod',
+            'sqrt'      => 'sqrt',
+            'deg2rad'   => 'deg2rad',
+            'rad2deg'   => 'rad2deg',
+        );
+    
+        $expression = strtolower(preg_replace('~\s+~', '', $expression));
+    
+        if ($expression === '') {
+            return 0;
+        }
+    
+        // İzin verilmeyen fonksiyonları kontrol et
+        $expression = preg_replace_callback('~\b[a-z]\w*\b~', function($match) use($function_map) {
+            $function = $match[0];
+            if (!isset($function_map[$function])) {
+                return '';
+            }
+            return $function_map[$function];
+        }, $expression);
+    
+        // Geçersiz fonksiyon çağrılarını kontrol et
+        if (preg_match('~[a-z]\w*(?![\(\w])~', $expression, $match) > 0) {
+            return 0;
+        }
+    
+        // Geçersiz karakter kontrolü
+        if (preg_match('~[^-+/%*&|<>!=.()0-9a-z,]~', $expression, $match) > 0) {
+            return 0;
+        }
+    
+        // Eval işlemiyle matematiksel ifadeyi çalıştır
+        try {
+            return eval("return ({$expression});");
+        } catch (\Throwable $th) {
+            // Hata durumunda 0 döndür
+            return 0;
+        }
+    }
+    
+
+
+
 
     private static function echoTimer($start = false, $last = false)
     {
