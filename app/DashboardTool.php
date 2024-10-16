@@ -180,38 +180,6 @@ class DashboardTool extends Model
         return $value;
     }
     
-    public function saveDashboardUrl($dashboardId)
-    {
-        // Dashboard'ı bul
-        $dashboard = Dashboard::find($dashboardId);
-    
-        if ($dashboard) {
-            // Debug için bir mesaj logla
-            \Log::info('Dashboard bulundu: ' . $dashboard->title);
-    
-            // Mevcut ayarları kontrol et
-            $currentSettings = $this->settings ? json_decode($this->settings, true) : [];
-    
-            // Dashboard URL'sini ayarla
-            $currentSettings['dashboard_url'] = route('dashboard.show', $dashboard->id);
-    
-            // Debug: URL'nin ne olduğunu kontrol et
-            \Log::info('Kaydedilecek URL: ' . $currentSettings['dashboard_url']);
-    
-            // Ayarları JSON olarak kaydet
-            $this->settings = json_encode($currentSettings);
-    
-            // Veritabanına kaydet
-            $this->save();
-    
-            // Debug için bir mesaj logla
-            \Log::info('Dashboard URL kaydedildi: ' . $currentSettings['dashboard_url']);
-        } else {
-            // Dashboard bulunamadıysa bir hata mesajı logla
-            \Log::error('Dashboard bulunamadı: ' . $dashboardId);
-        }
-    }
-   
     public function sum_tag($settings, $tool)
     {
         $tags = [];
