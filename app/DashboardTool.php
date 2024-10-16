@@ -180,7 +180,6 @@ class DashboardTool extends Model
         return $value;
     }
     
-    
     public function sum_tag($settings, $tool)
     {
         $tags = [];
