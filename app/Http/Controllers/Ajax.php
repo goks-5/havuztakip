@@ -600,13 +600,34 @@ class Ajax extends Controller
             $settings = json_decode($tool->settings, true);
             $device = Device::where('company_id', Auth::user()->company_id)->where('id', $settings['device'])->first();
             if ($device) {
+                $multiplier = json_decode($device->multiplier, true);
+                $offset = json_decode($device->offset, true);
+               
+                $index = $settings['device_index'];
+               
                 $value = $request->status == 'on' ? $settings['onValue'] : $settings['offValue'];
+
+                if (isset($offset[$index]) && !empty($offset[$index])) {
+                    $offsetValue = floatval($offset[$index]);
+                } else {
+                    $offsetValue = 0; 
+                }
+                if (isset($multiplier[$index]) && !empty($multiplier[$index])) {
+                    $multiplierValue = floatval($multiplier[$index]);
+                } else {
+                    $multiplierValue = 1; 
+                }
+
+                $value = ($value  * $multiplierValue ) +  $offsetValue;
+     
                 $time = date('Y-m-d H:i');
                 $deviceData = new DeviceData;
                 $deviceData->device_id = $settings['device'];
                 $deviceData->data_id = $settings['device_index'];
                 $deviceData->value = $value;
                 $deviceData->created_at = $time;
+                $deviceData->multiplier = $multiplierValue;
+                $deviceData->offset = $offsetValue;
                 $deviceData->save();
                 $device->last_at = $time;
                 $lastdata = array();

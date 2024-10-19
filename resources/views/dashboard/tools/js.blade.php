@@ -560,9 +560,12 @@
         for (var j = 0; j < tableCols.length; j++) {
             var cellValue = tableCols[j].innerText.trim();
 
-            // Ensure that decimal values are preserved
+            // Convert Turkish comma decimals to dots for proper Excel/Numbers recognition
+            cellValue = cellValue.replace(/\./g, '').replace(',', '.');
+
+            // Ensure that cellValue is treated as a number if it's numeric
             if (!isNaN(cellValue) && cellValue !== '') {
-                cellValue = parseFloat(cellValue).toFixed(2); // Format numbers with two decimal places
+                cellValue = parseFloat(cellValue); // Leave the original decimal format
             }
 
             rowData.push(cellValue);
@@ -607,7 +610,7 @@
     document.body.appendChild(link); // Append the link to the document
 }
 
-    // Genel veri işleme ve grafik oluşturma için kullanılan fonksiyonlar
+
 
 function getTableData(table) {
     var data = [];
@@ -616,7 +619,17 @@ function getTableData(table) {
         var rowData = [];
         var cells = row.querySelectorAll('th, td');
         cells.forEach(function(cell) {
-            rowData.push(cell.innerText.trim());
+            var cellValue = cell.innerText.trim();
+
+            // Convert Turkish comma decimals to dots and remove thousand separators
+            cellValue = cellValue.replace(/\./g, '').replace(',', '.');
+
+            // Ensure that numeric values are correctly parsed
+            if (!isNaN(cellValue) && cellValue !== '') {
+                cellValue = parseFloat(cellValue); // Convert to number
+            }
+
+            rowData.push(cellValue);
         });
         data.push(rowData);
     });

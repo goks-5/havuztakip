@@ -34,15 +34,17 @@ class Kernel extends ConsoleKernel
                 DeviceData::deleteOldData(93);
             })->everyThirtyMinutes();
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
         try {
-            $schedule->call(function () {
-                Device::fillHourly();
-            })->everyFiveMinutes();
+            if ((float)date("i") < 7) {
+                $schedule->call(function () {
+                    Device::fillHourly();
+                })->everyMinute();
+            }
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
         try {
@@ -52,16 +54,15 @@ class Kernel extends ConsoleKernel
                 })->everyFiveMinutes();
             }
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
         try {
             $schedule->call(function () {
                 Device::virtualData();
-                Device::remoteData();
             })->everyMinute();
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
 
@@ -70,7 +71,7 @@ class Kernel extends ConsoleKernel
                 Triger::check();
             })->everyMinute();
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
         try {
@@ -78,11 +79,11 @@ class Kernel extends ConsoleKernel
                 Device::diffData();
             })->everyMinute();
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
         $schedule->command('mail:reports')
-        ->everyFifteenMinutes();
+            ->everyFifteenMinutes();
 
         $schedule->call(function () {
             $root_path = base_path();

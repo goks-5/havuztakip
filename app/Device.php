@@ -16,6 +16,7 @@ class Device extends Model
     use SoftDeletes;
 
     protected $fillable = ['token', 'last_data', 'tags', 'tags_last_change', 'last_at', 'company_id', 'product', 'hardware', 'software', 'multiplier', 'offset'];
+
     public static function hourly()
     {
         //  DB::enableQueryLog();
@@ -36,98 +37,6 @@ class Device extends Model
     }
 
 
-    public static function dosabData()
-    {
-        $sayaclar = DB::table('devices')->where('mac', '00:00:00:00:00:01')->get();
-        foreach ($sayaclar as $sayac) {
-            $id = explode('_', str_replace('DOSAB_', '', $sayac->device_id));
-            $json =  file_get_contents("http://enviys.dosab.org.tr/ajax/meter.instant.ajax.php?i={$id[0]}&t={$id[1]}&o=0");
-
-            $sdata = json_decode($json);
-            dump($sdata);
-            $diff_tags = json_decode($sayac->diff_tags, true);
-            $lastdata = array();
-            $lastdata_old = json_decode($sayac->last_data, true);
-
-            if (isset($sdata->info)) {
-                $info = $sdata->info;
-            }
-
-            if (isset($info->fld_date_time) && strtotime($info->fld_date_time) > strtotime($sayac->last_at)) {
-                if (isset($info->fld_active_energy)) { // Elektrik Sayacı
-                    $tag = ["Aktif Enerji", "Kapasitif Enerji", "İndüktif Enerji", "Gündüz", "Puant", "Gece"];
-                    $lastdata = [
-                        $info->fld_active_energy ?? '',
-                        $info->fld_capacitive_energy ?? '',
-                        $info->fld_inductive_energy ?? '',
-                        $info->fld_active_energy_rate_1 ?? '',
-                        $info->fld_active_energy_rate_2 ?? '',
-                        $info->fld_active_energy_rate_3 ?? ''
-                    ];
-                } elseif (isset($info->fld_base_volume)) { // doğalgaz Sayacı
-                    $tag = ["Düzeltilmemiş Endeks", "Düzeltilmiş Endeks"];
-                    $lastdata = [
-                        $info->fld_measured_volume ?? '',
-                        $info->fld_base_volume ?? ''
-                    ];
-                } elseif (isset($info->fld_volume)) { // Su Sayacı
-                    $tag = ["Endeks"];
-                    $lastdata = [$info->fld_volume ?? ''];
-                }
-
-                if (isset($diff_tags) && count($diff_tags) > 0) {
-                    foreach ($tag as $key => $value) {
-                        foreach ($diff_tags as $diff_key => $diff_value) {
-                            $tag[$key + $diff_key] = $value . ' ' . $diff_value;
-                        }
-                    }
-                }
-
-
-                if (isset($lastdata)) {
-                    foreach ($lastdata as $key => $result) {
-                        if (is_numeric($result)) {
-                            $result = round($result, 2);
-                            DB::table('device_datas')->insert(["device_id" => $sayac->id, "data_id" => $key, "value" => $result, 'created_at' => $sdata->info->fld_date_time, 'hourly' => $sdata->info->fld_date_time]);
-                            $lastdata_old[$key] = $result;
-                        }
-                    }
-                    DB::table('devices')->where('id', $sayac->id)->update(['tags' => json_encode($tag, JSON_UNESCAPED_UNICODE), 'last_data' => json_encode($lastdata_old), "last_at" => $sdata->info->fld_date_time, "updated_at" => date('Y-m-d H:i:s')]);
-                }
-            }
-        }
-    }
-
-    public static function remoteData()
-    {
-        $remotes = DB::table('devices')->where('mac', '00:00:00:00:00:03')->get();
-        foreach ($remotes as $remote) {
-            $formula = json_decode($remote->formula, true);
-            if (isset($formula['token'])) {
-                $tagAccess = TagAccess::where('id', $formula['token_id'])->where('token', $formula['token'])->first();
-                if ($tagAccess) {
-
-                    $tags = json_decode($tagAccess->tags, true);
-                    $tempDevice = array();
-                    $lastData = array();
-                    foreach ($tags as $key => $value) {
-                        $varible = explode('-', $value);
-                        if (!isset($tempDevice[$varible[0]])) {
-                            $device = Device::find($varible[0]);
-                            $tempDevice[$varible[0]]["data"] = json_decode($device->last_data, true);
-                            $tempDevice[$varible[0]]["last_at"] = $device->last_at;
-                        }
-                        if ($tempDevice[$varible[0]]["last_at"] > $remote->last_at) {
-                            DB::table('device_datas')->insert(["device_id" => $remote->id, "data_id" => $key, "value" => $tempDevice[$varible[0]]["data"][$varible[1]], 'created_at' => date('Y-m-d H:i:s')]);
-                        }
-                        $lastData[$key] = $tempDevice[$varible[0]]["data"][$varible[1]];
-                    }
-                    DB::table('devices')->where('id', $remote->id)->update(['last_data' => json_encode($lastData, true), "last_at" => date('Y-m-d H:i:s')]);
-                }
-            }
-        }
-    }
-
     public static function fillHourly()
     {
         $devices = Device::where('mac', '<>', '00:00:00:00:00:00')
@@ -138,6 +47,8 @@ class Device extends Model
         foreach ($devices as $device) {
 
             $lastdata = json_decode($device->last_data, true);
+            $multiplier = json_decode($device->multiplier, true);
+            $offset = json_decode($device->offset, true);
             if (is_array($lastdata)) {
                 $tagCount = 0;
                 foreach ($lastdata as $data_id => $value) {
@@ -145,8 +56,27 @@ class Device extends Model
                         $start = Carbon::now()->startOfHour();
                         $device_data = DeviceData::where(["device_id" => $device->id, "data_id" => $data_id, 'hourly' => $start])->first();
                         if (!$device_data) {
-                            DeviceData::insert(["device_id" => $device->id, "data_id" => $data_id, "value" => $value, 'created_at' => $start, 'hourly' => $start]);
-                            ++$tagCount;                           
+                            if (isset($offset[$data_id]) && !empty($offset[$data_id])) {
+                                $offsetValue = floatval($offset[$data_id]);
+                            } else {
+                                $offsetValue = 0;
+                            }
+                            if (isset($multiplier[$data_id]) && !empty($multiplier[$data_id])) {
+                                $multiplierValue = floatval($multiplier[$data_id]);
+                            } else {
+                                $multiplierValue = 1;
+                            }
+
+                            DeviceData::insert([
+                                "device_id" => $device->id,
+                                "data_id" => $data_id,
+                                "value" => $value,
+                                'created_at' => $start,
+                                'hourly' => $start,
+                                'multiplier' => $multiplierValue,
+                                'houoffsetrly' => $offsetValue
+                            ]);
+                            ++$tagCount;
                         }
                     }
                 }
@@ -216,10 +146,8 @@ class Device extends Model
 
     public static function calculate($tag, $setting)
     {
-        $tag = preg_replace('/\s+/', '', $tag);
+        
 
-        $number = '(?:\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)'; // What is a number
-      //  $number = '(?:0|\d+(?:[,.]\d+)?|pi|π|dom|doy|moy|hom|hoy|hod)';
         $hom = (date("j") - 1) * 24 + date("G") - $setting['day_start_hour'];
         if ($hom < 0) {
             $hom = 24 +  (date("j", strtotime("-1 day")) - 1) * 24 + date("G", strtotime("-1 day")) - $setting['day_start_hour'];
@@ -232,29 +160,85 @@ class Device extends Model
         if ($hod < 0) {
             $hod = 24 + $hod;
         }
-        $functions = '(?:sinh?|cosh?|tanh?|abs|acosh?|asinh?|atanh?|exp|log10|deg2rad|rad2deg|sqrt|elseif|else|if|ceil|floor|round)'; // Allowed PHP functions
-        $operators = '[+\/*\/=\/<\/>\^%-]'; // Allowed math operators
-        $regexp = '/^((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+$/'; // Final regexp, heavily using recursive patterns
-       // $regexp = '/((' . $number . '|' . $functions . '\s*\((?1)+\)|\((?1)+\))(?:' . $operators . '(?2))?)+/';
-       $result = 0;
-        if (preg_match($regexp, $tag)) {
-            $tag = preg_replace('!pi|π!', 'pi()', $tag); // Replace pi with pi function
-            $tag = str_replace('dom', 'date("j")', $tag); // day of month
-            $tag = str_replace('doy', '(date("z") + 1 )', $tag); // day of year
-            $tag = str_replace('moy', 'date("n")', $tag); // month of year
-            $tag = str_replace('hom', $hom, $tag); // hour of month
-            $tag = str_replace('hoy', $hoy, $tag); // hour of year
-            $tag = str_replace('hod', $hod, $tag); // hour of day
 
-            eval('  try {
-                $result = ' . $tag . ';
-            } catch (Exception $e) {
-                $ex = $e ; 
-                $result = 0;
-            }');
-        }
+        $tag = preg_replace('!pi|π!', pi(), $tag); // Replace pi with pi function
+        $tag = str_replace('dom', date("j"), $tag); // day of month
+        $tag = str_replace('doy', (date("z") + 1 ), $tag); // day of year
+        $tag = str_replace('moy', date("n"), $tag); // month of year
+        $tag = str_replace('hom', $hom, $tag); // hour of month
+        $tag = str_replace('hoy', $hoy, $tag); // hour of year
+        $tag = str_replace('hod', $hod, $tag); // hour of day
+        $tag = preg_replace('/\s+/', '', $tag);
+        
+        $result = self::evalMath($tag);
         return round($result, 2);
     }
+
+
+
+    private static function evalMath($expression)
+    {
+        // İzin verilen matematiksel fonksiyonlar listesi
+        static $function_map = array(
+            'floor'     => 'floor',
+            'ceil'      => 'ceil',
+            'round'     => 'round',         
+            'sin'       => 'sin',
+            'cos'       => 'cos',
+            'tan'       => 'tan',           
+            'asin'      => 'asin',
+            'acos'      => 'acos',
+            'atan'      => 'atan',          
+            'abs'       => 'abs',
+            'log'       => 'log',           
+            'pi'        => 'pi',
+            'exp'       => 'exp',
+            'min'       => 'min',
+            'max'       => 'max',
+            'rand'      => 'rand',
+            'fmod'      => 'fmod',
+            'sqrt'      => 'sqrt',
+            'deg2rad'   => 'deg2rad',
+            'rad2deg'   => 'rad2deg',
+        );
+    
+        $expression = strtolower(preg_replace('~\s+~', '', $expression));
+    
+        if ($expression === '') {
+            return 0;
+        }
+    
+        // İzin verilmeyen fonksiyonları kontrol et
+        $expression = preg_replace_callback('~\b[a-z]\w*\b~', function($match) use($function_map) {
+            $function = $match[0];
+            if (!isset($function_map[$function])) {
+                return '';
+            }
+            return $function_map[$function];
+        }, $expression);
+    
+        // Geçersiz fonksiyon çağrılarını kontrol et
+        if (preg_match('~[a-z]\w*(?![\(\w])~', $expression, $match) > 0) {
+            return 0;
+        }
+    
+        // Geçersiz karakter kontrolü
+        if (preg_match('~[^-+/%*&|<>!=.()0-9a-z,]~', $expression, $match) > 0) {
+            return 0;
+        }
+    
+        // Eval işlemiyle matematiksel ifadeyi çalıştır
+        try {
+            return eval("return ({$expression});");
+        } catch (\Throwable $th) {
+            // Hata durumunda 0 döndür
+            return 0;
+        }
+    }
+    
+
+
+
 
     private static function echoTimer($start = false, $last = false)
     {
@@ -325,7 +309,7 @@ class Device extends Model
                 $start = clone $baseStart;
                 $type = 'diff';
                 if ($data_id > 99 && $data_id < 200) {
-                    $start = Carbon::now()->subMinutes(5)->startOfHour();
+                    $start = Carbon::now()->subMinutes(6)->startOfHour();
                     $end = clone $start;
                     $end->addHours(1);
                     if (isset($types[$data_id - 100])) {
@@ -426,8 +410,8 @@ class Device extends Model
             // katsayı değişmişse ilk değeri yeni katsayıya göre hesapla.
             if ($last) {
                 if (
-                    ($first->offset !== null && $first->offset !== $last->offset) ||
-                    ($first->multiplier !== null && $first->multiplier !== $last->multiplier)
+                    ($last->offset !== null && $first->offset !== null && $first->offset !== $last->offset) ||
+                    ($last->multiplier !== null && $first->multiplier !== null && $first->multiplier !== $last->multiplier)
                 ) {
                     $firstValue =  (($firstValue - $first->offset) / $first->multiplier) * $last->multiplier  + $last->offset;
                 }
@@ -507,7 +491,7 @@ class Device extends Model
         if ($data) {
             DB::table('device_datas')->where('id', $data->id)->update(['value' => $value]);
         } else {
-            DB::table('device_datas')->insert(["device_id" => $device_id, "data_id" => $targetData_id, "value" => $value, 'created_at' => $start, 'hourly' => $start]);
+            DB::table('device_datas')->insert(["device_id" => $device_id, "data_id" => $targetData_id, "value" => $value, 'created_at' => $start, 'hourly' => $start, 'multiplier' => 1, 'offset' => 0]);
         }
         return $value;
     }

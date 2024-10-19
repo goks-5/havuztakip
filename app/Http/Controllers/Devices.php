@@ -61,15 +61,36 @@ class Devices extends VoyagerBaseController
     public function addManuelData(Request $request)
     {
         $device = Device::where('company_id', Auth::user()->company_id)->where('id', $request->id)->first();
+        $multiplier = json_decode($device->multiplier, true);
+        $offset = json_decode($device->offset, true);
+
         if ($device) {
             $time = date('Y-m-d H:i', strtotime($request->date));
+            $tags = [];
             foreach ($request->tags as $key => $tag) {
+
+                if (isset($offset[$key]) && !empty($offset[$key])) {
+                    $offsetValue = floatval($offset[$key]);
+                } else {
+                    $offsetValue = 0; 
+                }
+                if (isset($multiplier[$key]) && !empty($multiplier[$key])) {
+                    $multiplierValue = floatval($multiplier[$key]);
+                } else {
+                    $multiplierValue = 1; 
+                }
+                $tag = ($tag * $multiplierValue ) +  $offsetValue;
+
+
                 $deviceData = new DeviceData;
                 $deviceData->device_id = $request->id;
                 $deviceData->data_id = $key;
                 $deviceData->value = $tag;
+                $deviceData->multiplier = $multiplierValue;
+                $deviceData->offset = $offsetValue;
                 $deviceData->created_at = $time;
                 $deviceData->save();
+                $tags[$key] = $tag;
             }
         }
         $device->last_at = $time;
@@ -77,7 +98,7 @@ class Devices extends VoyagerBaseController
         if (!empty($device->last_data)) {
             $lastdata = json_decode($device->last_data, true);
         }
-        $replace = array_replace($lastdata, $request->tags);
+        $replace = array_replace($lastdata, $tags);
         ksort($replace);
         $device->last_data = json_encode($replace);
         $device->save();
