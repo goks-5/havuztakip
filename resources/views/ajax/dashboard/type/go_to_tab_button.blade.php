@@ -6,25 +6,25 @@
 
 <div class="form-group">
     <label for="dashboardDropdown">İzleme Ekranı</label>
-    <select class="form-control" id="dashboardDropdown" name="dashboard_id" onchange="setDashboardId(this.value)">
+    <select class="form-control" id="dashboardDropdown" name="setting[dashboard_id]" >
         @foreach($dashboards as $dashboard)
-            <option value="{{ $dashboard->id }}">{{ $dashboard->title }}</option>
+            <option value="{{ $dashboard->id }}" {{ isset($settings['dashboard_id']) && $settings['dashboard_id'] == $dashboard->id ? 'selected' : '' }}>
+                {{ $dashboard->title }}
+            </option>
         @endforeach
     </select>
 </div>
 
-<!-- Dashboard ID alanı, sadece popup'ta görünüyor -->
-<div class="form-group">
-    <label for="dashboardId">Dashboard ID</label>
-    <input type="text" class="form-control" id="dashboardId" name="dashboard_id" value="{{ $selectedDashboardId }}" readonly>
+
+<div class="form-group row">
+@include('ajax.dashboard.type.element.main',['slug'=>'go_to_tab_button', 'ek' => 0])
 </div>
 
-<script>
-    function setDashboardId(dashboardId) {
-        // localStorage'a seçilen dashboardId'yi kaydet
-        localStorage.setItem('selectedDashboardId', dashboardId);
+<div class="form-group">
+  <label for="image">Arka Plan</label>
 
-        // Dashboard ID input alanını güncelle
-        document.getElementById('dashboardId').value = dashboardId;
-    }
-</script>
+  <input type="file" class="form-control-file" name="backgroud" id="image">
+  @if(isset($page->img))
+    <img src="../images/{{$page->img}}" style="max-width: 200px;" />
+  @endif
+</div>

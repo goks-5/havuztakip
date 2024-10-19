@@ -66,6 +66,10 @@
                                 sumTag(lastdata[k]);
                                 break;
 
+                            case 'go_to_tab_button':
+                                gototab(lastdata[k]);
+                                break;    
+
                         }
                     });
                 }
@@ -267,7 +271,25 @@
                 }
             });
         }
+        
+        function gototab(data) {
+        Object.keys(data).forEach(function(k) {
+            // Dashboard ID kontrolü yapıyoruz, ID varsa işleme devam ediyoruz
+            if (data[k].dashboard_id && $('#' + k).length) {
+                var dashboardId = data[k].dashboard_id;
 
+                // Butonun içerisine dinamik olarak URL yönlendirmesini ekliyoruz
+                var button = $('#' + k);
+
+                // Butona tıklama olayını dinliyoruz
+                button.off('click').on('click', function() {
+                    var url = '/dashboard/' + dashboardId; // URL'yi oluşturuyoruz
+                    window.location.href = url; // Kullanıcıyı yönlendiriyoruz
+                    });
+                }
+            });
+        }
+        
         function faults(data) {
             Object.keys(data).forEach(function(k) {
 
