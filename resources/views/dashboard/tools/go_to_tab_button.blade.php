@@ -11,29 +11,53 @@
     $dashboard = $dashboardId ? App\Dashboard::find($dashboardId) : null;
     @endphp
     
-    @if ($dashboard)
-        <button class="redirect-btn" onclick="window.location.href='{{ url('dashboard/' . $dashboard->id) }}';">
-            <!-- Butonun içeriğini buraya koyabiliriz ama görünmeyecek -->
+    <div id="content_{{$tool->id}}">
+        <button class="redirect-btn" data-dashboard-id="{{ $dashboardId }}">
+            <!-- Buton görünmeyecek şekilde tasarlandı, içeriği buraya koyabiliriz -->
         </button>
-    @else
-        <div class="col-xs-12 text-center">
-            <p>Dashboard seçilmemiş.</p>
-        </div>
-    @endif
+        
+        @if (!$dashboard)
+            <div class="col-xs-12 text-center">
+                <p>Dashboard seçilmemiş.</p>
+            </div>
+        @endif
+    </div>
 </div>
+
+@push('javascript')
+<script>
+$(document).ready(function () {
+    // Tüm redirect butonlarına click event ekliyoruz
+    $('.redirect-btn').on('click', function (e) {
+        e.preventDefault();
+
+        // Butonun data-dashboard-id özelliğinden dashboard ID'sini alıyoruz
+        var dashboardId = $(this).data('dashboard-id');
+
+        // Eğer dashboard ID varsa yönlendirme yap
+        if (dashboardId) {
+            var url = '/dashboard/' + dashboardId; // Dinamik olarak URL'yi oluşturuyoruz
+            window.location.href = url; // Kullanıcıyı yönlendiriyoruz
+        } else {
+            alert('Dashboard seçilmemiş.');
+        }
+    });
+});
+</script>
+@endpush
 
 <!-- CSS Kodları -->
 <style>
     .redirect-btn {
-        display: block; /* Butonun block yapıda olmasını sağlar */
-        width: 90%; /* Tool genişliğini %90 yapar */
-        height: 90%; /* Tool yüksekliğini %90 yapar */
-        background-color: transparent; /* Butonun arka planını şeffaf yapar */
-        border: none; /* Buton kenarlıklarını kaldır */
-        position: absolute; /* Butonun tool container'ının tamamını kaplaması için */
-        top: 5px; /* Üstten sıfırlanmış */
-        left: 5px; /* Soldan sıfırlanmış */
-        cursor: pointer; /* Tıklanabilir olduğunu göstermek için imleci değiştir */
-        z-index: 10; /* Butonu ön plana getirir */
+        display: block;
+        width: 90%;
+        height: 90%;
+        background-color: transparent;
+        border: none;
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        cursor: pointer;
+        z-index: 10;
     }
 </style>

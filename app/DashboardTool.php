@@ -206,6 +206,39 @@ class DashboardTool extends Model
         return ['total' => $total , 'tags' => $tags];
     }
 
+    public function go_to_tab_button($settings, $tool)
+    {
+        // Dashboard verilerini tutmak için boş bir array oluşturuyoruz.
+        $dashboards = [];
+        
+        // Kullanıcının kaydettiği dashboard ID'sini alıyoruz.
+        $dashboardId = $settings['dashboard_id'] ?? null;
+        
+        // Eğer dashboard ID varsa, o dashboard'u veritabanından buluyoruz.
+        if ($dashboardId) {
+            $dashboard = Dashboard::where('id', $dashboardId)->first();
+            
+            if ($dashboard) {
+                // Dashboard bilgilerini alıyoruz (başlık ve ID)
+                $label = $dashboard->title;
+                $id = $dashboard->id;
+                
+                // Tags mantığıyla yönlendirme butonuna tıklanacak dashboard verisini ekliyoruz.
+                $dashboards[] = ['label' => $label, 'id' => $id];
+            }
+        }
+    
+        // Eğer bir dashboard ID bulunmazsa, kullanıcıya "Dashboard seçilmemiş" mesajını gösterecek veriyi hazırlıyoruz.
+        $total['label'] = "Dashboard";
+        $total['value'] = $dashboardId ? $dashboard->title : "Dashboard seçilmemiş";
+    
+        // Kullanıcıyı ilgili dashboard'a yönlendirecek buton bilgilerini döndürüyoruz.
+        return [
+            'total' => $total,
+            'dashboards' => $dashboards
+        ];
+    }    
+
     public function device_chart($settings, $tool)
     {
         $value['cols'][] = ['id' => 0, 'label' => 'Tarih', 'type' => 'datetime'];
