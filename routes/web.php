@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
 use TCG\Voyager\Facades\Voyager;
+use App\Http\Controllers\ChartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +65,21 @@ Route::group(['prefix' => ''], function () {
     Route::get('/cihazlar/veriler', ['uses' => 'Devices@DevicesDatas', 'as' => 'veriler']);
     Route::post('/cihazlar/veriler', ['uses' => 'Devices@DeviceDatasSearch', 'as' => 'cihazverilerajax']);
     Route::get('/cihazlar/veriler/{id}', ['uses' => 'Devices@DeviceDatas', 'as' => 'cihazveriler']);
+    Route::get('/dinamik-rapor', function () {
+        $devices = \App\Device::all()->map(function ($device) {
+            return [
+                'id' => $device->id,
+                'name' => $device->name,
+                'tags' => json_decode($device->tags, true) ?? []
+            ];
+        });
+    
+        return view('vendor.voyager.dinamik-rapor.browse', compact('devices'));
+    })->name('dinamik-rapor.browse');
+    
+    
+    
+    Route::get('/get-filtered-data', [ChartController::class, 'getFilteredData']);    
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });
