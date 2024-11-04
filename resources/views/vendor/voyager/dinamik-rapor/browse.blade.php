@@ -8,61 +8,75 @@
 
         <!-- Inline-flex layout for selection controls -->
         <div style="display: inline-flex; align-items: center; gap: 15px; margin-top: 20px;">
-            <!-- Device Dropdown with Bootstrap Multiselect -->
             <div>
                 <label for="device" class="sr-only">Cihaz</label>
                 <select class="form-control" id="device" multiple="multiple" style="width: 200px;">
-                    <!-- Device options will be populated here -->
                 </select>
             </div>
 
-            <!-- Tag Dropdown (multi-select) with Bootstrap Multiselect -->
             <div>
                 <label for="tag" class="sr-only">Etiket</label>
                 <select class="form-control" id="tag" multiple="multiple" style="width: 200px;">
                     <option value="">Etiket Seçin</option>
-                    <!-- Tag options will be populated here -->
                 </select>
             </div>
 
-            <!-- Start Date Picker -->
             <div>
                 <label for="date_start" class="sr-only">Başlangıç Tarihi</label>
                 <input type="text" class="form-control datetimepicker" id="date_start" placeholder="Başlangıç Tarihi" style="width: 200px;">
             </div>
 
-            <!-- End Date Picker -->
             <div>
                 <label for="date_end" class="sr-only">Bitiş Tarihi</label>
                 <input type="text" class="form-control datetimepicker" id="date_end" placeholder="Bitiş Tarihi" style="width: 200px;">
             </div>
 
-            <!-- Search Button -->
             <button class="btn btn-primary" id="searchButton" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 38px;">
                 <i class="voyager-search"></i>
             </button>
         </div>
 
-        <!-- Chart Container -->
-        <div id="chartContainer" style="height: 400px; width: 100%; margin-top: 20px;"></div>
+        <!-- Chart Containers -->
+        <div style="display: flex; gap: 20px; margin-top: 20px;">
+            <div id="chartContainer" style="height: 400px; width: 50%;"></div>
+
+            <!-- Pie Chart Container with Date and Navigation Buttons -->
+            <div style="position: relative; width: 50%; height: 400px;">
+                <div id="pieChartContainer" style="height: 100%;"></div>
+                <div id="dateNavigation" style="text-align: center; position: absolute; bottom: 10px; width: 100%; display: none;">
+                    <button id="prevDate" style="margin-right: 10px;">&lt;</button>
+                    <span id="currentDate">Tarih</span>
+                    <button id="nextDate" style="margin-left: 10px;">&gt;</button>
+                </div>
+            </div>
+        </div>
     </div>
 @endsection
 
 @section('javascript')
+<style>
+    #dateNavigation {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #currentDate {
+        display: inline-block;
+        text-align: center;
+    }
+</style>
 <!-- Include ECharts -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
-<!-- Include Bootstrap Multiselect for device and tag dropdowns with checkboxes -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
 <script type="text/javascript">
     $(document).ready(function() {
-        // Initialize datetime picker
         $('.datetimepicker').datetimepicker({
             format: 'Y-MM-DD HH:mm',
         });
 
-        // Initialize Bootstrap Multiselect on device dropdown for multi-select with checkboxes
         $('#device').multiselect({
             nonSelectedText: "Cihaz Seçin",
             buttonWidth: '200px',
@@ -71,12 +85,11 @@
             enableFiltering: true,
             filterPlaceholder: 'Arama',
             templates: {
-                filterClearBtn: '', // Çarpı ikonu kaldırılır
-                filterIcon: '' // Büyüteç ikonu kaldırılır
+                filterClearBtn: '',
+                filterIcon: ''
             }
         });
 
-        // Initialize Bootstrap Multiselect on tag dropdown for multi-select with checkboxes
         $('#tag').multiselect({
             nonSelectedText: "Etiket Seçin",
             buttonWidth: '200px',
@@ -85,21 +98,18 @@
             enableFiltering: true,
             filterPlaceholder: 'Arama',
             templates: {
-                filterClearBtn: '', // Çarpı ikonu kaldırılır
-                filterIcon: '' // Büyüteç ikonu kaldırılır
+                filterClearBtn: '',
+                filterIcon: ''
             }
         });
 
         var devices = @json($devices);
-
-        // Populate devices dropdown
         let deviceDropdown = $('#device');
         devices.forEach(device => {
             deviceDropdown.append(`<option value="${device.id}">${device.name}</option>`);
         });
         deviceDropdown.multiselect('rebuild');
 
-        // Handle device selection to populate tags dropdown
         deviceDropdown.on('change', function() {
             let selectedDeviceId = $(this).val();
             let selectedDevice = devices.find(device => device.id == selectedDeviceId);
@@ -111,19 +121,20 @@
                 Object.entries(selectedDevice.tags).forEach(([key, tag]) => {
                     tagDropdown.append(`<option value="${key}">${tag}</option>`);
                 });
-                // Refresh Bootstrap Multiselect options
                 tagDropdown.multiselect('rebuild');
             } else {
                 console.warn("No tags available for this device.");
             }
         });
 
-        // Initialize ECharts instance
         let chart = echarts.init(document.getElementById('chartContainer'));
+        let pieChart = echarts.init(document.getElementById('pieChartContainer'));
+        let currentDateIndex = 0;
+        let dates = [];
+        let allPieData = []; // Tüm tarihlere göre pie chart verisi
 
-        // Fetch and render data based on selections
         async function fetchDataAndRenderChart() {
-            const deviceId = $('#device').val() [0]; // Eğer çoklu seçim desteklemiyorsa .val()[0] şeklinde alın
+            const deviceId = $('#device').val()[0];
             const tagIds = $('#tag').val();
             const startDate = $('#date_start').val();
             const endDate = $('#date_end').val();
@@ -134,7 +145,8 @@
             }
 
             const seriesData = [];
-            let dates = [];
+            allPieData = []; // Her sorguda sıfırlanır
+            let pieDataByDate = {}; // Tarihe göre pie chart verisi
 
             for (const tagId of tagIds) {
                 try {
@@ -152,25 +164,47 @@
                     const data = response.data;
                     if (data.length > 0) {
                         dates = data.map(entry => entry.created_at);
+                        const values = data.map(entry => entry.value);
+
+                        // Ana grafik için veriyi yapılandırma
+                        seriesData.push({
+                            name: $('#tag option[value="' + tagId + '"]').text(),
+                            type: 'bar',
+                            data: values
+                        });
+
+                        // Pie chart için tarihe göre veri oluşturma
+                        data.forEach(entry => {
+                            if (!pieDataByDate[entry.created_at]) {
+                                pieDataByDate[entry.created_at] = [];
+                            }
+                            pieDataByDate[entry.created_at].push({
+                                name: $('#tag option[value="' + tagId + '"]').text(),
+                                value: entry.value
+                            });
+                        });
                     }
-                    const values = data.map(entry => entry.value);
-
-                    seriesData.push({
-                        name: $('#tag option[value="' + tagId + '"]').text(),
-                        type: 'bar',
-                        data: values
-                    });
-
                 } catch (error) {
                     console.error("Error fetching data for tag:", tagId, error);
                 }
             }
 
+            allPieData = dates.map(date => ({
+                date: date,
+                data: pieDataByDate[date] || []
+            }));
+
             chart.clear();
             renderChart(seriesData, dates);
+
+            // İlk tarihi göster ve ilk pie chart verisini çiz
+            currentDateIndex = dates.length - 1;
+            $('#currentDate').text(dates[currentDateIndex]);
+            renderPieChart(allPieData[currentDateIndex].data);
+
+            $('#dateNavigation').css('display', 'flex');
         }
 
-        // Function to render the chart
         function renderChart(seriesData, dates) {
             const option = {
                 legend: {
@@ -196,7 +230,55 @@
             chart.setOption(option);
         }
 
-        // Event listener for the search button
+        function renderPieChart(pieData) {
+            const pieOption = {
+                tooltip: {
+                    trigger: 'item'
+                },
+                legend: {
+                    top: 'top',
+                    data: pieData.map(item => item.name)
+                },
+                series: [
+                    {
+                        name: 'Etiket Son Verisi',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        data: pieData,
+                        label: {
+                            formatter: '{b}: {c}',
+                            position: 'outside'
+                        },
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }
+                    }
+                ]
+            };
+
+            pieChart.setOption(pieOption);
+        }
+
+        // Tarihi bir gün azalt ve pie chart verisini güncelle
+        $('#prevDate').on('click', function() {
+            if (currentDateIndex > 0) {
+                currentDateIndex--;
+                $('#currentDate').text(dates[currentDateIndex]);
+                renderPieChart(allPieData[currentDateIndex].data); // Güncel pie chart verisini kullan
+            }
+        });
+
+        // Tarihi bir gün artır ve pie chart verisini güncelle
+        $('#nextDate').on('click', function() {
+            if (currentDateIndex < dates.length - 1) {
+                currentDateIndex++;
+                $('#currentDate').text(dates[currentDateIndex]);
+                renderPieChart(allPieData[currentDateIndex].data); // Güncel pie chart verisini kullan
+            }
+        });
+
         $('#searchButton').on('click', function (e) {
             e.preventDefault();
             fetchDataAndRenderChart();
