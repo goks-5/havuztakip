@@ -2,10 +2,6 @@
 
 @section('content')
     <div class="container">
-        <h1 style="color: black; font-weight: bold; display: flex; align-items: center;">
-            <i class="voyager-bar-chart" style="margin-right: 8px;"></i> Dinamik Rapor
-        </h1>
-
         <!-- Inline-flex layout for selection controls -->
         <div style="display: inline-flex; align-items: center; gap: 15px; margin-top: 20px;">
             <div>
@@ -34,11 +30,16 @@
             <button class="btn btn-primary" id="searchButton" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 38px;">
                 <i class="voyager-search"></i>
             </button>
+            <button class="btn btn-secondary" id="compareButton" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 38px; margin-left: 10px;">
+                <i class="fa fa-balance-scale"></i> <!-- Örnek olarak bir terazi ikonu kullandık -->
+            </button>
+
+
         </div>
 
         <!-- Chart Containers -->
         <div style="display: flex; gap: 20px; margin-top: 20px;">
-            <div id="chartContainer" style="height: 400px; width: 50%;"></div>
+        <div id="chartContainer" style="height: 500px; width: 70%;"></div> <!-- Genişliği %70 yaptık ve yüksekliği artırdık -->
 
             <!-- Pie Chart Container with Date and Navigation Buttons -->
             <div style="position: relative; width: 50%; height: 400px;">
@@ -54,6 +55,7 @@
 @endsection
 
 @section('javascript')
+
 <style>
     #dateNavigation {
         display: flex;
@@ -66,10 +68,12 @@
         text-align: center;
     }
 </style>
+
 <!-- Include ECharts -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -209,11 +213,14 @@
             const option = {
                 legend: {
                     data: seriesData.map(series => series.name),
-                    top: 'top',
+                    top: '2%',  // Legend'i biraz yukarı taşıyoruz
                     selectedMode: 'multiple'
                 },
                 tooltip: {
                     trigger: 'axis'
+                },
+                grid: {
+                    top: '15%'  // Grafik alanını biraz aşağıya taşıyoruz
                 },
                 xAxis: {
                     type: 'category',
@@ -230,36 +237,60 @@
             chart.setOption(option);
         }
 
-        function renderPieChart(pieData) {
-            const pieOption = {
-                tooltip: {
-                    trigger: 'item'
-                },
-                legend: {
-                    top: 'top',
-                    data: pieData.map(item => item.name)
-                },
-                series: [
-                    {
-                        name: 'Etiket Son Verisi',
-                        type: 'pie',
-                        radius: ['40%', '70%'],
-                        data: pieData,
-                        label: {
-                            formatter: '{b}: {c}',
-                            position: 'outside'
-                        },
-                        itemStyle: {
-                            borderRadius: 10,
-                            borderColor: '#fff',
-                            borderWidth: 2
+
+                function renderPieChart(pieData) {
+                const pieOption = {
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function (params) {
+                            const valueFormatted = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(params.value);
+                            return `${params.name}: ${valueFormatted} (${params.percent}%)`;
                         }
-                    }
-                ]
-            };
+                    },
+                    legend: {
+                        top: '2%',  // Legend'i daha yukarı taşıyoruz
+                        left: 'center',
+                        data: pieData.map(item => item.name)
+                    },
+                    series: [
+                        {
+                            name: 'Etiket Son Verisi',
+                            type: 'pie',
+                            radius: ['40%', '70%'], // İç ve dış yarıçap değerleriyle grafik boyutunu ayarlayabilirsiniz
+                            top: '5%',  // Grafiği daha aşağıya taşıyoruz
+                            data: pieData,
+                            itemStyle: {
+                                borderRadius: 10,
+                                borderColor: '#ffffff',  
+                                borderWidth: 4,
+                                decal: {
+                                    color: 'auto',  
+                                    symbol: 'line',
+                                    dashArrayX: [1, 2], 
+                                    dashArrayY: [2, 1], 
+                                    rotation: Math.PI / 4 
+                                }
+                            },
+                            label: {
+                                show: true, 
+                                position: 'inside',
+                                formatter: function (params) {
+                                    return `${params.percent}%`; 
+                                },
+                                fontSize: 12,
+                                color: '#fff',
+                                fontWeight: 'bold'
+                            },
+                            labelLine: {
+                                show: false 
+                            }
+                        }
+                    ]
+                };
 
             pieChart.setOption(pieOption);
         }
+
 
         // Tarihi bir gün azalt ve pie chart verisini güncelle
         $('#prevDate').on('click', function() {
