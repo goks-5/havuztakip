@@ -1,5 +1,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+<!-- ECharts Library -->
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 
 <script type="text/javascript">
     $(document).ready(function() {
@@ -194,57 +196,131 @@
         }
 
         function DeviceChart(data) {
-            Object.keys(data).forEach(function(k) {
-                if ($('#' + k).length) {
-                    var chartDiv = document.getElementById(k);
+    Object.keys(data).forEach(function(k) {
+        var chartElement = document.getElementById(k);
+        if (chartElement) {
+            var chartType = chartElement.getAttribute('data-type') || 'line';
+            var myChart = echarts.init(chartElement);
+            
+            var columns = data[k].cols;
+            var rows = data[k].rows;
 
-                    if ($(chartDiv).data('type') == 'line') {
-                        var materialChart = new google.visualization.LineChart(chartDiv);
-                        var options = {
-                            //'height': $('#' + k).height(),
-                            explorer: {
-                                actions: ['dragToZoom', 'rightClickToReset'],
-                                axis: 'horizontal',
-                                keepInBounds: true,
-                                maxZoomIn: 16.0
-                            },
-                            chartArea: {
-                                left: 50,
-                                top: 20,
-                                width: '93%'
-                            },
-                            legend: {
-                                position: 'bottom'
-                            }
-                        };
-                        var data2 = new google.visualization.DataTable(data[k]);
-                        materialChart.draw(data2, options);
-                    } else {
-                        var materialChart = new google.visualization.ColumnChart(chartDiv);
-                        var options = {
-                            //  'height': $('#' + k).height(),
-                            explorer: {
-                                actions: ['dragToZoom', 'rightClickToReset'],
-                                axis: 'horizontal',
-                                keepInBounds: true,
-                                maxZoomIn: 16.0
-                            },
-                            chartArea: {
-                                left: 50,
-                                top: 20,
-                                width: '93%'
-                            },
-                            legend: {
-                                position: 'bottom'
-                            }
-                        };
-                        var data2 = new google.visualization.DataTable(data[k]);
-                        materialChart.draw(data2, google.charts.Bar.convertOptions(options));
-                    }
+            var categories = [];
+            var seriesData = {};
 
+            // Initialize series data for each tag
+            columns.forEach(function(col, index) {
+                if (index === 0) return; // Skip first column (assuming it's the date)
+                seriesData[col.label] = [];
+            });
+
+            // Sort rows by date (assuming date is in row.c[0].v format "Date(...)")
+            rows.sort(function(a, b) {
+                return new Date(parseDateString(a.c[0].v)) - new Date(parseDateString(b.c[0].v));
+            });
+
+            // Populate categories and series data for each row
+            rows.forEach(function(row) {
+                var dateStr = row.c[0].v;
+                var date = parseDateString(dateStr);
+                categories.push(formatDate(date)); // Format as YYYY-MM-DD
+                
+                for (var i = 1; i < row.c.length; i++) {
+                    var label = columns[i].label;
+                    seriesData[label].push(row.c[i].v || 0); // Add data or default to 0 if missing
                 }
             });
+
+            // Prepare series array with decal patterns for ECharts
+            var series = [];
+            var decals = [
+                { symbol: 'rect', color: '#000', dashArrayX: [1, 0], dashArrayY: [2, 5] },
+                { symbol: 'circle', color: '#000', dashArrayX: [1, 1], dashArrayY: [4, 1] },
+                { symbol: 'rect', color: '#000', dashArrayX: [4, 2], dashArrayY: [1, 1] },
+                { symbol: 'circle', color: '#000', dashArrayX: [1, 3], dashArrayY: [3, 2] }
+            ];
+
+            Object.keys(seriesData).forEach(function(label, index) {
+                series.push({
+                    name: label,
+                    type: chartType === 'line' ? 'line' : 'bar',
+                    data: seriesData[label],
+                    itemStyle: {
+                        decal: decals[index % decals.length]
+                    },
+                    lineStyle: {
+                        width: 2
+                    },
+                    symbol: 'circle',
+                    symbolSize: 6
+                });
+            });
+
+            // Configure ECharts options with formatted dates on x-axis
+            var option = {
+                tooltip: {
+                    trigger: 'axis'
+                },
+                legend: {
+                    data: Object.keys(seriesData),
+                    top: 0
+                },
+                toolbox: {
+                    feature: {
+                        saveAsImage: {}
+                    }
+                },
+                dataZoom: [
+                    {
+                        type: 'inside',
+                        start: 0,
+                        end: 100
+                    },
+                    {
+                        type: 'slider',
+                        start: 0,
+                        end: 100,
+                        bottom: 0
+                    }
+                ],
+                xAxis: {
+                    type: 'category',
+                    data: categories // Use sorted and formatted dates
+                },
+                yAxis: {
+                    type: 'value'
+                },
+                series: series
+            };
+
+            myChart.setOption(option);
         }
+    });
+}
+
+// Helper function to parse date string in "Date(2024,9,27,8,0,0)" format
+function parseDateString(dateStr) {
+    var parts = dateStr.match(/Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/);
+    if (parts) {
+        return new Date(parts[1], parts[2] - 1, parts[3], parts[4], parts[5], parts[6]);
+    }
+    return new Date(); // Fallback to current date if parsing fails
+}
+
+// Helper function to format Date object as YYYY-MM-DD
+function formatDate(date) {
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1; // Months are zero-based
+    var day = date.getDate();
+    return year + '-' + pad(month) + '-' + pad(day);
+}
+
+// Helper function to pad single-digit numbers with leading zero
+function pad(n) {
+    return n < 10 ? '0' + n : n;
+}
+
+
 
         function DeviceData(data) {
             Object.keys(data).forEach(function(k) {

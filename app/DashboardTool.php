@@ -243,16 +243,18 @@ class DashboardTool extends Model
     {
         $value['cols'][] = ['id' => 0, 'label' => 'Tarih', 'type' => 'datetime'];
         $devices = array();
+    
         foreach ($settings['devices'] as $key => $device) {
             if (!isset($devices[$device['device']])) {
                 $devices[$device['device']] = Device::where('id', $device['device'])->first();
             }
-            $cdevice =   $devices[$device['device']];
+            $cdevice = $devices[$device['device']];
             $tags = json_decode($cdevice->tags, true);
-
+    
             $value['cols'][] = ['id' => $key + 1, 'label' => $tags[$device['device_index']], 'type' => 'number'];
+            
             $rows = Device::getdatas($device['device'], $device['device_index'], $settings['hour']);
-            $c = array();
+            
             foreach ($rows as $row) {
                 $time = strtotime($row->created_at);
                 $c['c'][0]['v'] = "Date(" . date('Y', $time) . "," . ((int)date('n', $time) - 1)  . "," . date('j', $time) . "," . date('G', $time) . "," . date('i', $time) . "," . date('s', $time) . ")";
@@ -260,9 +262,10 @@ class DashboardTool extends Model
                 $value['rows'][] = $c;
             }
         }
-
+    
         return $value;
     }
+    
 
     public function faults($settings, $tool)
     {

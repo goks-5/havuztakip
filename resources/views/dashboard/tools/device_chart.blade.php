@@ -1,3 +1,5 @@
+<!-- ECharts Library -->
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 
 <div class="tool_data row ">
   @include('dashboard.tools.toolSettings',['tool'=>$tool])
@@ -8,6 +10,7 @@
   <div class="col-xs-12 text-center">{{$settings['title']}} </div>
   @endif
   <div class="col-xs-12" id="tool_{{$tool->id}}" data-type="{{$setting['type'] ?? 'line'}}" style="height: calc(100% - 6px); overflow: hidden;"></div>
+
 
 </div>  
 
