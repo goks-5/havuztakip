@@ -210,32 +210,43 @@
         }
 
         function renderChart(seriesData, dates) {
-            const option = {
-                legend: {
-                    data: seriesData.map(series => series.name),
-                    top: '2%',  // Legend'i biraz yukarı taşıyoruz
-                    selectedMode: 'multiple'
-                },
-                tooltip: {
-                    trigger: 'axis'
-                },
-                grid: {
-                    top: '15%'  // Grafik alanını biraz aşağıya taşıyoruz
-                },
-                xAxis: {
-                    type: 'category',
-                    data: dates,
-                    axisLabel: { show: true }
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLabel: { show: true }
-                },
-                series: seriesData
-            };
+    const option = {
+        legend: {
+            data: seriesData.map(series => series.name),
+            top: '2%',  // Legend'i biraz yukarı taşıyoruz
+            selectedMode: 'multiple'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        grid: {
+            top: '15%'  // Grafik alanını biraz aşağıya taşıyoruz
+        },
+        xAxis: {
+            type: 'category',
+            data: dates,
+            axisLabel: { show: true }
+        },
+        yAxis: {
+            type: 'value',
+            axisLabel: { show: true }
+        },
+        series: seriesData.map(series => ({
+            ...series,
+            itemStyle: {
+                decal: {
+                    symbol: 'line',
+                    dashArrayX: [1, 2],
+                    dashArrayY: [2, 1],
+                    rotation: Math.PI / 4,
+                    color: 'auto'
+                }
+            }
+        }))
+    };
 
-            chart.setOption(option);
-        }
+    chart.setOption(option);
+}
 
 
                 function renderPieChart(pieData) {
