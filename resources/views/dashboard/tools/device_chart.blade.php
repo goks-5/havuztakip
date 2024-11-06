@@ -26,9 +26,9 @@
       <button onclick="downloadExcel(seriesData, categories)" style="display: flex; align-items: center; width: 100%; padding: 5px; cursor: pointer; border: none; background: none;">
           <img src="https://img.icons8.com/material-outlined/24/000000/ms-excel.png" style="margin-right: 8px;" /> Excel İndir
       </button>
-      <button onclick="window.print()" style="display: flex; align-items: center; width: 100%; padding: 5px; cursor: pointer; border: none; background: none;">
+   <!--   <button onclick="window.print()" style="display: flex; align-items: center; width: 100%; padding: 5px; cursor: pointer; border: none; background: none;">
           <img src="https://img.icons8.com/material-outlined/24/000000/print.png" style="margin-right: 8px;" /> Yazdır
-      </button>
+      </button> -->
 </div>
 </div>  
 
