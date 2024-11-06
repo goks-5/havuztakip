@@ -210,17 +210,17 @@
         }
 
         function renderChart(seriesData, dates) {
-    const option = {
+        const option = {
         legend: {
             data: seriesData.map(series => series.name),
-            top: '2%',  // Legend'i biraz yukarı taşıyoruz
+            top: '2%',  
             selectedMode: 'multiple'
         },
         tooltip: {
             trigger: 'axis'
         },
         grid: {
-            top: '15%'  // Grafik alanını biraz aşağıya taşıyoruz
+            top: '15%'  
         },
         xAxis: {
             type: 'category',
@@ -233,74 +233,61 @@
         },
         series: seriesData.map(series => ({
             ...series,
-            itemStyle: {
-                decal: {
-                    symbol: 'line',
-                    dashArrayX: [1, 2],
-                    dashArrayY: [2, 1],
-                    rotation: Math.PI / 4,
-                    color: 'auto'
-                }
-            }
+            // Removed decal pattern for bar chart
+            itemStyle: {}
         }))
     };
 
     chart.setOption(option);
 }
 
-
-                function renderPieChart(pieData) {
-                const pieOption = {
-                    tooltip: {
-                        trigger: 'item',
-                        formatter: function (params) {
-                            const valueFormatted = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(params.value);
-                            return `${params.name}: ${valueFormatted} (${params.percent}%)`;
-                        }
+    function renderPieChart(pieData) {
+    const pieOption = {
+        tooltip: {
+            trigger: 'item',
+            formatter: function (params) {
+                const valueFormatted = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(params.value);
+                return `${params.name}: ${valueFormatted} (${params.percent}%)`;
+            }
+        },
+        legend: {
+            top: '2%',
+            left: 'center',
+            data: pieData.map(item => item.name)
+        },
+        series: [
+            {
+                name: 'Etiket Son Verisi',
+                type: 'pie',
+                radius: ['40%', '70%'],
+                top: '5%',
+                data: pieData,
+                itemStyle: {
+                    borderRadius: 10,
+                    borderColor: '#ffffff',
+                    borderWidth: 4
+                    // Removed decal pattern for pie chart
+                },
+                label: {
+                    show: true,
+                    position: 'inside',
+                    formatter: function (params) {
+                        return `${params.percent}%`;
                     },
-                    legend: {
-                        top: '2%',  // Legend'i daha yukarı taşıyoruz
-                        left: 'center',
-                        data: pieData.map(item => item.name)
-                    },
-                    series: [
-                        {
-                            name: 'Etiket Son Verisi',
-                            type: 'pie',
-                            radius: ['40%', '70%'], // İç ve dış yarıçap değerleriyle grafik boyutunu ayarlayabilirsiniz
-                            top: '5%',  // Grafiği daha aşağıya taşıyoruz
-                            data: pieData,
-                            itemStyle: {
-                                borderRadius: 10,
-                                borderColor: '#ffffff',  
-                                borderWidth: 4,
-                                decal: {
-                                    color: 'auto',  
-                                    symbol: 'line',
-                                    dashArrayX: [1, 2], 
-                                    dashArrayY: [2, 1], 
-                                    rotation: Math.PI / 4 
-                                }
-                            },
-                            label: {
-                                show: true, 
-                                position: 'inside',
-                                formatter: function (params) {
-                                    return `${params.percent}%`; 
-                                },
-                                fontSize: 12,
-                                color: '#fff',
-                                fontWeight: 'bold'
-                            },
-                            labelLine: {
-                                show: false 
-                            }
-                        }
-                    ]
-                };
+                    fontSize: 12,
+                    color: '#fff',
+                    fontWeight: 'bold'
+                },
+                labelLine: {
+                    show: false
+                }
+            }
+        ]
+    };
 
-            pieChart.setOption(pieOption);
-        }
+    pieChart.setOption(pieOption);
+}
+
 
 
         // Tarihi bir gün azalt ve pie chart verisini güncelle

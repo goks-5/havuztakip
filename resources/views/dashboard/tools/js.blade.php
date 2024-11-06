@@ -196,58 +196,49 @@
         }
 
         function DeviceChart(data) {
-    Object.keys(data).forEach(function(k) {
+        Object.keys(data).forEach(function(k) {
         var chartElement = document.getElementById(k);
         if (chartElement) {
             var chartType = chartElement.getAttribute('data-type') || 'line';
             var myChart = echarts.init(chartElement);
-            
+
             var columns = data[k].cols;
             var rows = data[k].rows;
 
             var categories = [];
+            
             var seriesData = {};
 
-            // Initialize series data for each tag
             columns.forEach(function(col, index) {
-                if (index === 0) return; // Skip first column (assuming it's the date)
+                if (index === 0) return; 
                 seriesData[col.label] = [];
             });
 
-            // Sort rows by date (assuming date is in row.c[0].v format "Date(...)")
             rows.sort(function(a, b) {
                 return new Date(parseDateString(a.c[0].v)) - new Date(parseDateString(b.c[0].v));
             });
 
-            // Populate categories and series data for each row
             rows.forEach(function(row) {
+                var rowDate = parseDateString(row.c[0].v);
+                console.log('Tarih:', rowDate, 'Aralıkta mı?', isDateWithinRange(rowDate, '72')); // Son 3 gün için kontrol
                 var dateStr = row.c[0].v;
-                var date = parseDateString(dateStr);
-                categories.push(formatDate(date)); // Format as YYYY-MM-DD
-                
+                categories.push(formatDate(parseDateString(dateStr)));
                 for (var i = 1; i < row.c.length; i++) {
-                    var label = columns[i].label;
-                    seriesData[label].push(row.c[i].v || 0); // Add data or default to 0 if missing
+                    seriesData[columns[i].label].push(row.c[i].v || 0);
                 }
             });
 
-            // Prepare series array with decal patterns for ECharts
-            var series = [];
-            var decals = [
-                { symbol: 'rect', color: '#000', dashArrayX: [1, 0], dashArrayY: [2, 5] },
-                { symbol: 'circle', color: '#000', dashArrayX: [1, 1], dashArrayY: [4, 1] },
-                { symbol: 'rect', color: '#000', dashArrayX: [4, 2], dashArrayY: [1, 1] },
-                { symbol: 'circle', color: '#000', dashArrayX: [1, 3], dashArrayY: [3, 2] }
-            ];
+            window.seriesData = seriesData; // Global olarak kaydediyoruz
+            window.categories = categories;
 
-            Object.keys(seriesData).forEach(function(label, index) {
+            // Prepare series array without decal patterns for ECharts
+            var series = [];
+            Object.keys(seriesData).forEach(function(label) {
                 series.push({
                     name: label,
                     type: chartType === 'line' ? 'line' : 'bar',
                     data: seriesData[label],
-                    itemStyle: {
-                        decal: decals[index % decals.length]
-                    },
+                    itemStyle: {},
                     lineStyle: {
                         width: 2
                     },
@@ -256,71 +247,260 @@
                 });
             });
 
-            // Configure ECharts options with formatted dates on x-axis
+            // Configure ECharts options without toolbox
             var option = {
-                tooltip: {
-                    trigger: 'axis'
-                },
-                legend: {
-                    data: Object.keys(seriesData),
-                    top: 0
-                },
-                toolbox: {
-                    feature: {
-                        saveAsImage: {}
-                    }
-                },
-                dataZoom: [
-                    {
-                        type: 'inside',
-                        start: 0,
-                        end: 100
-                    },
-                    {
-                        type: 'slider',
-                        start: 0,
-                        end: 100,
-                        bottom: 0
-                    }
-                ],
-                xAxis: {
-                    type: 'category',
-                    data: categories // Use sorted and formatted dates
-                },
-                yAxis: {
-                    type: 'value'
-                },
-                series: series
-            };
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+            data: Object.keys(seriesData),
+            top: 0,
+            selectedMode: 'multiple', // 'multiple' seçeneği birden fazla seriyi yönetmenizi sağlar.
+            // 'single' seçeneği sadece tek bir seri göstermek için kullanılır
+            },
 
-            myChart.setOption(option);
+            dataZoom: [
+                {
+                    type: 'inside',
+                    start: 0,
+                    end: 100,
+                    zoomLock: true
+                },
+                {
+                    type: 'slider',
+                    start: 0,
+                    end: 100,
+                    height: 10,
+                    bottom: 20
+                }
+            ],
+            xAxis: {
+                type: 'category',
+                data: categories
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: series
+        };
+
+
+        myChart.setOption(option);
+
+        // Excel ve Print işlevlerini global erişilebilir hale getir
+        window.downloadExcel = function(seriesData, categories) {
+        const rows = [["Tarih", ...categories]]; // İlk satır: "Tarih" ve kategoriler
+
+        Object.keys(seriesData).forEach((label) => {
+            const row = [label, ...seriesData[label]]; // İlk sütun etiket adı, ardından veriler
+            rows.push(row);
+        });
+
+        // CSV içeriğini oluştur
+        let csvContent = 'data:text/csv;charset=utf-8,';
+        rows.forEach(row => {
+            csvContent += row.map(value => `"${value}"`).join(",") + "\n"; // Değerleri tırnak içine al
+        });
+
+        // CSV dosyasını indirmek için bağlantı oluştur
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "Grafik Verileri.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    window.saveImage = function(chartId) {
+        var chartElement = document.getElementById(chartId);
+        if (chartElement) {
+            var chart = echarts.getInstanceByDom(chartElement);
+            if (chart) {
+                var base64 = chart.getDataURL({
+                    type: 'png',
+                    backgroundColor: '#ffffff'
+                });
+
+                var link = document.createElement('a');
+                link.href = base64;
+                link.download = 'Grafik Resmi.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } else {
+                console.error(`ECharts örneği bulunamadı! ID: ${chartId}`);
+            }
+        } else {
+            console.error("Grafik bulunamadı! ID: " + chartId);
         }
-    });
-}
-
-// Helper function to parse date string in "Date(2024,9,27,8,0,0)" format
-function parseDateString(dateStr) {
-    var parts = dateStr.match(/Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/);
-    if (parts) {
-        return new Date(parts[1], parts[2] - 1, parts[3], parts[4], parts[5], parts[6]);
+    };
+            }
+        });
     }
-    return new Date(); // Fallback to current date if parsing fails
-}
 
-// Helper function to format Date object as YYYY-MM-DD
-function formatDate(date) {
-    var year = date.getFullYear();
-    var month = date.getMonth() + 1; // Months are zero-based
-    var day = date.getDate();
-    return year + '-' + pad(month) + '-' + pad(day);
-}
+    document.getElementById('timeRangeSelector').addEventListener('change', function() {
+        var selectedRange = this.value;
 
-// Helper function to pad single-digit numbers with leading zero
-function pad(n) {
-    return n < 10 ? '0' + n : n;
-}
+        // Filtreleme işlemi yaparak ilgili veri aralığını alın
+        var filteredRows = rows.filter(function(row) {
+            var rowDate = parseDateString(row.c[0].v);
+            return isDateWithinRange(rowDate, selectedRange);
+        });
+
+        // Filtrelenmiş verileri kullanarak grafiği yeniden çizin
+        updateChart(filteredRows);
+    });
+
+    /**
+     * Belirtilen tarihin seçilen aralıkta olup olmadığını kontrol eder.
+     * @param {Date} date - Kontrol edilecek tarih
+     * @param {string} range - Seçilen aralık
+     * @returns {boolean}
+     */
+    function isDateWithinRange(date, range) {
+        var now = new Date();
+        switch (range) {
+            case '6': // Son 6 saat
+                return now - date <= 6 * 60 * 60 * 1000;
+
+            case '24': // Son 1 gün
+                return now - date <= 24 * 60 * 60 * 1000;
+
+            case 'D': // Bugün
+                return date.toDateString() === now.toDateString();
+
+            case '72': // Son 3 gün
+                var threeDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 3);
+                return date >= threeDaysAgo && date <= now;
+
+            case '168': // Son 7 gün
+                var sevenDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+                return date >= sevenDaysAgo && date <= now;
+
+            case 'W': // Bu hafta
+                var startOfWeek = new Date(now);
+                startOfWeek.setDate(now.getDate() - now.getDay());
+                return date >= startOfWeek;
+
+            case '720': // Son 1 ay
+                var oneMonthAgo = new Date(now);
+                oneMonthAgo.setMonth(now.getMonth() - 1);
+                return date >= oneMonthAgo;
+
+            case 'M': // Bu ay
+                return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+
+            case '2160': // Son 3 ay
+                var threeMonthsAgo = new Date(now);
+                threeMonthsAgo.setMonth(now.getMonth() - 3);
+                return date >= threeMonthsAgo;
+
+            case '8640': // Son 1 yıl
+                var oneYearAgo = new Date(now);
+                oneYearAgo.setFullYear(now.getFullYear() - 1);
+                return date >= oneYearAgo;
+
+            case 'Y': // Bu yıl
+                return date.getFullYear() === now.getFullYear();
+
+            default:
+                return true; // Varsayılan olarak tüm verileri göster
+        }
+    }
+
+    /**
+     * Grafik verilerini güncellemek için kullanılır.
+     * @param {Array} filteredRows - Filtrelenmiş satırlar
+     */
+    function updateChart(filteredRows) {
+        var uniqueCategories = new Set();
+        var updatedCategories = [];
+        var updatedSeriesData = {};
+
+        // Initialize series data structure
+        columns.forEach(function (col, index) {
+            if (index === 0) return; // Skip first column (date)
+            updatedSeriesData[col.label] = [];
+        });
+
+        // Process each filtered row
+        filteredRows.forEach(function (row) {
+            var dateStr = row.c[0].v;
+            var formattedDate = formatDate(parseDateString(dateStr));
+
+            // Check if the formatted date already exists in the Set
+            if (!uniqueCategories.has(formattedDate)) {
+                uniqueCategories.add(formattedDate); // Add to Set
+                updatedCategories.push(formattedDate); // Update categories
+
+                // Update each series data with corresponding row values
+                for (var i = 1; i < row.c.length; i++) {
+                    updatedSeriesData[columns[i].label].push(row.c[i].v || 0);
+                }
+            } else {
+                console.log(`Duplicate date ignored: ${formattedDate}`);
+            }
+        });
+
+        // Log the unique categories for debugging
+        console.log("Unique Categories:", Array.from(uniqueCategories));
+
+        // Update chart options
+        myChart.setOption({
+            xAxis: {
+                type: 'category',
+                data: updatedCategories, // Use filtered unique categories
+            },
+            series: Object.keys(updatedSeriesData).map(function (label) {
+                return {
+                    name: label,
+                    type: chartType, // Line or bar depending on selected chartType
+                    data: updatedSeriesData[label],
+                    smooth: true,
+                };
+            }),
+        });
+    }
 
 
+
+    /**
+     * Verilen tarih stringini JavaScript Date objesine dönüştürür.
+     * @param {string} dateStr - Tarih stringi (örn. Date(2024,9,27,8,0,0))
+     * @returns {Date}
+     */
+    function parseDateString(dateStr) {
+        var parts = dateStr.match(/Date\((\d+),(\d+),(\d+),(\d+),(\d+),(\d+)\)/);
+        if (parts) {
+            return new Date(Date.UTC(parts[1], parts[2], parts[3], parts[4], parts[5], parts[6]));
+        }
+        return new Date(); // Hata durumunda geçerli tarihi döndür
+    }
+
+    /**
+     * Verilen tarih objesini YYYY-MM-DD formatında döndürür.
+     * @param {Date} date - Formatlanacak tarih
+     * @returns {string}
+     */
+    function formatDate(date) {
+        var year = date.getFullYear();
+        var month = date.getMonth() + 1;
+        var day = date.getDate();
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        return `${year}-${pad(month)}-${pad(day)} ${pad(hours)}:${pad(minutes)}`;
+    }
+
+
+    /**
+     * Tek haneli sayılara 0 ekler.
+     * @param {number} n - Sayı
+     * @returns {string}
+     */
+    function pad(n) {
+        return n < 10 ? '0' + n : n.toString();
+    }
 
         function DeviceData(data) {
             Object.keys(data).forEach(function(k) {
