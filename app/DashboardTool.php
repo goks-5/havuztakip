@@ -291,16 +291,16 @@ class DashboardTool extends Model
         foreach ($faults as $fault) {
             $return[] = [
                 'id' => $fault->id,
-                'equipment' => $fault->equipment->name,
-                'staff' => $fault->staff->name ?? null,
+                'equipment' => optional($fault->equipment)->name ?? 'No Equipment', // Null ise varsayılan değer döner
+                'staff' => optional($fault->staff)->name ?? 'No Staff',
                 'created_at' => $fault->created_at->format('Y-m-d H:i:s'),
-                'accepted_at' =>  $fault->accepted_at ? $fault->accepted_at->format('Y-m-d H:i:s') : null,
-                'fault_code' => $fault->fault_code,
-                'fault_comment' => $fault->fault_comment,
+                'accepted_at' => $fault->accepted_at ? $fault->accepted_at->format('Y-m-d H:i:s') : null,
+                'fault_code' => $fault->fault_code ?? 'No Fault Code', // Null ise varsayılan metin döner
+                'fault_comment' => $fault->fault_comment ?? 'No Comment',
                 'reporting_user' => $fault->reporting_user,
                 'status' => $fault->status,
-
             ];
+            
         }
 
         return $return;
