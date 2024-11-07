@@ -1,47 +1,51 @@
 @extends('voyager::master')
 
 @section('content')
-    <div class="container">
-        <!-- Inline-flex layout for selection controls -->
-        <div style="display: inline-flex; align-items: center; gap: 15px; margin-top: 20px;">
-            <div>
-                <label for="device" class="sr-only">Cihaz</label>
-                <select class="form-control" id="device" multiple="multiple" style="width: 200px;">
-                </select>
-            </div>
+<div class="container-fluid">
 
-            <div>
-                <label for="date_start" class="sr-only">Başlangıç Tarihi</label>
-                <input type="text" class="form-control datetimepicker" id="date_start" placeholder="Başlangıç Tarihi" style="width: 200px;">
-            </div>
+       <!-- Inline-flex layout for selection controls -->
+<div style="display: inline-flex; align-items: center; gap: 20px; margin-top: 20px;">
+    <div>
+        <label for="device" class="sr-only">Cihaz</label>
+        <select class="form-control" id="device" multiple="multiple" style="width: 300px;">
+        </select>
+    </div>
 
-            <div>
-                <label for="date_end" class="sr-only">Bitiş Tarihi</label>
-                <input type="text" class="form-control datetimepicker" id="date_end" placeholder="Bitiş Tarihi" style="width: 200px;">
-            </div>
+    <div>
+        <label for="date_start" class="sr-only">Başlangıç Tarihi</label>
+        <input type="text" class="form-control datetimepicker" id="date_start" placeholder="Başlangıç Tarihi" style="width: 300px;">
+    </div>
 
-            <button class="btn btn-primary" id="searchButton" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 38px;">
-                <i class="voyager-search"></i>
-            </button>
-            <button class="btn btn-secondary" id="compareButton" style="display: flex; align-items: center; justify-content: center; width: 40px; height: 38px; margin-left: 10px;">
-                <i class="fa fa-balance-scale"></i> <!-- Example balance scale icon -->
-            </button>
-        </div>
+    <div>
+        <label for="date_end" class="sr-only">Bitiş Tarihi</label>
+        <input type="text" class="form-control datetimepicker" id="date_end" placeholder="Bitiş Tarihi" style="width: 300px;">
+    </div>
 
-        
-        <div id="gaugeContainer" style="display: flex; justify-content: space-around; margin-top: 20px;">
-    <div id="gauge1" style="width: 30%; height: 200px;"></div>
-    <div id="gauge2" style="width: 30%; height: 200px;"></div>
-    <div id="gauge3" style="width: 30%; height: 200px;"></div>
+    <button class="btn btn-primary" id="searchButton" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 40px;">
+        <i class="voyager-search"></i>
+    </button>
+    <button class="btn btn-secondary" id="compareButton" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 40px; margin-left: 10px;">
+        <i class="fa fa-balance-scale"></i> <!-- Example balance scale icon -->
+    </button>
 </div>
-        <!-- Chart Container -->
-        <div style="display: flex; gap: 20px; margin-top: 20px;">
-            
-            <div id="chartContainer" style="height: 500px; width: 100%;"></div>
-        </div>
+
+
+<div id="contentContainer" style="display: flex; justify-content: space-between; gap: 20px; margin-top: 20px;">
+    <!-- Gauges -->
+    <div id="gaugeContainer" style="display: flex; flex-direction: column; gap: 20px; width: 25%;"> <!-- Burada %30'dan %25'e indirdik -->
+        <div id="gauge1" style="height: 150px;"></div> <!-- Boyutu küçültüldü -->
+        <div id="gauge2" style="height: 150px;"></div> <!-- Boyutu küçültüldü -->
+        <div id="gauge3" style="height: 150px;"></div> <!-- Boyutu küçültüldü -->
+    </div>
+    <!-- Chart -->
+    <div id="chartContainer" style="flex: 1; height: 500px;"></div> <!-- Chart boyutu da küçültüldü -->
+</div>
+
+
 
         <!-- Table Container -->
         <div id="tableContainer" style="margin-top: 20px; width: 100%; overflow-x: auto;"></div>
+
     </div>
 @endsection
 
@@ -186,7 +190,7 @@
 
                 seriesData.push({
                     name: selectedDevice.tags[tagId],
-                    type: 'line',
+                    type: 'bar',
                     data: values
                 });
             }
@@ -568,9 +572,90 @@ function renderMonthlyTable(monthlyTableData) {
 
 
 <style>
+    /* Giriş alanlarının genişliği */
+    #device, #date_start, #date_end {
+        width: 250px !important; /* Daha kompakt giriş alanları */
+    }
+
+    /* Butonların boyutlandırılması */
+    #searchButton, #compareButton {
+        width: 45px; /* Buton genişliği */
+        height: 38px; /* Buton yüksekliği */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Seçim kontrolleri arası boşluk */
+    div[style*="inline-flex"] {
+        gap: 15px; /* Daha kompakt boşluk */
+    }
+
+    /* Tablonun düzeni */
+    .table {
+        width: 100%;
+        table-layout: fixed; /* Sütun genişliklerini içeriklerine göre dengeler */
+        word-wrap: break-word; /* Uzun metinlerin taşmasını önler */
+        font-size: 12px; /* Daha küçük font boyutu */
+    }
+
+    .table th, .table td {
+        padding: 6px; /* Hücre içi boşlukları azaltma */
+        text-align: center; /* Tablodaki metinleri ortalama */
+    }
+
+    /* Chart kapsayıcı */
+    #chartContainer {
+        width: 100%;
+        max-width: 100%;
+        height: 450px; /* Grafik yüksekliği azaltıldı */
+        margin: 0 auto;
+        padding: 0 10px;
+    }
+
     .section-header {
+        font-weight: bold;
         text-align: center;
-        font-weight: normal;
-        margin-top: 20px;
+        margin-top: 15px; /* Başlık üst boşluğu */
+        font-size: 14px; /* Başlık font boyutu */
+    }
+
+    /* Tablolar ve grafiklerin düzeni */
+    #tableContainer, #chartContainer {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    /* Gauge ve Chart yerleşimi */
+    #contentContainer {
+        display: flex;
+        gap: 15px; /* Gauge ve Chart arasındaki boşluk */
+        align-items: flex-start;
+    }
+
+    /* Gauge kapsayıcı ayarları */
+    #gaugeContainer {
+        display: flex;
+        flex-direction: column;
+        gap: 15px; /* Gauges arası boşluk */
+        width: 25%; /* Gauges genişliği azaltıldı */
+    }
+
+    #gauge1, #gauge2, #gauge3 {
+        height: 150px; /* Daha küçük gauge boyutu */
+        width: 100%; /* Genişlik tam kapsayıcıya yayılır */
+    }
+
+    /* Grafik ayarları */
+    #chartContainer {
+        flex: 1; /* Grafiğin kalan alanı kaplamasını sağlar */
+        height: 500px; /* Grafik yüksekliği */
+    }
+
+    /* Genel layout geliştirmeleri */
+    body {
+        font-size: 14px;
+        margin: 0;
+        padding: 0;
     }
 </style>
