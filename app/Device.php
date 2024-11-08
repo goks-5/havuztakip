@@ -74,7 +74,7 @@ class Device extends Model
                                 'created_at' => $start,
                                 'hourly' => $start,
                                 'multiplier' => $multiplierValue,
-                                'houoffsetrly' => $offsetValue
+                                'offset' => $offsetValue
                             ]);
                             ++$tagCount;
                         }
