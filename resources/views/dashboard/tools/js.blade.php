@@ -196,58 +196,133 @@
         }
 
         function DeviceChart(data) {
-            Object.keys(data).forEach(function(k) {
-                if ($('#' + k).length) {
-                    var chartDiv = document.getElementById(k);
+    Object.keys(data).forEach(function (k) {
+        if ($('#' + k).length) {
+            var chartDiv = document.getElementById(k);
+            var chartType = $(chartDiv).data('type');
 
-                    if ($(chartDiv).data('type') == 'line') {
-                        var materialChart = new google.visualization.LineChart(chartDiv);
-                        var options = {
-                            //'height': $('#' + k).height(),
-                            explorer: {
-                                actions: ['dragToZoom', 'rightClickToReset'],
-                                axis: 'horizontal',
-                                keepInBounds: true,
-                                maxZoomIn: 16.0
-                            },
-                            chartArea: {
-                                left: 50,
-                                top: 20,
-                                width: '93%'
-                            },
-                            legend: {
-                                position: 'bottom'
+            var categories = [];
+            var seriesData = [];
+
+            if (data[k] && data[k].rows && data[k].cols) {
+                data[k].rows.forEach(function (row) {
+                    if (row.c && row.c[0] && row.c[0].v) {
+                        // Add category (Date) to categories array
+                        let dateValue = row.c[0].v.replace("Date", "").replace("(", "").replace(")", "");
+                        let dateParts = dateValue.split(",");
+                        let formattedDate = `${dateParts[0]}-${parseInt(dateParts[1]) + 1}-${dateParts[2]} ${dateParts[3]}:${dateParts[4]}`;
+                        if (!categories.includes(formattedDate)) {
+                            categories.push(formattedDate);
+                        }
+
+                        // Process each value column (starting from index 1)
+                        for (let i = 1; i < data[k].cols.length; i++) {
+                            if (!seriesData[i - 1]) {
+                                seriesData[i - 1] = {
+                                    name: data[k].cols[i].label,
+                                    type: chartType === 'line' ? 'line' : 'bar',
+                                    data: new Array(categories.length).fill(0) // Initialize with zeros
+                                };
                             }
-                        };
-                        var data2 = new google.visualization.DataTable(data[k]);
-                        materialChart.draw(data2, options);
-                    } else {
-                        var materialChart = new google.visualization.ColumnChart(chartDiv);
-                        var options = {
-                            //  'height': $('#' + k).height(),
-                            explorer: {
-                                actions: ['dragToZoom', 'rightClickToReset'],
-                                axis: 'horizontal',
-                                keepInBounds: true,
-                                maxZoomIn: 16.0
-                            },
-                            chartArea: {
-                                left: 50,
-                                top: 20,
-                                width: '93%'
-                            },
-                            legend: {
-                                position: 'bottom'
+
+                            // Find the index of the current category
+                            let categoryIndex = categories.indexOf(formattedDate);
+                            // Assign value to the corresponding index in series data
+                            if (row.c[i] && row.c[i].v) {
+                                seriesData[i - 1].data[categoryIndex] = parseFloat(row.c[i].v);
                             }
-                        };
-                        var data2 = new google.visualization.DataTable(data[k]);
-                        materialChart.draw(data2, google.charts.Bar.convertOptions(options));
+                        }
                     }
+                });
 
-                }
-            });
+                window[`chartData_${k}`] = { categories, seriesData };
+
+                var myChart = echarts.init(chartDiv);
+
+                var option = {
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data: seriesData.map(series => series.name)
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: categories
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    dataZoom: [
+                    {
+                        type: 'slider', // Adds a slider for zooming
+                        start: 0, // Initially shows 100% of the data
+                        end: 100,
+                        height: 20, // Adjust this value to make the slider thinner (default is 30)
+                    },
+                    {
+                        type: 'inside', // Allows zooming with mouse scroll or touchpad
+                        start: 0,
+                        end: 100
+                    }
+                ],
+                    series: seriesData
+                };
+
+                myChart.setOption(option);
+            } else {
+                console.error(`Invalid data format for chart: ${k}`);
+            }
         }
-        
+    });
+    // Excel download function
+window.downloadExcel = function(chartId) {
+    var chartData = window[`chartData_${chartId}`]; 
+    if (!chartData) {
+        console.error(`Data not loaded yet. Chart ID: ${chartId}`);
+        return;
+    }
+
+    const { categories, seriesData } = chartData;
+
+    const csvContent = [
+        ['Date', ...seriesData.map(series => series.name)].join(','),
+        ...categories.map((date, index) => {
+            const row = [date];
+            seriesData.forEach(series => row.push(series.data[index] || 0));
+            return row.join(',');
+        })
+    ].join('\n');
+
+    const link = document.createElement('a');
+    link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+    link.download = `Chart_Data_${chartId}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+// Resim kaydetme işlevi (Global)
+window.saveImage = function(chartId) {
+    var chartElement = document.getElementById(chartId);
+    if (chartElement) {
+        var chartInstance = echarts.getInstanceByDom(chartElement);
+        if (chartInstance) {
+            var base64 = chartInstance.getDataURL({
+                type: 'png',
+                backgroundColor: '#ffffff'
+            });
+            var link = document.createElement('a');
+            link.href = base64;
+            link.download = 'Grafik Resmi.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+};
+
+}
         function DeviceData(data) {
             Object.keys(data).forEach(function(k) {
                 if ($('#' + k).length) {
