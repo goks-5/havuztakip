@@ -194,8 +194,9 @@
                 }
             });
         }
-
-        function DeviceChart(data) {
+ 
+// Function to initialize the chart
+function DeviceChart(data) {
     Object.keys(data).forEach(function (k) {
         if ($('#' + k).length) {
             var chartDiv = document.getElementById(k);
@@ -232,12 +233,8 @@
                 });
 
                 window[`chartData_${k}`] = { categories, seriesData };
-
+                
                 var myChart = echarts.init(chartDiv);
-
-                var allData = seriesData.flatMap(series => series.data);
-                var minValue = Math.min(...allData);
-                var maxValue = Math.max(...allData);
 
                 var option = {
                     tooltip: {
@@ -251,9 +248,7 @@
                         data: categories
                     },
                     yAxis: {
-                        type: 'value',
-                        min: minValue, // Start y-axis from the minimum value
-                        max: maxValue  // End y-axis at the maximum value
+                        type: 'value'
                     },
                     dataZoom: [
                         {
@@ -272,6 +267,54 @@
                 };
 
                 myChart.setOption(option);
+
+                // Add ResizeObserver to handle dynamic resizing
+                var resizeObserver = new ResizeObserver(() => {
+                    myChart.resize();
+                });
+                resizeObserver.observe(chartDiv);
+
+                // Store observer to disconnect later if needed
+                window[`resizeObserver_${k}`] = resizeObserver;
+
+                // Event listeners for zoom and legend
+                myChart.on('dataZoom', function (params) {
+                    updateYAxisRange(params.batch ? params.batch[0] : params);
+                });
+
+                myChart.on('legendselectchanged', function () {
+                    const dataZoom = myChart.getOption().dataZoom[0];
+                    updateYAxisRange(dataZoom);
+                });
+
+                function updateYAxisRange(params) {
+                    const startPercent = params.start / 100;
+                    const endPercent = params.end / 100;
+                    const startIndex = Math.floor(startPercent * categories.length);
+                    const endIndex = Math.floor(endPercent * categories.length) - 1;
+
+                    const visibleSeries = seriesData.filter(series => {
+                        return myChart.getOption().legend[0].selected[series.name] !== false;
+                    });
+
+                    const { min, max } = calculateDynamicRange(visibleSeries, startIndex, endIndex);
+                    myChart.setOption({
+                        yAxis: {
+                            min,
+                            max
+                        }
+                    });
+                }
+
+                function calculateDynamicRange(visibleSeries, startIndex, endIndex) {
+                    const visibleData = visibleSeries.flatMap(series => 
+                        series.data.slice(startIndex, endIndex + 1).filter(val => val !== 0)
+                    );
+                    return {
+                        min: Math.min(...visibleData),
+                        max: Math.max(...visibleData)
+                    };
+                }
             } else {
                 console.error(`Invalid data format for chart: ${k}`);
             }
@@ -298,7 +341,7 @@
 
         const link = document.createElement('a');
         link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
-        link.download = `Grafik Excel.csv`;
+        link.download = `Grafik Verileri Excel.csv`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -315,7 +358,7 @@
                 });
                 var link = document.createElement('a');
                 link.href = base64;
-                link.download = 'Grafik Resim.png';
+                link.download = 'Grafik Resmi.png';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -323,6 +366,8 @@
         }
     };
 }
+
+
 
         function DeviceData(data) {
             Object.keys(data).forEach(function(k) {
