@@ -207,7 +207,6 @@
             if (data[k] && data[k].rows && data[k].cols) {
                 data[k].rows.forEach(function (row) {
                     if (row.c && row.c[0] && row.c[0].v) {
-                        // Add category (Date) to categories array
                         let dateValue = row.c[0].v.replace("Date", "").replace("(", "").replace(")", "");
                         let dateParts = dateValue.split(",");
                         let formattedDate = `${dateParts[0]}-${parseInt(dateParts[1]) + 1}-${dateParts[2]} ${dateParts[3]}:${dateParts[4]}`;
@@ -215,19 +214,16 @@
                             categories.push(formattedDate);
                         }
 
-                        // Process each value column (starting from index 1)
                         for (let i = 1; i < data[k].cols.length; i++) {
                             if (!seriesData[i - 1]) {
                                 seriesData[i - 1] = {
                                     name: data[k].cols[i].label,
                                     type: chartType === 'line' ? 'line' : 'bar',
-                                    data: new Array(categories.length).fill(0) // Initialize with zeros
+                                    data: new Array(categories.length).fill(0)
                                 };
                             }
 
-                            // Find the index of the current category
                             let categoryIndex = categories.indexOf(formattedDate);
-                            // Assign value to the corresponding index in series data
                             if (row.c[i] && row.c[i].v) {
                                 seriesData[i - 1].data[categoryIndex] = parseFloat(row.c[i].v);
                             }
@@ -238,6 +234,10 @@
                 window[`chartData_${k}`] = { categories, seriesData };
 
                 var myChart = echarts.init(chartDiv);
+
+                var allData = seriesData.flatMap(series => series.data);
+                var minValue = Math.min(...allData);
+                var maxValue = Math.max(...allData);
 
                 var option = {
                     tooltip: {
@@ -251,21 +251,23 @@
                         data: categories
                     },
                     yAxis: {
-                        type: 'value'
+                        type: 'value',
+                        min: minValue, // Start y-axis from the minimum value
+                        max: maxValue  // End y-axis at the maximum value
                     },
                     dataZoom: [
-                    {
-                        type: 'slider', // Adds a slider for zooming
-                        start: 0, // Initially shows 100% of the data
-                        end: 100,
-                        height: 20, // Adjust this value to make the slider thinner (default is 30)
-                    },
-                    {
-                        type: 'inside', // Allows zooming with mouse scroll or touchpad
-                        start: 0,
-                        end: 100
-                    }
-                ],
+                        {
+                            type: 'slider',
+                            start: 0,
+                            end: 100,
+                            height: 20
+                        },
+                        {
+                            type: 'inside',
+                            start: 0,
+                            end: 100
+                        }
+                    ],
                     series: seriesData
                 };
 
@@ -275,54 +277,53 @@
             }
         }
     });
-    // Excel download function
-window.downloadExcel = function(chartId) {
-    var chartData = window[`chartData_${chartId}`]; 
-    if (!chartData) {
-        console.error(`Data not loaded yet. Chart ID: ${chartId}`);
-        return;
-    }
 
-    const { categories, seriesData } = chartData;
-
-    const csvContent = [
-        ['Date', ...seriesData.map(series => series.name)].join(','),
-        ...categories.map((date, index) => {
-            const row = [date];
-            seriesData.forEach(series => row.push(series.data[index] || 0));
-            return row.join(',');
-        })
-    ].join('\n');
-
-    const link = document.createElement('a');
-    link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
-    link.download = `Chart_Data_${chartId}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-};
-
-// Resim kaydetme işlevi (Global)
-window.saveImage = function(chartId) {
-    var chartElement = document.getElementById(chartId);
-    if (chartElement) {
-        var chartInstance = echarts.getInstanceByDom(chartElement);
-        if (chartInstance) {
-            var base64 = chartInstance.getDataURL({
-                type: 'png',
-                backgroundColor: '#ffffff'
-            });
-            var link = document.createElement('a');
-            link.href = base64;
-            link.download = 'Grafik Resmi.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+    window.downloadExcel = function (chartId) {
+        var chartData = window[`chartData_${chartId}`];
+        if (!chartData) {
+            console.error(`Data not loaded yet. Chart ID: ${chartId}`);
+            return;
         }
-    }
-};
 
+        const { categories, seriesData } = chartData;
+
+        const csvContent = [
+            ['Date', ...seriesData.map(series => series.name)].join(','),
+            ...categories.map((date, index) => {
+                const row = [date];
+                seriesData.forEach(series => row.push(series.data[index] || 0));
+                return row.join(',');
+            })
+        ].join('\n');
+
+        const link = document.createElement('a');
+        link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent);
+        link.download = `Grafik Excel.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    window.saveImage = function (chartId) {
+        var chartElement = document.getElementById(chartId);
+        if (chartElement) {
+            var chartInstance = echarts.getInstanceByDom(chartElement);
+            if (chartInstance) {
+                var base64 = chartInstance.getDataURL({
+                    type: 'png',
+                    backgroundColor: '#ffffff'
+                });
+                var link = document.createElement('a');
+                link.href = base64;
+                link.download = 'Grafik Resim.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+    };
 }
+
         function DeviceData(data) {
             Object.keys(data).forEach(function(k) {
                 if ($('#' + k).length) {
