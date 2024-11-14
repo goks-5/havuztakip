@@ -117,6 +117,8 @@ class DashboardTool extends Model
 
     public function period($settings, $tool)
     {
+        $value = [];
+        $alignment = $settings['text_align'] ?? 'left'; // Default alignment
         if ($settings['data_type'] ?? 0) {
             $value['cols'][] = ['id' => 0, 'label' => 'Tarih', 'type' => 'string'];
         } else {
@@ -176,7 +178,7 @@ class DashboardTool extends Model
                 }
             }
         }
-
+        $value['alignment'] = $alignment;
         return $value;
     }
     

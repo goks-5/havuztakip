@@ -591,15 +591,35 @@ function DeviceChart(data) {
 
 
         function period(data) {
-            Object.keys(data).forEach(function(k) {
-                var datatable = new google.visualization.DataTable(data[k]);
-                var table = new google.visualization.Table(document.getElementById(k));
-                table.draw(datatable, {
-                    width: '100%',
-                    height: '100%'
-                });
-            });
+    Object.keys(data).forEach(function (k) {
+        var datatable = new google.visualization.DataTable(data[k]);
+        var table = new google.visualization.Table(document.getElementById(k));
+
+        var alignment = data[k].alignment || 'left'; // Default alignment to left
+
+        // Apply alignment to data cells
+        var numRows = datatable.getNumberOfRows();
+        var numCols = datatable.getNumberOfColumns();
+
+        for (let col = 0; col < numCols; col++) {
+            // Update header alignment dynamically
+            let headerText = datatable.getColumnLabel(col);
+            datatable.setColumnLabel(col, `<div style="text-align: ${alignment};">${headerText}</div>`);
+
+            for (let row = 0; row < numRows; row++) {
+                let cellValue = datatable.getValue(row, col);
+                datatable.setFormattedValue(row, col, `<div style="text-align: ${alignment};">${cellValue}</div>`);
+            }
         }
+
+        table.draw(datatable, {
+            width: '100%',
+            height: '100%',
+            allowHtml: true, // Enable HTML formatting
+        });
+    });
+}
+
 
         function DeviceDataGauge(data) {
             Object.keys(data).forEach(function(k) {
