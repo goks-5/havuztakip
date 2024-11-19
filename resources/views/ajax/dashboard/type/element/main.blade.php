@@ -144,6 +144,29 @@ $wsize =  floor(24 /$gCount);
     </select>
 </div>
 
+<div class="clearfix"></div> <!-- Boşluk bırakmak için clearfix ekledik -->
+
+<h5>Boyut</h5>
+    <div class="col-xs-6">
+        <label class="control-label">Genişlik (px)</label>
+        <input type="text" name="setting[style][width]" class="form-control" value="{{ $settings['style']['width'] ?? '' }}" placeholder="" />
+    </div>
+    <div class="col-xs-6">
+        <label class="control-label">Yükseklik (px)</label>
+        <input type="text" name="setting[style][height]" class="form-control" value="{{ $settings['style']['height'] ?? '' }}" placeholder="" />
+    </div>
+    <div class="clearfix"></div> <!-- Boşluk bırakmak için clearfix ekledik -->
+
+    <h5>Yerleşim</h5>
+    <div class="col-xs-6">
+        <label class="control-label">Soldan Boşluk (px)</label>
+        <input type="text" name="setting[style][left]" class="form-control" value="{{ $settings['style']['left'] ?? '' }}" placeholder="" />
+    </div>
+    <div class="col-xs-6">
+        <label class="control-label">Üstten Boşluk (px)</label>
+        <input type="text" name="setting[style][top]" class="form-control" value="{{ $settings['style']['top'] ?? '' }}" placeholder="" />
+    </div>
+
   @if($options->unit == 1 || $ek  > 0)
   <h5 class="col-xs-12">Diğer özellikler</h5>
   @endif
