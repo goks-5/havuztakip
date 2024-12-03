@@ -124,29 +124,29 @@ class DashboardTool extends Model
         } else {
             $value['cols'][] = ['id' => 0, 'label' => 'Cihaz', 'type' => 'string'];
         }
-
+    
         if ($settings['order_asc'] ?? 0) {         
             $order = "asc";
         } else {
             $order = "desc";
         }
-
-        $devices = array();
-        $timearray = array();
+    
+        $devices = [];
+        $timearray = [];
         $colindex = 1;
         setlocale(LC_TIME, 'tr_TR.utf8');
-
-
+    
         foreach ($settings['devices'] as $key => $device) {
             if (!isset($devices[$device['device']])) {
                 $devices[$device['device']] = Device::where('id', $device['device'])->first();
             }
-            $cdevice =   $devices[$device['device']];
+            $cdevice = $devices[$device['device']];
             $tags = json_decode($cdevice->tags, true);
-
+    
             $rows = Device::getdatas($device['device'], $device['device_index'], $settings['hour'], $order);
+    
             if ($settings['data_type'] ?? 0) {
-                $value['cols'][] = ['id' => $colindex, 'label' =>  $tags[$device['device_index']], 'type' => 'number'];
+                $value['cols'][] = ['id' => $colindex, 'label' => $tags[$device['device_index']], 'type' => 'number'];
                 ++$colindex;
                 foreach ($rows as $row) {
                     $time = Carbon::createFromTimestamp(strtotime($row->created_at));
@@ -161,7 +161,9 @@ class DashboardTool extends Model
                     $time = $time->formatLocalized('%a %d %b %Y');
                     $timeindex = array_search($time, $timearray);
                     $value['rows'][$timeindex]['c'][0]['v'] = $time;
-                    $value['rows'][$timeindex]['c'][$key + 1]['v'] = $row->value;
+    
+                    // Sayı yuvarlama işlemi
+                    $value['rows'][$timeindex]['c'][$key + 1]['v'] = $this->roundNumber($row->value, $settings['numbers_round'] ?? 1);
                 }
             } else {
                 $value['rows'][$key]['c'][0]['v'] = $tags[$device['device_index']];
@@ -174,12 +176,42 @@ class DashboardTool extends Model
                         ++$colindex;
                     }
                     $timeindex = array_search($time, $timearray);
-                    $value['rows'][$key]['c'][$timeindex + 1]['v'] = $row->value;
+                    $value['rows'][$key]['c'][$timeindex + 1]['v'] = $this->roundNumber($row->value, $settings['numbers_round'] ?? 1);
                 }
             }
         }
+    
         $value['alignment'] = $alignment;
         return $value;
+    }
+    
+    /**
+     * Helper function to round numbers based on the settings
+     */
+    private function roundNumber($number, $roundingOption)
+    {
+        if ($roundingOption == 1) {
+            return $number; // No changes
+        } elseif ($roundingOption == 2) {
+            // Ondalık kısmı sadece .000 ise gizle
+            return (fmod($number, 1) == 0) ? (int)$number : $number;
+        } elseif ($roundingOption == 3) {
+            // .000 olan sayıları değiştirme, diğerlerini yuvarla
+            if (fmod($number, 1) == 0) {
+                return $number; // .000 ise değişiklik yapma
+            }
+            $decimalPart = $number - floor($number);
+            $roundedDecimal = round($decimalPart * 1000, 0);
+    
+            if ($roundedDecimal % 10 < 5) {
+                $roundedDecimal = floor($roundedDecimal / 10) * 10 + 5;
+            } else {
+                $roundedDecimal = ceil($roundedDecimal / 10) * 10;
+            }
+    
+            return floor($number) + ($roundedDecimal / 1000);
+        }
+        return $number; // Default case
     }
     
     public function sum_tag($settings, $tool)
