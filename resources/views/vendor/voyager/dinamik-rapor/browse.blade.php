@@ -2,46 +2,202 @@
 
 @section('content')
 <div class="container-fluid">
+    <!-- Elemanları aynı satırda tutan flex düzeni -->
+    <div class="row" style="margin-top: 20px;">
+        <!-- Bölüm Seç -->
+        <div>
+            <label for="fieldDropdown" class="sr-only">Bölüm</label>
+            <select class="form-control dropdown-small" id="fieldDropdown" multiple="multiple"></select>
+        </div>
 
-       <!-- Inline-flex layout for selection controls -->
-<div style="display: inline-flex; align-items: center; gap: 20px; margin-top: 20px;">
-    <div>
-        <label for="device" class="sr-only">Cihaz</label>
-        <select class="form-control" id="device" multiple="multiple" style="width: 300px;">
-        </select>
+        <!-- Veri Türü Seç -->
+        <div>
+            <label for="dataTypeDropdown" class="sr-only">Veri Türü</label>
+            <select class="form-control dropdown-small" id="dataTypeDropdown" multiple="multiple">
+            <option value="electricity">Elektrik</option>
+                <option value="industrial_water">Sanayi Su</option>
+                <option value="dam_water">Baraj Su</option>
+                <option value="natural_gas">Doğalgaz</option>
+                <option value="meterage">Metraj</option>
+            </select>
+        </div>
+
+        <!-- Cihaz Seç -->
+        <div>
+            <label for="device" class="sr-only">Cihaz</label>
+            <select class="form-control" id="device" multiple="multiple"></select>
+        </div>
+
+        <!-- Başlangıç Tarihi -->
+        <div>
+            <label for="date_start" class="sr-only">Başlangıç Tarihi</label>
+            <input type="text" class="form-control datetimepicker" id="date_start" placeholder="Başlangıç Tarihi">
+        </div>
+
+        <!-- Bitiş Tarihi -->
+        <div>
+            <label for="date_end" class="sr-only">Bitiş Tarihi</label>
+            <input type="text" class="form-control datetimepicker" id="date_end" placeholder="Bitiş Tarihi">
+        </div>
+
+        <!-- Butonlar -->
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary square-button" id="searchButton">
+                <i class="voyager-search"></i>
+            </button>
+            <button class="btn btn-secondary square-button" id="compareButton">
+                <i class="fa fa-balance-scale"></i>
+            </button>
+        </div>
     </div>
-
-    <div>
-        <label for="date_start" class="sr-only">Başlangıç Tarihi</label>
-        <input type="text" class="form-control datetimepicker" id="date_start" placeholder="Başlangıç Tarihi" style="width: 300px;">
-    </div>
-
-    <div>
-        <label for="date_end" class="sr-only">Bitiş Tarihi</label>
-        <input type="text" class="form-control datetimepicker" id="date_end" placeholder="Bitiş Tarihi" style="width: 300px;">
-    </div>
-
-    <button class="btn btn-primary" id="searchButton" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 40px;">
-        <i class="voyager-search"></i>
-    </button>
-    <button class="btn btn-secondary" id="compareButton" style="display: flex; align-items: center; justify-content: center; width: 50px; height: 40px; margin-left: 10px;">
-        <i class="fa fa-balance-scale"></i> <!-- Example balance scale icon -->
-    </button>
 </div>
 
-
-<div id="contentContainer" style="display: flex; justify-content: space-between; gap: 20px; margin-top: 20px;">
-    <!-- Gauges -->
-    <div id="gaugeContainer" style="display: flex; flex-direction: column; gap: 20px; width: 25%;"> <!-- Burada %30'dan %25'e indirdik -->
-        <div id="gauge1" style="height: 150px;"></div> <!-- Boyutu küçültüldü -->
-        <div id="gauge2" style="height: 150px;"></div> <!-- Boyutu küçültüldü -->
-        <div id="gauge3" style="height: 150px;"></div> <!-- Boyutu küçültüldü -->
-    </div>
-    <!-- Chart -->
-    <div id="chartContainer" style="flex: 1; height: 500px;"></div> <!-- Chart boyutu da küçültüldü -->
+<div class="container">
+    <!-- Gauge Container -->
+    <div id="gaugeContainer" style="width: 800px; height: 600px; display: none; position: relative; left: -200px; top: -20px;"></div>
 </div>
 
+<!-- ECharts -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
+<script>
+    document.getElementById('searchButton').addEventListener('click', async function () {
+        // Gauge container'ı görünür yap
+        document.getElementById('gaugeContainer').style.display = 'block';
 
+        const fieldNames = $('#fieldDropdown option:selected').map(function () {
+    return $(this).text(); // Value yerine text döndürüyoruz
+}).get().join(','); // Dropdown'dan seçilen alanları al
+        console.log($('#fieldDropdown').innerText);
+        const startDate = $('#date_start').val();
+        const endDate = $('#date_end').val();
+
+       
+
+        try {
+            // API çağrısı yap
+            const response = await $.ajax({
+                url: '/get-field-filtered-data',
+                type: 'GET',
+                data: {
+                    field_names: fieldNames
+                }
+            });
+
+            // Gelen veriler
+            const totals = response.totals;
+
+            // Gauge verilerini güncelle
+            const gaugeData = [
+                {
+                    value: totals.electricity || 0,
+                    name: 'Elektrik',
+                    title: {
+                        offsetCenter: ['0%', '-55%']
+                    },
+                    detail: {
+                        valueAnimation: true,
+                        offsetCenter: ['0%', '-45%']
+                    }
+                },
+                {
+                    value: totals.water || 0,
+                    name: 'Su',
+                    title: {
+                        offsetCenter: ['0%', '-25%']
+                    },
+                    detail: {
+                        valueAnimation: true,
+                        offsetCenter: ['0%', '-15%']
+                    }
+                },
+                {
+                    value: totals.natural_gas || 0,
+                    name: 'Doğalgaz',
+                    title: {
+                        offsetCenter: ['0%', '5%']
+                    },
+                    detail: {
+                        valueAnimation: true,
+                        offsetCenter: ['0%', '15%']
+                    }
+                },
+                {
+                    value: totals.meterage || 0,
+                    name: 'Metraj',
+                    title: {
+                        offsetCenter: ['0%', '35%']
+                    },
+                    detail: {
+                        valueAnimation: true,
+                        offsetCenter: ['0%', '45%']
+                    }
+                }
+            ];
+
+            // ECharts Gauge ayarları
+            const option = {
+                series: [
+                    {
+                        type: 'gauge',
+                        startAngle: 90,
+                        endAngle: -270,
+                        pointer: {
+                            show: false
+                        },
+                        progress: {
+                            show: true,
+                            overlap: false,
+                            roundCap: true,
+                            clip: false,
+                            itemStyle: {
+                                borderWidth: 1,
+                                borderColor: '#464646'
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                width: 40
+                            }
+                        },
+                        splitLine: {
+                            show: false,
+                            distance: 0,
+                            length: 10
+                        },
+                        axisTick: {
+                            show: false
+                        },
+                        axisLabel: {
+                            show: false,
+                            distance: 50
+                        },
+                        data: gaugeData,
+                        title: {
+                            fontSize: 14
+                        },
+                        detail: {
+                            width: 100,
+                            height: 14,
+                            fontSize: 14,
+                            color: 'inherit',
+                            borderColor: 'inherit',
+                            borderRadius: 20,
+                            borderWidth: 1,
+                            formatter: '{value}'
+                        }
+                    }
+                ]
+            };
+
+            // Chart oluştur ve Gauge ayarlarını uygula
+            const chart = echarts.init(document.getElementById('gaugeContainer'));
+            chart.setOption(option);
+        } catch (error) {
+            console.error('Error fetching gauge data:', error);
+            alert('Gauge verileri alınırken bir hata oluştu.');
+        }
+    });
+</script>
 
         <!-- Table Container -->
         <div id="tableContainer" style="margin-top: 20px; width: 100%; overflow-x: auto;"></div>
@@ -61,6 +217,10 @@
         display: inline-block;
         text-align: center;
     }
+    .row {
+    display: flex;/* Öğelerin bir satırda kalmasını sağlar */
+    gap: 10px; /* Öğeler arasında boşluk bırakır */
+}
 </style>
 
 <!-- Include ECharts -->
@@ -71,6 +231,75 @@
 
 <script type="text/javascript">
    $(document).ready(function() {
+      // Bölüm dropdown listesi
+    let fieldDropdown = $('#fieldDropdown');
+
+// AJAX isteği ile 'fields' verilerini çekiyoruz
+$.ajax({
+    url: '/get-fields',
+    type: 'GET',
+    success: function (fields) {
+        // Dropdown içine seçenekleri ekliyoruz
+        fields.forEach(field => {
+            fieldDropdown.append(`<option value="${field.id}">${field.name}</option>`);
+        });
+        // Dropdown'u yeniden başlatıyoruz
+        fieldDropdown.multiselect('rebuild');
+    },
+    error: function (error) {
+        console.error('Fields verileri alınırken bir hata oluştu:', error);
+    }
+});
+
+// Dropdown için bootstrap-multiselect başlatma
+fieldDropdown.multiselect({
+        nonSelectedText: "Bölüm Seçin",
+        buttonWidth: '300px',
+        includeSelectAllOption: true, // "Tümünü Seç" seçeneği
+        selectAllText: "Tümünü Seç",
+        enableFiltering: true, // Arama özelliği
+        filterPlaceholder: 'Arama',
+        maxHeight: 300, // Dropdown yüksekliği
+        templates: {
+            filterClearBtn: '', // Filtre temizleme butonu
+        }
+    });
+     // Veri Türü dropdown listesi
+     let dataTypeDropdown = $('#dataTypeDropdown');
+
+// Multiselect başlatma
+dataTypeDropdown.multiselect({
+    nonSelectedText: "Veri Türü Seçin",
+    buttonWidth: '300px',
+    includeSelectAllOption: true, // "Tümünü Seç" seçeneği
+    selectAllText: "Tümünü Seç",
+    enableFiltering: true, // Arama özelliği
+    filterPlaceholder: 'Arama',
+    maxHeight: 300, // Dropdown yüksekliği
+    templates: {
+        filterClearBtn: '', // Filtre temizleme butonu
+    }
+});
+$('#fieldDropdown').multiselect({
+    buttonWidth: '120px',
+    nonSelectedText: "Bölüm Seçin",
+    maxHeight: 200,
+    enableFiltering: true
+});
+
+$('#dataTypeDropdown').multiselect({
+    buttonWidth: '120px',
+    nonSelectedText: "Veri Türü Seçin",
+    maxHeight: 200,
+    enableFiltering: true
+});
+
+// Remove the 'role' attribute after initialization
+setTimeout(function() {
+    $('.multiselect-container').removeAttr('role');
+}, 100);
+
+
         // Initialize the datetime picker and device dropdown
         $('.datetimepicker').datetimepicker({
             format: 'Y-MM-DD HH:mm',
@@ -88,6 +317,50 @@
                 filterIcon: ''
             }
         });
+
+        async function fetchHourlyData(deviceId, tagIds, startDate, endDate) {
+    const totals = {
+        electricity: 0,
+        water: 0,
+        natural_gas: 0,
+        meterage: 0,
+    };
+
+    for (const tagId of tagIds) {
+        try {
+            const response = await $.ajax({
+                url: '/get-field-filtered-data',
+                type: 'GET',
+                data: {
+                    device_id: deviceId,
+                    data_id: tagId,
+                    start_date: new Date(startDate).toISOString(),
+                    end_date: new Date(endDate).toISOString(),
+                },
+            });
+
+            const data = response.data || [];
+            const resourceType = response.resource_type || ''; // Backend'den gelen resource_type
+
+            // Gelen verileri kategorilere göre ayır
+            const sum = data.reduce((acc, entry) => acc + (entry.value || 0), 0);
+
+            if (resourceType === 'elektrik') {
+                totals.electricity += sum;
+            } else if (resourceType === 'baraj_su' || resourceType === 'sanayi_su') {
+                totals.water += sum;
+            } else if (resourceType === 'dogalgaz') {
+                totals.natural_gas += sum;
+            } else if (resourceType === 'metraj') {
+                totals.meterage += sum;
+            }
+        } catch (error) {
+            console.error(`Error fetching data for tag: ${tagId}`, error);
+        }
+    }
+    console.log(totals);
+    return totals;
+}
 
         var devices = @json($devices); // Load devices with tags from backend
         let deviceDropdown = $('#device');
@@ -331,67 +604,6 @@ renderWeeklyTable(weeklyTableData); // Haftalık veri tablosu
 renderMonthlyTable(monthlyTableData);
 }
 
-function initializeGauges(gaugeData) {
-        const gauge1 = echarts.init(document.getElementById('gauge1'));
-        const gauge2 = echarts.init(document.getElementById('gauge2'));
-        const gauge3 = echarts.init(document.getElementById('gauge3'));
-
-        const gaugeOption = (title, value) => ({
-            title: {
-                text: title,
-                left: 'center',
-                top: '80%',
-                textStyle: {
-                    fontSize: 14,
-                    fontWeight: 'bold',
-                },
-            },
-            series: [
-                {
-                    type: 'gauge',
-                    startAngle: 90,
-                    endAngle: -270,
-                    pointer: {
-                        show: false,
-                    },
-                    progress: {
-                        show: true,
-                        width: 18,
-                    },
-                    axisLine: {
-                        lineStyle: {
-                            width: 18,
-                        },
-                    },
-                    axisTick: {
-                        show: false,
-                    },
-                    splitLine: {
-                        show: false,
-                    },
-                    axisLabel: {
-                        show: false,
-                    },
-                    data: [
-                        {
-                            value: value,
-                            name: '',
-                        },
-                    ],
-                    detail: {
-                        valueAnimation: true,
-                        formatter: '{value}%',
-                        fontSize: 16,
-                        offsetCenter: [0, '70%'],
-                    },
-                },
-            ],
-        });
-
-        gauge1.setOption(gaugeOption('Elektrik', gaugeData[0]));
-        gauge2.setOption(gaugeOption('Doğalgaz', gaugeData[1]));
-        gauge3.setOption(gaugeOption('Su', gaugeData[2]));
-    }
 
 function renderChart(seriesData, dates) {
     const option = {
@@ -569,93 +781,3 @@ function renderMonthlyTable(monthlyTableData) {
 </script>
 
 @endsection
-
-
-<style>
-    /* Giriş alanlarının genişliği */
-    #device, #date_start, #date_end {
-        width: 250px !important; /* Daha kompakt giriş alanları */
-    }
-
-    /* Butonların boyutlandırılması */
-    #searchButton, #compareButton {
-        width: 45px; /* Buton genişliği */
-        height: 38px; /* Buton yüksekliği */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    /* Seçim kontrolleri arası boşluk */
-    div[style*="inline-flex"] {
-        gap: 15px; /* Daha kompakt boşluk */
-    }
-
-    /* Tablonun düzeni */
-    .table {
-        width: 100%;
-        table-layout: fixed; /* Sütun genişliklerini içeriklerine göre dengeler */
-        word-wrap: break-word; /* Uzun metinlerin taşmasını önler */
-        font-size: 12px; /* Daha küçük font boyutu */
-    }
-
-    .table th, .table td {
-        padding: 6px; /* Hücre içi boşlukları azaltma */
-        text-align: center; /* Tablodaki metinleri ortalama */
-    }
-
-    /* Chart kapsayıcı */
-    #chartContainer {
-        width: 100%;
-        max-width: 100%;
-        height: 450px; /* Grafik yüksekliği azaltıldı */
-        margin: 0 auto;
-        padding: 0 10px;
-    }
-
-    .section-header {
-        font-weight: bold;
-        text-align: center;
-        margin-top: 15px; /* Başlık üst boşluğu */
-        font-size: 14px; /* Başlık font boyutu */
-    }
-
-    /* Tablolar ve grafiklerin düzeni */
-    #tableContainer, #chartContainer {
-        width: 100%;
-        margin: 0 auto;
-    }
-
-    /* Gauge ve Chart yerleşimi */
-    #contentContainer {
-        display: flex;
-        gap: 15px; /* Gauge ve Chart arasındaki boşluk */
-        align-items: flex-start;
-    }
-
-    /* Gauge kapsayıcı ayarları */
-    #gaugeContainer {
-        display: flex;
-        flex-direction: column;
-        gap: 15px; /* Gauges arası boşluk */
-        width: 25%; /* Gauges genişliği azaltıldı */
-    }
-
-    #gauge1, #gauge2, #gauge3 {
-        height: 150px; /* Daha küçük gauge boyutu */
-        width: 100%; /* Genişlik tam kapsayıcıya yayılır */
-    }
-
-    /* Grafik ayarları */
-    #chartContainer {
-        flex: 1; /* Grafiğin kalan alanı kaplamasını sağlar */
-        height: 500px; /* Grafik yüksekliği */
-    }
-
-    /* Genel layout geliştirmeleri */
-    body {
-        font-size: 14px;
-        margin: 0;
-        padding: 0;
-    }
-</style>

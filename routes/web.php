@@ -76,10 +76,13 @@ Route::group(['prefix' => ''], function () {
     
         return view('vendor.voyager.dinamik-rapor.browse', compact('devices'));
     })->name('dinamik-rapor.browse');
-    
-    
-    
+        
     Route::get('/get-filtered-data', [ChartController::class, 'getFilteredData']);    
+    Route::get('/get-fields', function () {
+        $fields = \App\Field::all(['id', 'name']); // 'fields' tablosundan 'id' ve 'name' alanlarını alıyoruz
+        return response()->json($fields);
+    });
+    Route::get('/get-field-filtered-data', [ChartController::class, 'getResourceTotals']);    
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });
