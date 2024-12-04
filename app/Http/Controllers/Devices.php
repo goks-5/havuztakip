@@ -268,15 +268,18 @@ class Devices extends VoyagerBaseController
 
 
     public function addVirtual($id = null)
-    {
-        $this->authorize('virtual', app('App\Device'));
-        $data = array();
-        if (!is_null($id)) {
-            $data['device'] = Device::where('company_id', Auth::user()->company_id)->where('id', $id)->first();
-        }
-        $data['devices'] =  $devices = Device::where('company_id', Auth::user()->company_id)->get();
-        return view('voyager::cihazlar.sanal', $data);
+{
+    $this->authorize('virtual', app('App\Device'));
+    $data = [];
+    if (!is_null($id)) {
+        $data['device'] = Device::where('company_id', Auth::user()->company_id)->where('id', $id)->first();
     }
+
+    $data['devices'] = Device::where('company_id', Auth::user()->company_id)->get();
+    $data['fields'] = DB::table('fields')->pluck('name'); // Sadece 'name' alanını alıyoruz
+
+    return view('voyager::cihazlar.sanal', $data);
+}
 
     public function addDosab($id = null)
     {
@@ -359,25 +362,30 @@ class Devices extends VoyagerBaseController
 
 
     public function saveVirtual(Request $request)
-    {
-
-        $this->authorize('virtual', app('App\Device'));
-        if (isset($request->id)) {
-            $device = Device::where('company_id', Auth::user()->company_id)->where('id', $request->id)->first();
-        } else {
-            $device = new Device;
-            $device->device_id = "VIRTUAL_" . date("ymd") . str_pad(rand(0, 999), 3, "0", STR_PAD_LEFT);
-        }
-        $device->mac = "00:00:00:00:00:00";
-        $device->name = $request->name;
-        $device->tags = $request->tags;
-        $device->formula = $request->formula;
-        $device->type = $request->type;
-        $device->company_id = Auth::user()->company_id;
-        $device->save();
-        return redirect()->route("voyager.cihazlar.index")->with(['message' => "Sanal Makine Eklendi", 'alert-type' => 'success']);
-        // return back()->with(['message' => "Sanal Makine Eklendi", 'alert-type' => 'success']);
+{
+    $this->authorize('virtual', app('App\Device'));
+    if (isset($request->id)) {
+        $device = Device::where('company_id', Auth::user()->company_id)->where('id', $request->id)->first();
+    } else {
+        $device = new Device;
+        $device->device_id = "VIRTUAL_" . date("ymd") . str_pad(rand(0, 999), 3, "0", STR_PAD_LEFT);
     }
+
+    $device->mac = "00:00:00:00:00:00";
+    $device->name = $request->name;
+    $device->tags = $request->tags;
+    $device->formula = $request->formula;
+    $device->type = $request->type;
+    $device->field_name = $request->field_name; // Mevcut alanlar
+    $device->resource_type = $request->resource_type; // Yeni eklenen dropdown alanı
+    $device->company_id = Auth::user()->company_id;
+    $device->save();
+
+    return redirect()->route("voyager.cihazlar.index")->with(['message' => "Sanal Makine Eklendi", 'alert-type' => 'success']);
+}
+
+
+    
     //***************************************
     //                ______
     //               |  ____|

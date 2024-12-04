@@ -48,7 +48,7 @@
                                         @endforeach
                                     </ul>
                                 </div>
-                            @endif
+                            @endif                        
 
                             <!-- Adding / Editing -->
                             @php
@@ -66,7 +66,8 @@
                              @endphp
                              @if (isset($row->details->legend) && isset($row->details->legend->text))
                                  <legend class="text-{{ $row->details->legend->align ?? 'center' }}" style="background-color: {{ $row->details->legend->bgcolor ?? '#f0f0f0' }};padding: 5px;">{{ $row->details->legend->text }}</legend>
-                             @endif
+                             
+                                 @endif
 
                              <div class="form-group @if($row->type == 'hidden') hidden @endif col-md-{{ $display_options->width ?? 12 }} {{ $errors->has($row->field) ? 'has-error' : '' }}" @if(isset($display_options->id)){{ "id=$display_options->id" }}@endif>
                                  {{ $row->slugify }}
