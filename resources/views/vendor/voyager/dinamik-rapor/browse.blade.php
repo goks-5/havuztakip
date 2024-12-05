@@ -10,18 +10,6 @@
             <select class="form-control dropdown-small" id="fieldDropdown" multiple="multiple"></select>
         </div>
 
-        <!-- Veri Türü Seç -->
-        <div>
-            <label for="dataTypeDropdown" class="sr-only">Veri Türü</label>
-            <select class="form-control dropdown-small" id="dataTypeDropdown" multiple="multiple">
-            <option value="electricity">Elektrik</option>
-                <option value="industrial_water">Sanayi Su</option>
-                <option value="dam_water">Baraj Su</option>
-                <option value="natural_gas">Doğalgaz</option>
-                <option value="meterage">Metraj</option>
-            </select>
-        </div>
-
         <!-- Cihaz Seç -->
         <div>
             <label for="device" class="sr-only">Cihaz</label>
@@ -42,15 +30,19 @@
 
         <!-- Butonlar -->
         <div class="d-flex gap-2">
-            <button class="btn btn-primary square-button" id="searchButton">
-                <i class="voyager-search"></i>
-            </button>
-            <button class="btn btn-secondary square-button" id="compareButton">
-                <i class="fa fa-balance-scale"></i>
-            </button>
+        <button class="btn btn-primary square-button" id="searchButton">
+            <i class="voyager-search"></i>
+        </button>
+        <button class="btn btn-secondary square-button" id="compareButton">
+            <i class="fa fa-balance-scale"></i>
+        </button>
+        <!-- Yeni eklenen Yenile Butonu -->
+        <button class="btn btn-success square-button" id="refreshButton">
+            <i class="fa fa-sync-alt"></i>
+        </button>
         </div>
-    </div>
-</div>
+        </div>
+        </div>
 
 <div class="container">
     <!-- Gauge Container -->
@@ -60,6 +52,12 @@
 <!-- ECharts -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.1/dist/echarts.min.js"></script>
 <script>
+    document.getElementById('refreshButton').addEventListener('click', function () {
+    // Alt kısımdaki içeriği temizleyin
+    $('#tableContainer').empty();
+    $('#gaugeContainer').hide(); // Gauge alanını gizlemek isterseniz
+});
+
     document.getElementById('searchButton').addEventListener('click', async function () {
         // Gauge container'ı görünür yap
         document.getElementById('gaugeContainer').style.display = 'block';
@@ -201,7 +199,6 @@
 
         <!-- Table Container -->
         <div id="tableContainer" style="margin-top: 20px; width: 100%; overflow-x: auto;"></div>
-
     </div>
 @endsection
 
@@ -371,7 +368,7 @@ setTimeout(function() {
         deviceDropdown.multiselect('rebuild');
 
         let chart = echarts.init(document.getElementById('chartContainer'));
-
+        
         // Fetch data for both hourly (chart) and daily (table)
         async function fetchDataAndRender() {
     const deviceId = $('#device').val() ? $('#device').val()[0] : null;
