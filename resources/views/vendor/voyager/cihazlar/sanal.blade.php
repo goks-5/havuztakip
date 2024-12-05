@@ -38,26 +38,7 @@
                                         value="{{ isset($device->name) ? $device->name : '' }}">
                                 </div>
 
-                                            <div class="form-group col-md-6">
-                                                <label for="field_name" class="control-label">Bölüm</label>
-                                                <select class="form-control" id="field_name" name="field_name">
-                                                    <option value="">Seçiniz</option>
-                                                    @foreach ($fields as $field_name)
-                                                        <option value="{{ $field_name }}">{{ $field_name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="form-group col-md-6">
-                                            <label for="resource_type" class="control-label">Veri Türü</label>
-                                            <select name="resource_type" id="resource_type" class="form-control">
-                                                <option value="">Seçiniz</option>
-                                                <option value="elektrik">Elektrik</option>
-                                                <option value="baraj_su">Baraj Su</option>
-                                                <option value="sanayi_su">Sanayi Su</option>
-                                                <option value="dogalgaz">Doğalgaz</option>
-                                                <option value="metraj">Metraj</option>
-                                            </select>
-                                        </div>
+                                            
 
                                 <div class="form-group  col-md-12 ">
                                     <label class="control-label" for="name">Etiket</label>
@@ -76,6 +57,28 @@
                                                         class="form-control multiple_tags" name="__tags[0]"
                                                         placeholder="0. Etiket" id="tags_0">
                                                 </div>
+
+                                                <div class="form-group col-md-3">
+                                                
+                                                <select class="form-control" id="field_name" name="field_name">
+                                                    <option value="">Bölüm Seçiniz</option>
+                                                    @foreach ($fields as $field_name)
+                                                        <option value="{{ $field_name }}">{{ $field_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-3">
+                                           
+                                            <select name="resource_type" id="resource_type" class="form-control">
+                                                <option value="">Veri Tipi Seçiniz</option>
+                                                <option value="elektrik">Elektrik</option>
+                                                <option value="baraj_su">Baraj Su</option>
+                                                <option value="sanayi_su">Sanayi Su</option>
+                                                <option value="dogalgaz">Doğalgaz</option>
+                                                <option value="metraj">Metraj</option>
+                                            </select>
+                                        </div>
+
                                                 <div class="col-sm-3">
                                                     <select class="form-control type" name="__type[0]" id="type_0">
                                                         <option value='diff'>Fark Değer</option>
