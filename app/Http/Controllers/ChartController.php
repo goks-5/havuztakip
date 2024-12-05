@@ -87,6 +87,9 @@ class ChartController extends Controller
                 'natural_gas' => 0,
                 'meterage' => 0,
             ];
+
+            // Get today's date
+            $today = now()->startOfDay();
     
             foreach ($fieldArray as $fieldName) {
                 // Fetch devices matching the current field_name
@@ -111,7 +114,8 @@ class ChartController extends Controller
     
                     // Sum the value for device_datas with data_id = 100
                     $totalValue = DeviceData::where('device_id', $deviceId)
-                        ->where('data_id', 100)
+                        ->where('data_id', 200)
+                        ->whereDate('created_at', $today) // Only today's data
                         ->sum('value');
     
                     // Add the total to the corresponding category
