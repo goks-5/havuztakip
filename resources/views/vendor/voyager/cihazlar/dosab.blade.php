@@ -54,6 +54,24 @@
               </select>
               </div>
               
+                                        <div class="form-group col-md-3">                         
+                                                <select class="form-control" id="field_name" name="field_name">
+                                                    <option value="">Bölüm Seçiniz</option>
+                                                    @foreach ($fields as $field_name)
+                                                        <option value="{{ $field_name }}">{{ $field_name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="form-group col-md-3">                                          
+                                            <select name="resource_type" id="resource_type" class="form-control">
+                                                <option value="">Veri Tipi Seçiniz</option>
+                                                <option value="elektrik">Elektrik</option>
+                                                <option value="su"> Su</option>
+                                                <option value="dogalgaz">Doğalgaz</option>
+                                                <option value="metraj">Metraj</option>
+                                            </select>
+                                        </div>
+
               <div class="col-sm-3">
                 <div class="form-check">
                   <input class="form-check-input" type="checkbox" value=" Saatlik" id="t_100" name="diff_tags[100]" {{isset($diff_tags[100])  ? 'checked' : ''}}>

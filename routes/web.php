@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Redirect;
 use TCG\Voyager\Facades\Voyager;
 use App\Http\Controllers\ChartController;
+use App\Http\Controllers\FieldController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -82,6 +84,11 @@ Route::group(['prefix' => ''], function () {
         $fields = \App\Field::all(['id', 'name']); // 'fields' tablosundan 'id' ve 'name' alanlarını alıyoruz
         return response()->json($fields);
     });
+    Route::get('/get-devices', function () {
+        $devices = \App\Device::all(['id', 'name']); // 'devices' tablosundan 'id' ve 'name' alanlarını alıyoruz
+        return response()->json($devices);
+    });
+    Route::get('/get-field-list', [FieldController::class, 'getFields']);
     Route::get('/get-field-filtered-data', [ChartController::class, 'getResourceTotals']);    
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);

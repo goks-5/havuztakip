@@ -422,6 +422,9 @@ class Devices extends VoyagerBaseController
             $dataTypeContent = DB::table($dataType->name)->where('id', $id)->first();
         }
 
+         // `fields` verisini veritabanından çekiyoruz
+        $fields = DB::table('fields')->pluck('name')->toArray(); // 'fields' tablosundaki 'name' sütununu alıyoruz
+
         foreach ($dataType->editRows as $key => $row) {
             $dataType->editRows[$key]['col_width'] = isset($row->details->width) ? $row->details->width : 100;
         }
@@ -458,6 +461,9 @@ class Devices extends VoyagerBaseController
                 break;
         }
 
+        // Check permission
+        $this->authorize('edit', app('App\Device'));
+
         // Check if BREAD is Translatable
         $isModelTranslatable = is_bread_translatable($dataTypeContent);
 
@@ -467,7 +473,8 @@ class Devices extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'fields'));
+
     }
 
     // POST BR(E)AD
