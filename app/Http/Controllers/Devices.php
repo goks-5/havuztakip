@@ -456,6 +456,9 @@ class Devices extends VoyagerBaseController
             case '00:00:00:00:00:03':
                 $this->authorize('remote',  app('App\Device'));
                 break;
+            case '00:00:00:00:00:04':
+                $this->authorize('virtual',  app('App\Device'));
+                break;
             default:
                 $this->authorize('edit',  app('App\Device'));
                 break;
@@ -511,6 +514,9 @@ class Devices extends VoyagerBaseController
             case '00:00:00:00:00:03':
                 $this->authorize('remote',  app('App\Device'));
                 break;
+                case '00:00:00:00:00:04':
+                    $this->authorize('virtual',  app('App\Device'));
+                    break;
             default:
                 $this->authorize('edit',  app('App\Device'));
                 break;
@@ -589,6 +595,9 @@ class Devices extends VoyagerBaseController
             case '00:00:00:00:00:03':
                 $this->authorize('remote',  app('App\Device'));
                 break;
+                case '00:00:00:00:00:04':
+                    $this->authorize('virtual',  app('App\Device'));
+                    break;
             default:
                 $this->authorize('add',  app('App\Device'));
                 break;
@@ -645,6 +654,9 @@ class Devices extends VoyagerBaseController
             case '00:00:00:00:00:03':
                 $this->authorize('remote',  app('App\Device'));
                 break;
+                case '00:00:00:00:00:04':
+                    $this->authorize('virtual',  app('App\Device'));
+                    break;
             default:
                 $this->authorize('add',  app('App\Device'));
                 break;
@@ -726,6 +738,9 @@ class Devices extends VoyagerBaseController
             case '00:00:00:00:00:03':
                 $this->authorize('remote',  app('App\Device'));
                 break;
+                case '00:00:00:00:00:04':
+                    $this->authorize('virtual',  app('App\Device'));
+                    break;
             default:
                 $this->authorize('delete',  app('App\Device'));
                 break;
