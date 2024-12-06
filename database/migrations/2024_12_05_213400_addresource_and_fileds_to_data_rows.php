@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class AddResourceTypeToDevicesTable extends Migration
+class AddresourceAndFiledsToDataRows extends Migration
 {
     /**
      * Run the migrations.
@@ -29,8 +29,8 @@ class AddResourceTypeToDevicesTable extends Migration
                     'table' => 'fields',
                     'type' => 'belongsTo',
                     'column' => 'field_id',
-                    'key' => 'id',
-                    'label' => 'name',
+                    'key' => 'name',
+                    'label' => 'id',
                     'pivot_table' => 'companies',
                     'pivot' => '0',
                     'taggable' => '0'
@@ -81,44 +81,16 @@ class AddResourceTypeToDevicesTable extends Migration
                 'required' => 0,
                 'browse' => 0,
                 'read' => 0,
-                'edit' => 1,
-                'add' => 1,
+                'edit' => 0,
+                'add' => 0,
                 'delete' => 0,
                 'details' => '{}',
                 'order' => 19
-            ],
-            [
-                'data_type_id' => 17,
-                'field' => 'token',
-                'type' => 'text',
-                'display_name' => 'Token',
-                'required' => 0,
-                'browse' => 0,
-                'read' => 0,
-                'edit' => 0,
-                'add' => 0,
-                'delete' => 0,
-                'details' => '{}',
-                'order' => 24
-            ],
-            [
-                'data_type_id' => 17,
-                'field' => 'deleted_at',
-                'type' => 'timestamp',
-                'display_name' => 'Deleted At',
-                'required' => 0,
-                'browse' => 0,
-                'read' => 0,
-                'edit' => 0,
-                'add' => 0,
-                'delete' => 0,
-                'details' => '{}',
-                'order' => 25
             ]
         ];
 
         foreach ($rows as $row) {
-            DB::table('enerji.data_rows')->updateOrInsert(
+            DB::table('data_rows')->updateOrInsert(
                 [
                     'data_type_id' => $row['data_type_id'],
                     'field' => $row['field']
@@ -139,12 +111,10 @@ class AddResourceTypeToDevicesTable extends Migration
             'device_belongsto_field_relationship',
             'field_name',
             'resource_type',
-            'field_id',
-            'token',
-            'deleted_at'
+            'field_id'
         ];
 
-        DB::table('enerji.data_rows')
+        DB::table('data_rows')
             ->where('data_type_id', 17)
             ->whereIn('field', $fields)
             ->delete();
