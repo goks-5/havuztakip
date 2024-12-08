@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Support\Facades\DB;
 
-class UpdateResourceTypeWithPermissionsInDevicesTable extends Migration
+class EditResourceTypeToDevicesTable extends Migration
 {
     /**
      * Run the migrations.
