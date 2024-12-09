@@ -35,6 +35,10 @@
 
         <!-- Butonlar -->
         <div style="display: flex; gap: 10px;">
+            <!-- Pie Chart Butonu -->
+            <button class="btn btn-primary" id="pieChartButton">
+                <i class="fa fa-chart-pie"></i>
+            </button>
             <!-- Grafik Butonu -->
             <button class="btn btn-primary" id="graphButton">
                 <i class="fa fa-chart-line"></i>
@@ -46,6 +50,9 @@
         </div>
     </div>
 </div>
+
+<!-- Pie Container -->
+<div id="pieContainer" style="margin-top: 20px; width: 100%; overflow-x: auto;"></div>
 
 <!-- Table Container -->
 <div id="tableContainer" style="margin-top: 20px; width: 100%; overflow-x: auto;"></div>
@@ -71,6 +78,33 @@
     .section-header {
         margin-top: 20px;
         font-weight: bold;
+    }
+    #chartContainer {
+        margin-top: -20px !important; /* Zorunlu olarak yukarı çek */
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 20px;
+    }
+
+    .chart-box {
+        width: 24%; /* Her pie chart için sabit genişlik */
+        text-align: center; /* Ortala */
+    }
+
+    .chart-box h5 {
+    margin-bottom: 5px; /* Alt kenar boşluğunu artırın */
+    margin-top: 10px; /* Üst kenar boşluğu ekleyin (isteğe bağlı) */
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center; /* Başlıkları ortalayın */
+    }
+
+    .chart-canvas {
+        width: 100%;
+        height: 280px; /* Chart boyutunu düzenle */
+        margin: 0 auto;
+        margin-top: -10px; /* Chart'ı başlığa yaklaştır */
     }
 </style>
 
@@ -139,6 +173,91 @@ $(document).ready(function() {
     format: 'YYYY-MM-DD HH:mm',
 });
 
+$('#pieChartButton').on('click', function (e) {
+    e.preventDefault();
+
+    // Seçilen cihazları al
+    const selectedDevices = $('#device').val();
+    if (!selectedDevices || selectedDevices.length === 0) {
+        alert('Lütfen bir cihaz seçin.');
+        return;
+    }
+
+    // Önce eski içeriği temizle
+    $('#chartContainer').empty();
+
+    // Yeni pie chart'lar için container oluştur
+    $('#chartContainer').css('display', 'flex');
+
+    // Backend'den cihaz verilerini al (örnek JSON)
+    const deviceData = {
+        Elektrik: selectedDevices.map(device => ({ value: Math.random() * 1000, name: devices.find(d => d.id === device)?.name || device })),
+        Su: selectedDevices.map(device => ({ value: Math.random() * 1000, name: devices.find(d => d.id === device)?.name || device })),
+        Doğalgaz: selectedDevices.map(device => ({ value: Math.random() * 1000, name: devices.find(d => d.id === device)?.name || device })),
+        Metraj: selectedDevices.map(device => ({ value: Math.random() * 1000, name: devices.find(d => d.id === device)?.name || device })),
+    };
+
+    // Chart başlıkları
+    const chartTitles = ['Elektrik', 'Su', 'Doğalgaz', 'Metraj'];
+
+    for (let i = 0; i < 4; i++) {
+        const category = chartTitles[i];
+        $('#chartContainer').append(`
+            <div class="chart-box">
+                <h5>${category}</h5>
+                <div id="pieChart${i}" class="chart-canvas"></div>
+            </div>
+        `);
+
+        const pieChart = echarts.init(document.getElementById(`pieChart${i}`));
+
+        const option = {
+            tooltip: {
+                trigger: 'item',
+                formatter: '{a} <br/>{b}: {c} ({d}%)',
+            },
+            legend: {
+                orient: 'horizontal',
+                bottom: '10%',
+                left: 'center',
+                data: deviceData[category].map(data => data.name),
+                textStyle: {
+                    fontSize: 12,
+                },
+            },
+            series: [
+                {
+                    name: 'Cihazlar',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                    },
+                    label: {
+                        show: false,
+                        position: 'center',
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: '16',
+                            fontWeight: 'bold',
+                        },
+                    },
+                    labelLine: {
+                        show: false,
+                    },
+                    data: deviceData[category],
+                },
+            ],
+        };
+
+        pieChart.setOption(option);
+    }
+});
 
     // Backend'den devices bilgisinin geldiğini varsayıyoruz
     var devices = @json($devices ?? []);
@@ -227,7 +346,7 @@ $(document).ready(function() {
         let selectedDevice = devices.find(device => device.id == deviceId);
         if (!selectedDevice || !selectedDevice.tags) {
             console.error("Seçilen cihaza ait tag bulunamadı.");
-            alert('Seçilen cihaza ait etiket yok.');
+            alert('Seçilen cihaza ait etike yok.');
             return;
         }
 
@@ -533,6 +652,11 @@ $(document).ready(function() {
 
         $('#tableContainer').append(table);
     }
+
+    $('#pieChartButton').on('click', function(e) {
+        e.preventDefault();
+        fetchChartDataAndRender();
+    });
 
     // Grafik butonuna tıklandığında sadece grafik verilerini çekip göster
     $('#graphButton').on('click', function(e) {
