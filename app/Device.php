@@ -88,7 +88,10 @@ class Device extends Model
 
     public static function virtualData()
     {
-        $virtual = DB::table('devices')->where('mac', '00:00:00:00:00:00')->get();
+        // Hem 00:00:00:00:00:00 hem de 00:00:00:00:00:04 mac adresli cihazları sorgula
+        $virtual = DB::table('devices')
+        ->whereIn('mac', ['00:00:00:00:00:00', '00:00:00:00:00:04'])
+        ->get();
         $devices = array();
         foreach ($virtual as $sanal) {
             $tags = json_decode($sanal->formula);
