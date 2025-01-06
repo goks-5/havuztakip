@@ -708,9 +708,10 @@ function DeviceChart(data) {
 
             // Ensure that cellValue is treated as a number if it's numeric
             if (!isNaN(cellValue) && cellValue !== '') {
-                cellValue = parseFloat(cellValue); // Leave the original decimal format
+            // Ondalıklı sayılar için formatlama, ondalık kısmı gereksiz yere uzatmamak için
+            cellValue = parseFloat(cellValue).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
             }
-
+            
             rowData.push(cellValue);
         }
 
