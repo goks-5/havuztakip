@@ -5,7 +5,10 @@ use Illuminate\Support\Facades\Redirect;
 use TCG\Voyager\Facades\Voyager;
 use App\Http\Controllers\ChartController;
 use App\Http\Controllers\FieldController;
-
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\TeklifController;
+use App\Http\Controllers\OfferController;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,6 +93,47 @@ Route::group(['prefix' => ''], function () {
     });
     Route::get('/get-field-list', [FieldController::class, 'getFields']);
     Route::get('/get-field-filtered-data', [ChartController::class, 'getResourceTotals']);    
+    
+    // Firma Tablosu Browse Route
+    Route::get('/firma-tablosu', function () {
+        $company = \App\Company::all(); // Doğru tablo adı kullanıldı
+        return view('vendor.voyager.firma-tablosu.browse', compact('company'));
+    })->name('firma-tablosu.browse');
+    
+    Route::post('/firma-tablosu/store', [CompanyController::class, 'store'])->name('firma-tablosu.store');
+    Route::delete('/firma-tablosu/destroy/{id}', [CompanyController::class, 'destroy'])->name('firma-tablosu.destroy');
+    Route::put('/firma-tablosu/update/{id}', [CompanyController::class, 'update'])->name('firma-tablosu.update');
+
+    // Kullanıcı Tablosu Rotaları (Değiştirildi)
+    Route::get('/kullanici-tablosu', [UserController::class, 'index'])->name('kullanici-tablosu.index');
+    Route::post('/kullanici-tablosu/store', [UserController::class, 'store'])->name('kullanici-tablosu.store');
+    Route::put('/kullanici-tablosu/update/{id}', [UserController::class, 'update'])->name('kullanici-tablosu.update');
+    Route::delete('/kullanici-tablosu/destroy/{id}', [UserController::class, 'destroy'])->name('kullanici-tablosu.destroy');
+
+    Route::get('/teklif-hazirla', function () {
+        $offers = \App\Offer::all();
+        $users = \App\Company::pluck('user_name', 'id');
+        return view('vendor.voyager.teklif-hazirla.browse', compact('offers', 'users'));
+    })->name('teklif-hazirla.browse');   
+     
+    Route::get('/get-users-by-company', function (\Illuminate\Http\Request $request) {
+        // Şirket adı parametresini al
+        $companyName = $request->input('company_name'); // veya request('company_name');
+    
+        // Şirket adına göre kullanıcıları filtrele
+        $users = \App\UserAccount::where('company_name', $companyName)->get(['user_name', 'email']);
+    
+        return response()->json($users);
+    });
+    
+    Route::post('/teklif/store', [TeklifController::class, 'store'])->name('teklif.store');
+    Route::post('/offer/store', [OfferController::class, 'store'])->name('offer.store');
+    Route::get('/offer/view/{id}', [OfferController::class, 'view'])->name('offer.view');
+    Route::get('/teklif-hazirla', [OfferController::class, 'index'])->name('teklif-hazirla.browse');
+    Route::put('/offer/update/{id}', [OfferController::class, 'update'])->name('offer.update');
+    Route::post('/offer/set-editable/{id}', [OfferController::class, 'setEditable'])->name('offer.setEditable');
+    Route::post('/offer/send/{id}', [OfferController::class, 'send'])->name('offer.send');
+    
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });
