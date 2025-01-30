@@ -3,13 +3,16 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use TCG\Voyager\Traits\Spatial;
 
 class Company extends Model
 {
-    
-    public function users(){ 
-        return $this->belongsToMany(User::class,'company_users');
-    }
+    protected $table = 'company'; // Tablonuzun adı
+    protected $fillable = ['company_name', 'address', 'telephone'];
+    public $timestamps = false;
+
+    public function users()
+{
+    return $this->hasMany(UserAccount::class, 'company_name', 'company_name');
+}
 
 }
