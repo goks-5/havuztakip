@@ -6,9 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Company extends Model
 {
-    protected $table = 'company'; // Tablonuzun adı
-    protected $fillable = ['company_name', 'address', 'telephone'];
-    public $timestamps = false;
+    protected $table = 'companies'; // Tablonuzun adı
 
     public function users()
 {
