@@ -1,6 +1,11 @@
 @extends('voyager::master')
 
 @section('content')
+<!-- İndir Butonu -->
+<div style="position: absolute; top: 17mm; right: 20mm;">
+    <button id="downloadPdfBtn" class="btn btn-primary">📥 İndir</button>
+</div>
+
 <div class="container" style="background: url('{{ asset('images/background.png') }}') no-repeat center center; background-size: cover; width: 210mm; height: 297mm; padding: 20mm; margin: auto; border: 1px solid #ddd; box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative;">
     <!-- Logo -->
 <div style="position: absolute; top: 10mm; left: 20mm;">
@@ -8,8 +13,8 @@
 </div>
 
 <!-- Sağ Üst Köşe Bilgileri -->
-<div style="position: absolute; top: 40mm; right: 10mm; text-align: left; font-size: 12pt; line-height: 1.6;">
-    <table style="border-collapse: collapse; font-size: 10pt;">
+<div class="right-info" style="position: absolute; top: 40mm; right: 10mm; text-align: left;">
+    <table style="border-collapse: collapse;">
         <tr>
             <td style="font-weight: bold; text-align: left; padding-right: 10px;">Tarih:</td>
             <td style="text-align: left;">{{ $offer->created_at->format('d.m.Y') }}</td>
@@ -92,12 +97,10 @@
         <em>*Fiyatlara KDV dahil değildir ve peşin ödeme geçerlidir.</em>
     </div>
 
-<!-- Onay ve Büyük Dikdörtgen Kutu -->
-<div style="position: relative; margin-top: 30mm;">
-    <div style="position: absolute; top: -40px; right: 0; text-align: center; font-size: 12pt;">
-        <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Onay</label>
-        <div style="width: 60mm; height: 25mm; border: 2px solid #333; border-radius: 3px; cursor: pointer;"></div>
-    </div>
+<!-- Onay Kutusu -->
+<div class="onay-kutusu" style="position: absolute; top: 230mm; left: 130mm; text-align: center; font-size: 12pt;">
+    <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Onay</label>
+    <div style="width: 60mm; height: 20mm; border: 2px solid #333; border-radius: 3px; cursor: pointer;"></div>
 </div>
 
 <!-- Notlar Tablo Satırı -->
@@ -138,28 +141,51 @@
             position: relative !important;
         }
 
-          /* Sayfa arka planı ve üst kısım */
-        .container {
-            background: url('{{ asset('images/background.png') }}') no-repeat center center !important;
-            background-size: cover !important;
-            width: 210mm !important;
-            height: 297mm !important;
-            padding: 20mm !important;
-            margin: auto !important;
-            border: none !important; /* Çerçeveyi tamamen kaldır */
-            box-shadow: none !important; /* Gölgeyi tamamen kaldır */
-            position: relative !important;
-        }
+        /* Sağ Üst Köşe Bilgilerinin Çerçeve ve Arka Planının Kaldırılması */
+    .container div {
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
 
-        /* Sağ Üst Köşe Bilgileri */
-        .container div {
-            border: none !important; /* Çerçeveyi kaldır */
-            background: transparent !important; /* Arka planı kaldır */
-            box-shadow: none !important; /* Gölgeyi kaldır */
-        }
+    /* Sağ Üst Köşe Bilgilerini Yukarı Taşıma */
+    .right-info {
+        position: absolute !important;
+        top: 30mm !important; /* Daha yukarı taşındı */
+        right: 10mm !important;
+    }
 
-        /* Onay Kutusu */
-        .onay-kutusu {
+    /* Sağ Üst Köşe Bilgilerinin Fontunu Küçült */
+    .container .right-info {
+        font-size: 10pt !important; /* Sadece sağ üst köşe bilgileri küçültüldü */
+        text-align: right !important;
+        line-height: 1.4 !important; /* Daha kompakt görünüm için satır yüksekliği ayarlandı */
+    }
+
+    /* Sağ Üst Köşe Bilgilerinin Fontunu Küçült */
+    .right-info table {
+        font-size: 9pt !important; /* Sadece sağ üst köşe bilgileri küçültüldü */
+        line-height: 1.2 !important; /* Daha sıkı bir görünüm için satır yüksekliği */
+    }
+
+    .right-info table td {
+        padding: 2px 5px !important; /* Hücre iç boşluklarını daralttık */
+    }
+
+    /* Sağ Üst Köşe Bilgi Tablosu */
+    .container table {
+        margin-top: 10mm !important; /* Başlıktan biraz aşağı kaydırıldı */
+        border: none !important;
+        background: transparent !important;
+    }
+
+    .container table td {
+        border: none !important;
+        background: transparent !important;
+    }
+
+    /* Onay Kutusu */
+    .onay-kutusu {
             border: 2px solid #333 !important;
             border-radius: 5px !important;
             width: 80mm !important;
@@ -223,4 +249,32 @@
         }
     }
 </style>
+@endsection
+
+@section('javascript')
+<!-- Gerekli Kütüphaneleri Yükle -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    document.getElementById("downloadPdfBtn").addEventListener("click", function () {
+        const { jsPDF } = window.jspdf;
+        let doc = new jsPDF('p', 'mm', 'a4');
+
+        html2canvas(document.querySelector(".container"), {
+            scale: 2, // Kaliteyi artırmak için
+            useCORS: true // Farklı kaynaklardan gelen img desteği
+        }).then(canvas => {
+            let imgData = canvas.toDataURL("image/png");
+            let imgWidth = 210; // A4 genişliği mm cinsinden
+            let pageHeight = 297; // A4 yüksekliği mm cinsinden
+            let imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            doc.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+            doc.save("Teklif_{{ $offer->offer_no }}.pdf"); // Dosya adını Teklif No'ya göre kaydeder
+        }).catch(error => {
+            console.error("PDF oluşturulurken hata oluştu:", error);
+        });
+    });
+</script>
 @endsection

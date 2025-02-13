@@ -26,7 +26,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($company as $firma)
+                @forelse ($company as $firma)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $firma->company_name }}</td>

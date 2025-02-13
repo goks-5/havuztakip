@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Company;
+use App\Firm;
 
 class CompanyController extends Controller
 {
@@ -15,7 +15,7 @@ class CompanyController extends Controller
             'telephone' => 'required|string|max:15',
         ]);
 
-        Company::create($request->only(['company_name', 'address', 'telephone']));
+        Firm::create($request->only(['company_name', 'address', 'telephone']));
 
         return redirect()->route('firma-tablosu.browse')->with('success', 'Firma başarıyla eklendi.');
     }
@@ -28,7 +28,7 @@ class CompanyController extends Controller
             'telephone' => 'required|string|max:15',
         ]);
 
-        $company = Company::findOrFail($id);
+        $company = Firm::findOrFail($id);
         $company->update($request->only(['company_name', 'address', 'telephone']));
 
         return redirect()->route('firma-tablosu.browse')->with('success', 'Firma başarıyla güncellendi.');
@@ -36,7 +36,7 @@ class CompanyController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        $company = Company::findOrFail($id);
+        $company = Firm::findOrFail($id);
         $company->delete();
 
         return redirect()->route('firma-tablosu.browse')->with('success', 'Firma başarıyla silindi.');

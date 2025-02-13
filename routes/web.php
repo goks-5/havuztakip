@@ -96,7 +96,7 @@ Route::group(['prefix' => ''], function () {
     
     // Firma Tablosu Browse Route
     Route::get('/firma-tablosu', function () {
-        $company = \App\Company::all(); // Doğru tablo adı kullanıldı
+        $company = \App\Firm::all();        // Doğru tablo adı kullanıldı
         return view('vendor.voyager.firma-tablosu.browse', compact('company'));
     })->name('firma-tablosu.browse');
     
@@ -112,7 +112,7 @@ Route::group(['prefix' => ''], function () {
 
     Route::get('/teklif-hazirla', function () {
         $offers = \App\Offer::all();
-        $users = \App\Company::pluck('user_name', 'id');
+        $users = \App\UserAccount::pluck('user_name', 'id');
         return view('vendor.voyager.teklif-hazirla.browse', compact('offers', 'users'));
     })->name('teklif-hazirla.browse');   
      

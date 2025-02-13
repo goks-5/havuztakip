@@ -8,7 +8,7 @@ use Carbon\Carbon; // Tarih işlemleri için
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\View;
 use App\Http\Controllers\Controller;
-use App\Company; 
+use App\Firm; 
 use App\Mail\OfferMail;
 use Illuminate\Support\Facades\Mail;
 
@@ -109,7 +109,7 @@ class OfferController extends Controller
             Log::info('Teklif Verisi:', $offer->toArray());
         }
 
-        $companies = Company::with('users')->get();
+        $companies = Firm::with('users')->get();
 
         return view('vendor.voyager.teklif-hazirla.browse', compact('offers', 'companies'));
     }

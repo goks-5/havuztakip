@@ -4,14 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\UserAccount; 
-use App\Company;
+use App\Firm;
 
 class UserController extends Controller
 {
     public function index(Request $request)
     {
         $users = UserAccount::all();
-        $companies = Company::all(['company_name']);
+        $companies = Firm::all(['company_name']);
         return view('vendor.voyager.kullanici-tablosu.browse', compact('users', 'companies'));
     }
 
