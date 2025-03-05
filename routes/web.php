@@ -9,6 +9,8 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TeklifController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\MeasurementController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -133,6 +135,8 @@ Route::group(['prefix' => ''], function () {
     Route::put('/offer/update/{id}', [OfferController::class, 'update'])->name('offer.update');
     Route::post('/offer/set-editable/{id}', [OfferController::class, 'setEditable'])->name('offer.setEditable');
     Route::post('/offer/send/{id}', [OfferController::class, 'send'])->name('offer.send');
+    
+    Route::get('/get-sum-for-tag', [MeasurementController::class, 'getSumForTag'])->name('getSumForTag');
     
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
