@@ -70,7 +70,11 @@
 
                             case 'go_to_tab_button':
                                 gototab(lastdata[k]);
-                                break;    
+                                break;
+                                
+                            case 'oee_report':
+                            oeeReport(lastdata[k]);
+                            break;
 
                         }
                     });
@@ -413,6 +417,70 @@ function DeviceChart(data) {
             });
         }
         
+        function oeeReport(data) {
+    // data = { 'tool_12': {tool_id:12, chartLabels:[], chartData:[], kullanilabilirlik:..., ...}, 'tool_15': {...} }
+    Object.keys(data).forEach(function(key) {
+        var chartInfo = data[key];
+        var toolId = chartInfo.tool_id; // 12, 15 vb.
+
+        // HTML'de benzersiz ID'ler kullanacağız, mesela:
+        // <div id="statusChart_tool_12"></div> gibi
+        var statusChartId = "statusChart_tool_" + toolId;
+        var donutChartId  = "oeeDonutChart_tool_" + toolId;
+
+        // ECharts init
+        var statusChart = echarts.init(document.getElementById(statusChartId));
+        var donutChart  = echarts.init(document.getElementById(donutChartId));
+
+        // Bar Chart options
+        var optionStatus = {
+            title: { text: 'Cihaz Çalışma Grafiği', left: 'center' },
+            xAxis: { type: 'category', data: chartInfo.chartLabels },
+            yAxis: { type: 'value' },
+            series: [{
+                data: chartInfo.chartData,
+                type: 'bar'
+            }]
+        };
+        statusChart.setOption(optionStatus);
+
+        // Donut Chart options
+        var oeeValue = chartInfo.oee;
+        var donutOption = {
+            title: {
+                text: 'OEE',
+                left: 'center',
+                textStyle: { fontSize: 20, fontWeight: 'bold' }
+            },
+            series: [{
+                type: 'pie',
+                radius: ['40%', '60%'],
+                label: {
+                    show: true,
+                    position: 'center',
+                    formatter: function(params) {
+                        return params.dataIndex === 0 ? params.data.value + '%' : '';
+                    },
+                    fontSize: 16,
+                    fontWeight: 'bold',
+                    color: '#333'
+                },
+                labelLine: { show: false },
+                data: [
+                    { value: oeeValue, name: 'OEE', itemStyle: { color: '#4CAF50' } },
+                    { value: 100 - oeeValue, name: 'Kalan', itemStyle: { color: '#e0e0e0' } }
+                ]
+            }]
+        };
+        donutChart.setOption(donutOption);
+
+        // Resize vs. eklemek isterseniz:
+        window.addEventListener('resize', function () {
+            statusChart.resize();
+            donutChart.resize();
+        });
+    });
+}
         function faults(data) {
             Object.keys(data).forEach(function(k) {
 

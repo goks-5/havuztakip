@@ -15,14 +15,23 @@ class DashboardTool extends Model
 {
     public function ajaxdata($tools)
     {
-        $return = array();
+        $return = [];
         foreach ($tools as $tool) {
             $type = $tool->type;
             $settings = json_decode($tool->settings, true);
-            $return[$type]['tool_' . $tool->id] = $this->$type($settings, $tool->id);
+    
+            // "oee_report" tipindeki tool ise, özel fonksiyonu çağır:
+            if ($type === 'oee_report') {
+                $return[$type]['tool_' . $tool->id] = $this->oee_report($settings, $tool->id);
+            }
+            // Değilse, eski usül $this->$type(...) çağır
+            else {
+                $return[$type]['tool_' . $tool->id] = $this->$type($settings, $tool->id);
+            }
         }
         return json_encode($return);
     }
+    
 
     public function device_data_gauge($settings, $tool)
     {
@@ -272,6 +281,52 @@ class DashboardTool extends Model
             'dashboards' => $dashboards
         ];
     }    
+
+    public function oee_report($settings, $toolId)
+{
+    // Örnek: Blade'deki hesaplamaları buraya taşıyoruz
+    // 1) Gerekli model ve değişkenleri al
+    $deviceId   = $settings['device'] ?? null;
+    $hour       = isset($settings['hour']) ? intval($settings['hour']) : 6;
+    $startTime  = Carbon::now()->subHours($hour);
+
+    // Örnek kullanım değişkenleri
+    $plannedProductionTime = $settings['planned_production_time'] ?? 60;
+    $actualOutput          = $settings['actual_output'] ?? 0;
+    $expectedOutput        = $settings['expected_output'] ?? 1;
+
+    // Burada $totalWorkingMinutes, $chartData, $chartLabels gibi değerleri hesaplayın
+    // ...
+    // Örnek basit atamalar (kendi kodunuzdakini uyarlayın):
+    $totalWorkingMinutes = 120; // örnek
+    $chartLabels = ["08:00", "09:00", "10:00"]; 
+    $chartData   = [10, 20, 40]; 
+
+    // Kullanılabilirlik, Performans, Kalite ve OEE hesapları
+    $kullanilabilirlik = round(($totalWorkingMinutes / $plannedProductionTime) * 100);
+    $performans        = round(($expectedOutput > 0) ? ($actualOutput / $expectedOutput) * 100 : 0);
+    $kalite            = 100;
+    $oee               = round(($kullanilabilirlik * $performans * $kalite) / 10000, 1);
+
+    // Dönüşte ihtiyacınız olan her şeyi dizi olarak verin:
+    return [
+        'tool_id'            => $toolId,
+        'chartLabels'        => $chartLabels,
+        'chartData'          => $chartData,
+        'kullanilabilirlik'  => $kullanilabilirlik,
+        'performans'         => $performans,
+        'kalite'             => $kalite,
+        'oee'                => $oee,
+        // Tooltip'te göstermek istediğiniz diğer bilgiler
+        'device_name'        => 'Cihaz Adı',
+        'tag_name'           => 'Etiket Adı',
+        'timeRange'          => "Son {$hour} Saat",
+        'totalWorkingMinutes'=> $totalWorkingMinutes,
+        'plannedProductionTime' => $plannedProductionTime,
+        'actualOutput'       => $actualOutput,
+        'expectedOutput'     => $expectedOutput,
+    ];
+}
 
     public function device_chart($settings, $tool)
     {
