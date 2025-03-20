@@ -9,8 +9,9 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TeklifController;
 use App\Http\Controllers\OfferController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\BillsController;
 use App\Http\Controllers\MeasurementController;
-
 
 /*
 |--------------------------------------------------------------------------
@@ -135,7 +136,15 @@ Route::group(['prefix' => ''], function () {
     Route::put('/offer/update/{id}', [OfferController::class, 'update'])->name('offer.update');
     Route::post('/offer/set-editable/{id}', [OfferController::class, 'setEditable'])->name('offer.setEditable');
     Route::post('/offer/send/{id}', [OfferController::class, 'send'])->name('offer.send');
+    Route::post('/offer/update-details/{id}', [OfferController::class, 'updateDetails'])->name('offer.updateDetails');
     
+    Route::post('/project/store', [ProjectController::class, 'store'])->name('project.store');
+    // Teklif iptal route'u
+    Route::post('/offer/cancel/{id}', [OfferController::class, 'cancel'])->name('offer.cancel');
+    Route::get('/project/view/{offerId}', [ProjectController::class, 'view'])->name('project.view');
+    
+    Route::post('/fatura/store', [BillsController::class, 'store'])->name('fatura.store');
+
     Route::get('/get-sum-for-tag', [MeasurementController::class, 'getSumForTag'])->name('getSumForTag');
     
     Voyager::routes();

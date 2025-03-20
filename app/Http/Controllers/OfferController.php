@@ -213,4 +213,27 @@ class OfferController extends Controller
     }
 }
 
+    public function cancel(Request $request, $id)
+    {
+        // is_editable = 3 yaparak iptal
+        Offer::where('id', $id)->update(['is_editable' => 3]);
+
+        return response()->json([
+            'message' => 'Teklif başarıyla iptal edildi.',
+        ]);
+    }
+
+    public function updateDetails(Request $request, $id)
+    {
+        $request->validate([
+            'details' => 'required|string',
+        ]);
+
+        $offer = Offer::findOrFail($id);
+        $offer->details = $request->details;
+        $offer->save();
+
+        return response()->json(['success' => true, 'message' => 'Detay güncellendi!']);
+    }
+
 }
