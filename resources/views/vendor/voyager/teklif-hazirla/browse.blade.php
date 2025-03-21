@@ -37,6 +37,7 @@
                         <!-- Yeni eklenen sütun: Küçük yuvarlak (durum göstergesi) -->
                         <th>#</th>
                         <th>ID</th>
+                        <th>Firma</th>
                         <th>Teklif No</th>
                         <th>Talep No</th>
                         <th>Başlık</th>
@@ -77,6 +78,7 @@
                                 <div style="width: 16px; height: 16px; border-radius: 50%; margin: 0 auto; background-color: {{ $circleColor }};"></div>
                             </td>
                             <td>{{ $offer->id }}</td>
+                            <td>{{ $offer->company }}</td>
                             <td>{{ $offer->offer_no }}</td>
                             <td>{{ $offer->demand_no }}</td>
                             <td>{{ $offer->title }}</td>
@@ -200,6 +202,45 @@
                     @endforelse
                 </tbody>
             </table>
+           <!-- Sayfalama linki buraya -->
+            <div class="d-flex justify-content-end mt-3">
+                <nav aria-label="Sayfalama">
+                    <ul class="pagination justify-content-end">
+                        {{-- Önceki Sayfa Butonu --}}
+                        @if ($offers->onFirstPage())
+                            <li class="page-item disabled">
+                                <span class="page-link">Önceki</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $offers->previousPageUrl() }}" rel="prev">Önceki</a>
+                            </li>
+                        @endif
+
+                        {{-- Sayfa Numaraları --}}
+                        @foreach ($offers->links()->elements as $element)
+                            @if (is_array($element))
+                                @foreach ($element as $page => $url)
+                                    <li class="page-item {{ $page == $offers->currentPage() ? 'active' : '' }}">
+                                        <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                    </li>
+                                @endforeach
+                            @endif
+                        @endforeach
+
+                        {{-- Sonraki Sayfa Butonu --}}
+                        @if ($offers->hasMorePages())
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $offers->nextPageUrl() }}" rel="next">Sonraki</a>
+                            </li>
+                        @else
+                            <li class="page-item disabled">
+                                <span class="page-link">Sonraki</span>
+                            </li>
+                        @endif
+                    </ul>
+                </nav>
+            </div>
         </div>
     </div>
 </div>

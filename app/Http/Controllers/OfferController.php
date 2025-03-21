@@ -103,7 +103,7 @@ class OfferController extends Controller
     public function index(Request $request)
     {
         // Teklif verileri
-        $offers = Offer::all();
+        $offers = Offer::orderBy('id', 'desc')->paginate(10); // ← sayfalama: 10 kayıt
 
         foreach ($offers as $offer) {
             Log::info('Teklif Verisi:', $offer->toArray());
