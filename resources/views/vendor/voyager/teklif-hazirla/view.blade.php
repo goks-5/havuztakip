@@ -37,46 +37,46 @@
     </div>
 
     <!-- Başlık (Title) -->
-    <div style="text-align: center; margin-top: 57mm; font-size: 16pt; font-weight: bold; color: #333;">
+    <div style="text-align: center; margin-top: 57mm; font-size: 14pt; font-weight: bold; color: #333;">
         {{ $offer->title }}
     </div>
 
     <!-- İlgili Şirket -->
-    <div style="text-align: left; margin-top: 3mm; font-size: 14pt; font-weight: normal; color: #333;">
+    <div style="text-align: left; margin-top: 3mm; font-size: 12pt; font-weight: normal; color: #333;">
         {{ $offer->company }}
     </div>
 
     <!-- İlgili Kişi -->
-    <div style="text-align: left; margin-top: 3mm; font-size: 14pt; font-weight: normal; color: #333;">
+    <div style="text-align: left; margin-top: 3mm; font-size: 12pt; font-weight: normal; color: #333;">
         Sayın {{ $offer->person_name }},
     </div>
 
     <!-- Ürün veya Hizmet Tablosu -->
     <div style="margin-top: 10mm;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 9pt; text-align: left;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 8pt; text-align: left;">
             <thead>
                 <tr style="background-color: #0056b3; color: white;">
-                    <th style="padding: 10px; border: 1px solid #ddd;">Açıklama</th>
-                    <th style="padding: 10px; border: 1px solid #ddd;">Adet</th>
-                    <th style="padding: 10px; border: 1px solid #ddd;">Birim Fiyat</th>
-                    <th style="padding: 10px; border: 1px solid #ddd;">Toplam</th>
+                    <th style="padding: 6px; border: 1px solid #ddd;">Açıklama</th>
+                    <th style="padding: 6px; border: 1px solid #ddd;">Adet</th>
+                    <th style="padding: 6px; border: 1px solid #ddd;">Birim Fiyat</th>
+                    <th style="padding: 6px; border: 1px solid #ddd;">Toplam</th>
                 </tr>
             </thead>
             <tbody>
                 @if (!empty($offer->unit_price) && !empty($offer->total_price))
                     @foreach (explode(',', $offer->unit_price) as $index => $unit_price)
                     <tr>
-                        <td style="padding: 10px; border: 1px solid #ddd;">
+                        <td style="padding: 6px; border: 1px solid #ddd;">
                             {{ explode(',', $offer->explanation)[$index] ?? 'Açıklama yok' }}
                         </td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">{{ explode(',', $offer->piece)[$index] ?? '0' }}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">{{ number_format($unit_price, 2) }} {{ $offer->currency }}</td>
-                        <td style="padding: 10px; border: 1px solid #ddd;">{{ number_format(explode(',', $offer->total_price)[$index] ?? 0, 2) }} {{ $offer->currency }}</td>
+                        <td style="padding: 6px; border: 1px solid #ddd;">{{ explode(',', $offer->piece)[$index] ?? '0' }}</td>
+                        <td style="padding: 6px; border: 1px solid #ddd;">{{ number_format($unit_price, 2) }} {{ $offer->currency }}</td>
+                        <td style="padding: 6px; border: 1px solid #ddd;">{{ number_format(explode(',', $offer->total_price)[$index] ?? 0, 2) }} {{ $offer->currency }}</td>
                     </tr>
                     @endforeach
                 @else
                     <tr>
-                        <td colspan="4" style="padding: 10px; text-align: center; border: 1px solid #ddd;">Veri bulunamadı.</td>
+                        <td colspan="4" style="padding: 6px; text-align: center; border: 1px solid #ddd;">Veri bulunamadı.</td>
                     </tr>
                 @endif
             </tbody>
@@ -91,20 +91,20 @@
     </div>
 
     <!-- Not -->
-    <div style="margin-top: 10mm; text-align: left; font-size: 12pt; color: #333;">
+    <div style="margin-top: 10mm; text-align: left; font-size: 10pt; color: #333;">
         <em>*Fiyatlara KDV dahil değildir ve peşin ödeme geçerlidir.</em>
     </div>
 
     <!-- Onay Kutusu -->
     <!-- 15-20 px yukarı: top: 215mm (önce 230mm idi) -->
-    <div class="onay-kutusu" style="position: absolute; top: 180mm; left: 130mm; text-align: center; font-size: 12pt;">
+    <div class="onay-kutusu" style="position: absolute; top: 210mm; left: 130mm; text-align: center; font-size: 12pt;">
         <label style="font-weight: bold; color: #333; display: block; margin-bottom: 5px;">Onay</label>
         <div style="width: 60mm; height: 20mm; border: 2px solid #333; border-radius: 3px; cursor: pointer;"></div>
     </div>
 
     <!-- Notlar Tablo Satırı -->
     <!-- 15-20 px yukarı: top: 225mm (önce 240mm idi) -->
-    <div style="position: absolute; top: 185mm; left: 20mm; right: 20mm;">
+    <div style="position: absolute; top: 220mm; left: 20mm; right: 20mm;">
         <table style="width: 60%; border-collapse: collapse; font-size: 11pt;">
             <tr>
             <td style="background-color: #0056b3 !important; color: white !important; padding: 10px !important; border-radius: 5px !important; text-align: left !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
@@ -171,7 +171,7 @@
             }
 
             html2canvas(containers[index], {
-                scale: 2,
+                scale: 1.5,
                 useCORS: true
             }).then(canvas => {
                 let imgData = canvas.toDataURL("image/png");
@@ -180,11 +180,11 @@
 
                 if (index === 0) {
                     // İlk sayfa
-                    doc.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+                    doc.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight, '', 'FAST'); // kaliteyi düşürür
                 } else {
                     // İkinci sayfa
                     doc.addPage();
-                    doc.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+                    doc.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight, '', 'FAST'); // kaliteyi düşürür
                 }
 
                 // Sonraki container'a geç
