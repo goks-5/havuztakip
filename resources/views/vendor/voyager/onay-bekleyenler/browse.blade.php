@@ -4,33 +4,47 @@
 <div class="page-content container-fluid">
     <div class="row">
         <div class="col-md-12">
-            
-            <!-- Başlık + Arama + Kapat (aynı satırda) -->
+
+            <!-- Başlık + Arama + Kapat (tek satır, sağa yaslı) -->
             <div class="row" style="margin-top: 30px; margin-bottom: 5px;">
+                <!-- Sol tarafta başlık -->
                 <div class="col-md-4 d-flex align-items-center">
                     <h3 style="color: #444; font-weight: 600; margin: 0;">
                         Onay Bekleyen İş Emirleri
                     </h3>
                 </div>
+                
+                <!-- Sağ tarafta: arama + kapat butonu, inline-block -->
                 <div class="col-md-8 text-right">
-                    <div class="form-inline" style="justify-content: flex-end;">
-                        <form action="{{ route('onay-bekleyenler.browse') }}" method="GET" class="d-inline-block">
-                            <input type="hidden" name="status" value="Onay |1|">
-                            <input type="text"
-                                name="search"
-                                value="{{ request('search') }}"
-                                class="form-control"
-                                placeholder="Ara..."
-                                onkeyup="this.form.submit()"
-                                style="margin-right: 8px;">
-                        </form>
-                        <form method="POST" action="{{ route('arizalar.kapat') }}" id="closeForm" class="d-inline-block">
-                           @csrf
-                            <input type="hidden" name="action" value="close_selected">
-                            <input type="hidden" name="selected_ids" id="selected_ids_input">
-                            <button type="submit" class="btn btn-danger" onclick="return handleCloseClick()">Arızayı Kapat</button>
-                        </form>
-                    </div>
+                    <!-- Arama Formu -->
+                    <form action="{{ route('onay-bekleyenler.browse') }}"
+                          method="GET"
+                          style="display: inline-block; vertical-align: middle; margin-right: 10px;">
+                        <input type="hidden" name="status" value="Onay |1|">
+                        <input type="text"
+                               name="search"
+                               value="{{ request('search') }}"
+                               class="form-control"
+                               placeholder="Ara..."
+                               onkeyup="this.form.submit()"
+                               style="display: inline-block; width: auto; vertical-align: middle;">
+                    </form>
+
+                    <!-- Arıza Kapat Formu -->
+                    <form method="POST"
+                          action="{{ route('arizalar.kapat') }}"
+                          id="closeForm"
+                          style="display: inline-block; vertical-align: middle;">
+                        @csrf
+                        <input type="hidden" name="action" value="close_selected">
+                        <input type="hidden" name="selected_ids" id="selected_ids_input">
+                        <button type="submit"
+                                class="btn btn-danger"
+                                style="vertical-align: middle;"
+                                onclick="return handleCloseClick()">
+                            Arızayı Kapat
+                        </button>
+                    </form>
                 </div>
             </div>
 
