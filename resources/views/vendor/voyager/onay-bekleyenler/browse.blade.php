@@ -47,6 +47,7 @@
                     </form>
                 </div>
             </div>
+            <!-- /Başlık + Arama + Kapat Satırı -->
 
             <!-- Tablo -->
             <div class="table-responsive mb-3">
@@ -67,12 +68,21 @@
                                 <th>Arıza Tamamlanma Zamanı</th>
                                 <th>Bakımcı</th>
                                 <th>Bakımcı Notu</th>
+                                <!-- Mevcut sütunlar bitince, son sütun: İşlemler -->
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($faults as $fault)
-                                <tr style="background-color: #ccffcc; color: #333;">
-                                    <td><input type="checkbox" name="selected_faults[]" value="{{ $fault->id }}"></td>
+                                @php
+                                    // Tüm satırlara açık yeşil arka plan veriyoruz:
+                                    $rowBgColor = '#ccffcc';
+                                    $rowTextColor = '#333';
+                                @endphp
+                                <tr style="background-color: {{ $rowBgColor }}; color: {{ $rowTextColor }};">
+                                    <td>
+                                        <input type="checkbox" name="selected_faults[]" value="{{ $fault->id }}">
+                                    </td>
                                     <td>{{ $fault->status }}</td>
                                     <td>{{ optional($fault->equipment)->name }}</td>
                                     <td>{{ $fault->fault_type }}</td>
@@ -83,12 +93,42 @@
                                     <td>{{ $fault->finish_at }}</td>
                                     <td>{{ optional($fault->staff)->name }}</td>
                                     <td>{{ $fault->maintainer_note }}</td>
+                                    
+                                    <!-- İşlemler Sütunu: Göster, Düzenle, Sil Butonları -->
+                                    <td>
+                                        <!-- Göster Butonu -->
+                                        <a href="{{ route('yeni-gelen-is-emirleri.show', $fault->id) }}"
+                                           class="btn btn-sm btn-info"
+                                           title="Göster">
+                                            <i class="voyager-eye"></i>
+                                        </a>
+                                        
+                                        <!-- Düzenle Butonu -->
+                                        <a href="{{ route('yeni-gelen-is-emirleri.edit', $fault->id) }}"
+                                           class="btn btn-sm btn-warning"
+                                           title="Düzenle">
+                                            <i class="voyager-edit"></i>
+                                        </a>
+                                        
+                                        <!-- Sil Butonu -->
+                                        <form action="{{ route('yeni-gelen-is-emirleri.destroy', $fault->id) }}"
+                                              method="POST"
+                                              style="display: inline-block;"
+                                              onsubmit="return confirm('Kaydı silmek istediğinize emin misiniz?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Sil">
+                                                <i class="voyager-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </form>
             </div>
+            <!-- /Tablo -->
 
             <!-- Sayfalama -->
             <div class="row">
@@ -101,6 +141,7 @@
                     </div>
                 </div>
             </div>
+            <!-- /Sayfalama -->
 
         </div>
     </div>

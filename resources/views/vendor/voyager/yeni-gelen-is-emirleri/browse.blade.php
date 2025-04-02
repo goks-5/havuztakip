@@ -48,13 +48,15 @@
                                 <th>Arıza Tamamlanma Zamanı</th>
                                 <th>Bakımcı</th>
                                 <th>Bakımcı Notu</th>
+                                <!-- Yeni sütun: Eylemler -->
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($faults as $fault)
                                 @php
-                                    // "Yeni" statüsü için örnek arka plan ve metin rengi ayarlıyoruz
-                                    $rowBgColor = '#ffcccc'; // Açık kırmızı ton
+                                    // Örnek arka plan ve metin rengi
+                                    $rowBgColor = '#ffcccc';
                                     $rowTextColor = '#333';
                                 @endphp
                                 <tr style="background-color: {{ $rowBgColor }}; color: {{ $rowTextColor }};">
@@ -68,6 +70,94 @@
                                     <td>{{ $fault->finish_at }}</td>
                                     <td>{{ optional($fault->staff)->name }}</td>
                                     <td>{{ $fault->maintainer_note }}</td>
+
+                                    <!-- İşlemler sütunu: Göster, Düzenle, Sil, Arızayı Kabul Et -->
+                                    <td>
+                                        <!-- Göster Butonu -->
+                                        <a href="{{ route('yeni-gelen-is-emirleri.show', $fault->id) }}"
+                                        class="btn btn-sm btn-info"
+                                        title="Göster">
+                                            <i class="voyager-eye"></i>
+                                        </a>
+                                        
+                                        <!-- Düzenle Butonu -->
+                                        <a href="{{ route('yeni-gelen-is-emirleri.edit', $fault->id) }}"
+                                        class="btn btn-sm btn-warning"
+                                        title="Düzenle">
+                                            <i class="voyager-edit"></i>
+                                        </a>
+                                        
+                                        <!-- Sil Butonu -->
+                                        <form action="{{ route('yeni-gelen-is-emirleri.destroy', $fault->id) }}"
+                                            method="POST"
+                                            style="display: inline-block;"
+                                            onsubmit="return confirm('Kaydı silmek istediğinize emin misiniz?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Sil">
+                                                <i class="voyager-trash"></i>
+                                            </button>
+                                        </form>
+
+                                        <!-- Arızayı Kabul Et Butonu (Uçak ikonu) -->
+                                        <button type="button"
+                                                class="btn btn-sm btn-dark"
+                                                data-toggle="modal"
+                                                data-target="#acceptModal-{{ $fault->id }}"
+                                                title="Arızayı Kabul Et">
+                                            <i class="voyager-paper-plane"></i>
+                                        </button>
+
+                                    <!-- Modal -->
+                                    <div class="modal fade"
+                                        id="acceptModal-{{ $fault->id }}"
+                                        tabindex="-1"
+                                        role="dialog"
+                                        aria-labelledby="acceptModalLabel-{{ $fault->id }}"
+                                        aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                        <div class="modal-content">
+                                        <form action="{{ route('yeni-gelen-is-emirleri.accept', $fault->id) }}" method="POST">
+                                           @csrf
+                                            <!-- Modal Header -->
+                                            <div class="modal-header bg-primary text-white" style="position: relative; padding-top: 1rem; padding-bottom: 1rem;">
+                                                <!-- Çarpı butonu sağ üst köşede -->
+                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat" style="outline: none; position: absolute; top: 0.5rem; right: 1rem;">
+                                                <span aria-hidden="true">&times;</span>
+                                                </button>
+                                                <!-- Başlık, ekstra margin-top ile aşağı çekildi -->
+                                                <h4 class="modal-title text-center" id="acceptModalLabel-{{ $fault->id }}" style="font-size: 1.2rem; margin-top: 2.5rem; width: 100%;">
+                                                    Arızayı Kabul Et
+                                                </h4>
+                                            </div>
+
+                                            <!-- Modal Body -->
+                                            <div class="modal-body">
+                                                <div class="form-group">
+                                                    <label for="staff_id-{{ $fault->id }}">Bakımcı</label>
+                                                    <select name="staff_id"
+                                                            id="staff_id-{{ $fault->id }}"
+                                                            class="form-control">
+                                                    <option value="">Seçiniz</option>
+                                                    @foreach($staffs as $staff)
+                                                        <option value="{{ $staff->id }}">{{ $staff->name }}</option>
+                                                    @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <!-- Modal Footer -->
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Kapat</button>
+                                                <!-- Kabul Et butonunu btn-primary yaparak header ile aynı renge getiriyoruz -->
+                                                <button type="submit" class="btn btn-primary">Kabul Et</button>
+                                            </div>
+                                        </form>
+                                        </div>
+                                    </div>
+                                    </div>
+                                    <!-- End Modal -->
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
