@@ -31,8 +31,8 @@
                         
                         <!-- PDF Butonu -->
                         <a href="{{ route('yeni-gelen-is-emirleri.pdf', $fault->id) }}"
-                           class="btn btn-sm btn-success"
-                           title="PDF">
+                        class="btn btn-sm btn-success"
+                        title="PDF">
                             <i class="voyager-file-text"></i>
                         </a>
 

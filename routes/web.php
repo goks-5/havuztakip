@@ -207,13 +207,11 @@ Route::group(['prefix' => ''], function () {
     Route::post('yeni-gelen-is-emirleri/{id}/process', [FaultController::class, 'process'])
      ->name('yeni-gelen-is-emirleri.process');
 
-    // PDF için HTML view'ı döndüren rota (yalnızca PDF oluşturma amacıyla)
-    Route::get('yeni-gelen-is-emirleri/{id}/pdfView', [FaultController::class, 'pdfView'])
-    ->name('yeni-gelen-is-emirleri.pdfView');
-
-    // wkhtmltopdf ile PDF oluşturup indirme yapan rota
-    Route::get('yeni-gelen-is-emirleri/{id}/pdf', [FaultController::class, 'pdf'])
+    Route::get('yeni-gelen-is-emirleri/{id}/pdf', [\App\Http\Controllers\FaultController::class, 'pdf'])
     ->name('yeni-gelen-is-emirleri.pdf');
+
+    Route::get('yeni-gelen-is-emirleri/{id}/pdfView', [\App\Http\Controllers\FaultController::class, 'pdfView'])
+     ->name('yeni-gelen-is-emirleri.pdfView');
 
     Route::get('/islemdekiler', function () {
         // "Bekliyor |0|" ve "Bakıma Başlandı |0|" statülerine sahip kayıtları getiriyoruz.
@@ -337,6 +335,8 @@ Route::group(['prefix' => ''], function () {
         return view('vendor.voyager.tamamlananlar.browse', compact('faults'));
     })->name('tamamlananlar.browse');
 
+    Route::get('/tamamlananlar', [FaultController::class, 'tamamlananlarBrowse'])->name('tamamlananlar.browse');
+
     Route::get('/tum-is-emirleri', function () {
         // Filtrelenecek durumlar
         $statusList = [
@@ -386,6 +386,9 @@ Route::group(['prefix' => ''], function () {
 
         return view('vendor.voyager.tum-is-emirleri.browse', compact('faults', 'statusList'));
     })->name('tum-is-emirleri.browse');
+
+    Route::get('/tum-is-emirleri', [FaultController::class, 'tumIsEmirleriBrowse'])
+    ->name('tum-is-emirleri.browse');
 
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);

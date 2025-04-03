@@ -18,9 +18,9 @@
             <div class="form-group">
                 <label for="status">Durum</label>
                 <select name="status" id="status" class="form-control">
-                    @foreach($statuses as $status)
-                        <option value="{{ $status }}" @if($fault->status == $status) selected @endif>
-                            {{ ucfirst($status) }}
+                    @foreach($mappedStatuses as $label => $dbValue)
+                        <option value="{{ $dbValue }}" @if($fault->status === $dbValue) selected @endif>
+                            {{ $label }}
                         </option>
                     @endforeach
                 </select>
@@ -81,16 +81,23 @@
                 <input type="text" name="created_at" id="created_at" class="form-control" value="{{ $fault->created_at }}" readonly>
             </div>
             
-            <!-- Arıza Tamamlanma Zamanı -->
+            <!-- Arıza Tamamlanma Zamanı (datetime picker) - boş gelmeli -->
             <div class="form-group">
                 <label for="finish_at">Arıza Tamamlanma Zamanı</label>
-                <input type="text" name="finish_at" id="finish_at" class="form-control" value="{{ $fault->finish_at }}">
+                <input type="datetime-local" name="finish_at" id="finish_at" class="form-control" placeholder="Tarih ve saat seçin">
             </div>
             
-            <!-- Bakımcı -->
+            <!-- Bakımcı - Dropdown (Staff list) -->
             <div class="form-group">
-                <label for="staff">Bakımcı</label>
-                <input type="text" name="staff" id="staff" class="form-control" value="{{ optional($fault->staff)->name }}">
+                <label for="staff_id">Bakımcı</label>
+                <select name="staff_id" id="staff_id" class="form-control">
+                    <option value="">Seçiniz</option>
+                    @foreach($staffs as $staff)
+                        <option value="{{ $staff->id }}" {{ optional($fault->staff)->id == $staff->id ? 'selected' : '' }}>
+                            {{ $staff->name }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
             
             <!-- Bakımcı Notu -->
@@ -102,4 +109,5 @@
             <button type="submit" class="btn btn-primary">Kaydet</button>
         </form>
     </div>
+</div>
 @endsection

@@ -14,10 +14,9 @@
                         </h3>
                     </div>
                     
-                    <!-- Sağ tarafta dropdown ve search box -->
+                    <!-- Sağ tarafta dropdown, tarih aralığı ve search box -->
                     <div class="col-md-8 text-right">
                         <form action="{{ route('tum-is-emirleri.browse') }}" method="GET" class="form-inline" style="justify-content: flex-end;">
-
                             <!-- Durum Filtre Dropdown -->
                             <select name="status" onchange="this.form.submit()" style="vertical-align: middle; margin-right: 8px;" class="form-control">
                                 @foreach($statusList as $value => $label)
@@ -27,7 +26,18 @@
                                 @endforeach
                             </select>
 
-                            <!-- Arama Kutusu (buton yok, otomatik submit) -->
+                            <!-- Tarih Aralığı Tek Input (flatpickr ile) -->
+                            <input type="text"
+                                   id="date_range"
+                                   name="date_range"
+                                   value="{{ request('date_range') }}"
+                                   class="form-control"
+                                   placeholder="Tarih Aralığı Seçin"
+                                   style="margin-right: 8px; width: 250px;"
+                                   readonly
+                            >
+
+                            <!-- Arama Kutusu -->
                             <input type="text"
                                    name="search"
                                    value="{{ request('search') }}"
@@ -41,7 +51,22 @@
                 </div>
                 <!-- /Başlık + Filtre + Arama Satırı -->
 
-                <!-- Tabloyu sarmalayan container ile boşluk sağlanıyor -->
+                <!-- Flatpickr için CSS ve JS -->
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+                <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+                <script>
+                    flatpickr("#date_range", {
+                        mode: "range",
+                        enableTime: true,
+                        dateFormat: "Y-m-d H:i",
+                        time_24hr: true,
+                        onClose: function(selectedDates, dateStr, instance) {
+                            instance.input.form.submit(); // tarih seçilince form otomatik submit olur
+                        }
+                    });
+                </script>
+
+                <!-- Tablo -->
                 <div class="table-responsive mb-3">
                     <table class="table table-bordered table-striped table-hover">
                         <thead>
@@ -60,9 +85,8 @@
                         </thead>
                         <tbody>
                             @foreach($faults as $fault)
-
                                 @php
-                                    // Varsayılan arka plan ve metin rengi
+                                    // Arka plan rengi, statüye göre örnek ayarlamalar
                                     $rowBgColor = '#FFFFFF';
                                     $rowTextColor = '#333';
 
@@ -92,34 +116,15 @@
                                 @endphp
 
                                 <tr style="background-color: {{ $rowBgColor }}; color: {{ $rowTextColor }};">
-                                    <!-- Durum -->
                                     <td>{{ $fault->status }}</td>
-
-                                    <!-- Ekipman (equipment ilişkisinden name) -->
                                     <td>{{ optional($fault->equipment)->name }}</td>
-
-                                    <!-- Arıza Tipi -->
                                     <td>{{ $fault->fault_type }}</td>
-
-                                    <!-- Arıza Kodu -->
                                     <td>{{ $fault->fault_code }}</td>
-
-                                    <!-- Arıza Açıklaması -->
                                     <td>{{ $fault->fault_comment }}</td>
-
-                                    <!-- Bildiren Personel -->
                                     <td>{{ $fault->reporting_user }}</td>
-
-                                    <!-- Oluşturma Tarihi -->
                                     <td>{{ $fault->created_at }}</td>
-
-                                    <!-- Arıza Tamamlanma Zamanı -->
                                     <td>{{ $fault->finish_at }}</td>
-
-                                    <!-- Bakımcı (staff ilişkisinden name) -->
                                     <td>{{ optional($fault->staff)->name }}</td>
-
-                                    <!-- Bakımcı Notu -->
                                     <td>{{ $fault->maintainer_note }}</td>
                                 </tr>
                             @endforeach
@@ -134,7 +139,8 @@
                         <div class="pull-right">
                             {{ $faults->appends([
                                 'status' => request('status'),
-                                'search' => request('search')
+                                'search' => request('search'),
+                                'date_range' => request('date_range')
                             ])->links() }}
                         </div>
                     </div>

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Fault;
-use PDF; // Barryvdh/Dompdf facadesini kullanabilmek için
 
 class FaultController extends Controller
 {
@@ -89,8 +88,16 @@ class FaultController extends Controller
     {
         $fault = Fault::findOrFail($id);
 
-        // Durum seçenekleri
-        $statuses = ['Yeni', 'İşleme alındı', 'Başladı', 'Firma', 'Malzeme', 'Onay', 'Biten'];
+        // Durum eşlemesi: kullanıcıya gösterilecek etiket => veritabanına kaydedilecek değer
+        $mappedStatuses = [
+            'Yeni'              => 'Yeni',
+            'İşleme alındı'     => 'Bekliyor |0|',
+            'Başladı'           => 'Bakıma Başlandı |0|',
+            'Firma'             => 'Firma Yönlendirildi |2|',
+            'Malzeme'           => 'Malzeme Bekliyor |2|',
+            'Onay'              => 'Onay |1|',
+            'Biten'             => 'Bitti |1|',
+        ];
 
         // Arıza tipi seçenekleri
         $fault_types = ['Arıza', 'Bakım', 'Planlı Duruş', 'Montaj', 'ISG', 'Diğer'];
@@ -107,10 +114,111 @@ class FaultController extends Controller
             '800' => 'Montaj'
         ];
 
-        // Ekipmanları, fault kaydındaki company_id'ye göre filtrele
+        // İlgili ekipmanlar (örneğin fault kaydındaki company_id'ye göre)
         $equipments = \App\Equipment::where('company_id', $fault->company_id)->get();
 
-        return view('vendor.voyager.yeni-gelen-is-emirleri.edit', compact('fault', 'statuses', 'fault_types', 'fault_codes', 'equipments'));
+        // Bakımcı listesi (tüm staff kayıtları)
+        $staffs = \App\Staff::all();
+
+        return view('vendor.voyager.yeni-gelen-is-emirleri.edit', compact(
+            'fault',
+            'mappedStatuses',
+            'fault_types',
+            'fault_codes',
+            'equipments',
+            'staffs'
+        ));
+    }
+
+    public function tamamlananlarBrowse(Request $request)
+    {
+        $query = Fault::where('status', 'Bitti |1|')->orderBy('created_at', 'desc');
+
+        // Arama filtresi
+        if ($search = $request->input('search')) {
+            $query->where(function($q) use ($search) {
+                $q->where('fault_type', 'like', "%{$search}%")
+                ->orWhere('fault_code', 'like', "%{$search}%")
+                ->orWhere('fault_comment', 'like', "%{$search}%")
+                ->orWhere('reporting_user', 'like', "%{$search}%")
+                ->orWhere('maintainer_note', 'like', "%{$search}%");
+                $q->orWhereHas('staff', function($staffQuery) use ($search) {
+                    $staffQuery->where('name', 'like', "%{$search}%");
+                });
+                $q->orWhereHas('equipment', function($equipQuery) use ($search) {
+                    $equipQuery->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // Tarih aralığı filtresi
+        if ($range = $request->input('date_range')) {
+            $dates = explode(' to ', $range);
+            if (count($dates) === 2) {
+                $start = trim($dates[0]);
+                $end = trim($dates[1]);
+                $query->whereBetween('created_at', [$start, $end]);
+            }
+        }
+
+        $faults = $query->paginate(100);
+
+        return view('vendor.voyager.tamamlananlar.browse', compact('faults'));
+    }
+
+    public function tumIsEmirleriBrowse(Request $request)
+    {
+        $query = Fault::orderBy('created_at', 'desc');
+
+        // Status filtresi varsa uygula
+        if ($status = $request->input('status')) {
+            $query->where('status', $status);
+        }
+
+        // Genel arama
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('status', 'like', "%{$search}%")
+                  ->orWhere('fault_type', 'like', "%{$search}%")
+                  ->orWhere('fault_code', 'like', "%{$search}%")
+                  ->orWhere('fault_comment', 'like', "%{$search}%")
+                  ->orWhere('reporting_user', 'like', "%{$search}%")
+                  ->orWhere('maintainer_note', 'like', "%{$search}%");
+                $q->orWhereHas('staff', function($staffQuery) use ($search) {
+                    $staffQuery->where('name', 'like', "%{$search}%");
+                });
+                $q->orWhereHas('equipment', function($equipQuery) use ($search) {
+                    $equipQuery->where('name', 'like', "%{$search}%");
+                });
+            });
+        }
+
+        // Tarih aralığı filtresi (tek input, range modunda geliyor)
+        if ($range = $request->input('date_range')) {
+            // flatpickr, aralığı "2025-04-01 00:00 to 2025-04-02 23:59" gibi string döndürür
+            $dates = explode(' to ', $range);
+            if (count($dates) === 2) {
+                $start = trim($dates[0]);
+                $end = trim($dates[1]);
+                $query->whereBetween('created_at', [$start, $end]);
+            }
+        }
+
+        $faults = $query->paginate(100);
+
+        // Status listesini oluşturuyoruz (örnek)
+        $statusList = [
+            '' => 'Tümü',
+            'Yeni' => 'Yeni',
+            'Bekliyor |0|' => 'Bekliyor',
+            'Bakıma Başlandı |0|' => 'Bakıma Başlandı',
+            'Firma Yönlendirildi |2|' => 'Firmaya Yönlendirildi',
+            'Malzeme Bekliyor |2|' => 'Malzeme Bekleniyor',
+            'Onay |1|' => 'Onay',
+            'Bitti |1|' => 'Bitti',
+        ];
+
+        return view('vendor.voyager.tum-is-emirleri.browse', compact('faults', 'statusList'));
     }
 
     public function update(Request $request, $id)
@@ -119,7 +227,7 @@ class FaultController extends Controller
         $fault = Fault::findOrFail($id);
 
         // Formdan gelen verileri kayda uygula (örnek)
-        $fault->status = $request->input('status');
+        $fault->status = $request->input('status'); 
         $fault->fault_type = $request->input('fault_type');
         $fault->fault_code = $request->input('fault_code');
         $fault->fault_comment = $request->input('fault_comment');
@@ -146,19 +254,7 @@ class FaultController extends Controller
                         ->with('success', 'Kayıt başarıyla silindi!');
     }
 
-    public function pdfView(Request $request, $id)
-    {
-        $fault = Fault::findOrFail($id);
-        // PDF için kullanılacak view. (pdf.blade.php)
-        return view('vendor.voyager.yeni-gelen-is-emirleri.pdf', compact('fault'));
-    }
-
-    public function pdf($id)
-    {
-        $fault = Fault::findOrFail($id);
-        $pdf = PDF::loadView('vendor.voyager.yeni-gelen-is-emirleri.pdf', compact('fault'));
-        return $pdf->download('ariza_' . $fault->id . '.pdf');
-    }
+    
     
     public function browse(Request $request)
     {
@@ -187,6 +283,41 @@ class FaultController extends Controller
         // 4. Başarılı işlem sonrası liste sayfasına yönlendir
         return redirect()->route('yeni-gelen-is-emirleri.browse')
                         ->with('success', 'Arıza kabul edildi ve bakımcı atandı.');
+    }
+
+    public function pdf($id)
+    {
+        $fault = Fault::findOrFail($id);
+        $url = route('yeni-gelen-is-emirleri.pdfView', $fault->id);
+        $filename = 'ariza_' . $fault->id . '.pdf';
+        $pdfPath = storage_path('app/public/' . $filename);
+
+        // wkhtmltopdf komutu
+        $command = "wkhtmltopdf --enable-local-file-access "
+                . escapeshellarg($url) . " " . escapeshellarg($pdfPath);
+
+        // Komutu çalıştır
+        exec($command, $output, $return_var);
+
+        // Dönüş değeri 0 ise başarılı demektir
+        if ($return_var === 0) {
+            // PDF’i sunucudaki dosyadan okuyup kullanıcıya gönder
+            return response()->file($pdfPath, [
+                'Content-Type'        => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$filename.'"'
+            ]);
+        } else {
+            // Hata durumunda debug bilgisi göster
+            dd('PDF oluşturulamadı!', $return_var, $output, $command);
+        }
+    }
+
+    public function pdfView($id)
+    {
+        $fault = Fault::findOrFail($id);
+
+        // pdf.blade.php dosyanızı (resources/views/pdf.blade.php veya vendor/voyager/...) render edin
+        return view('vendor.voyager.yeni-gelen-is-emirleri.pdf', compact('fault'));
     }
 
     public function process(Request $request, $id)
