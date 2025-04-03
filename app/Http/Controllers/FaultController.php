@@ -114,8 +114,8 @@ class FaultController extends Controller
             '800' => 'Montaj'
         ];
 
-        // İlgili ekipmanlar (örneğin fault kaydındaki company_id'ye göre)
-        $equipments = \App\Equipment::where('company_id', $fault->company_id)->get();
+        // İlgili ekipmanlar 
+        $equipments = \App\Equipment::all();
 
         // Bakımcı listesi (tüm staff kayıtları)
         $staffs = \App\Staff::all();
