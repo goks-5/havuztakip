@@ -1,56 +1,64 @@
-  <H4>Son Arızalar Listesi</H4>
-  @include('ajax.dashboard.type.element.main', ['slug' => 'faults_table', 'ek' => 1])
-  <br>
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
 
-  <h5>Durumlar</h5>
-  <div>
-    <div class="col-xs-4">
-        <label class="control-label">Yeni</label>
-        <input type="checkbox" name="setting[status][5]" class="form-check-input" style="display:block"
-            value="Yeni" id='setting[status][5]'
-            {{ ($settings['status']['5'] ?? '0') == 'Yeni' ? 'checked' : '' }} />
-    </div>
-      <div class="col-xs-4">
-          <label class="control-label">Bekliyor</label>
-          <input type="checkbox" name="setting[status][0]" class="form-check-input" style="display:block"
-              value="Bekliyor |0|" id='setting[status][0]'
-              {{ ($settings['status']['0'] ?? '0') == 'Bekliyor |0|' ? 'checked' : '' }} />
-      </div>
-      <div class="col-xs-4">
-          <label class="control-label">Bakıma Başlandı</label>
-          <input type="checkbox" name="setting[status][1]" class="form-check-input" style="display:block"
-              value="Bakıma Başlandı |0|" id='setting[status][1]'
-              {{ ($settings['status']['1'] ?? '0') == 'Bakıma Başlandı |0|' ? 'checked' : '' }} />
-      </div>
-      <div class="col-xs-4">
-          <label class="control-label">Firma Yönlendirildi</label>
-          <input type="checkbox" name="setting[status][2]" class="form-check-input" style="display:block"
-              value="Firma Yönlendirildi |2|" id='setting[status][2]'
-              {{ ($settings['status']['2'] ?? '0') == 'Firma Yönlendirildi |2|' ? 'checked' : '' }} />
-      </div>
-      <div class="col-xs-4">
-          <label class="control-label">Malzeme Bekliyor</label>
-          <input type="checkbox" name="setting[status][3]" class="form-check-input" style="display:block"
-              value="Malzeme Bekliyor |2|" id='setting[status][3]'
-              {{ ($settings['status']['3'] ?? '0') == 'Malzeme Bekliyor |2|' ? 'checked' : '' }} />
-      </div>
-      <div class="col-xs-4">
-        <label class="control-label">Tamamlandı</label>
-        <input type="checkbox" name="setting[status][4]" class="form-check-input" style="display:block"
-            value="Onay |1|" id='setting[status][4]'
-            {{ ($settings['status']['4'] ?? '0') == 'Onay |1|' ? 'checked' : '' }} />
-    </div>     
+<!-- jQuery (Eğer sayfanızda yoksa) -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-  </div>
-  <br>
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
 
-  <div class="col-xs-6">
-      <label class="control-label">Veri Gösterme Limiti</label>
-      <input type="number" name="setting[limit]" class="form-control" value="{{ $settings['limit'] ?? '10' }}" />
-  </div>
+<h4>Son Arızalar Listesi</h4>
+<br>
 
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
+<h5>Durumlar</h5>
+<div class="form-group">
+  <select name="setting[status][]" 
+          class="form-control select2" 
+          multiple="multiple" 
+          style="width: 100%;">
+    <option value="Yeni"
+      {{ (is_array($settings['status'] ?? null) && in_array('Yeni', $settings['status'])) ? 'selected' : '' }}>
+      Yeni
+    </option>
+    <option value="Bekliyor |0|"
+      {{ (is_array($settings['status'] ?? null) && in_array('Bekliyor |0|', $settings['status'])) ? 'selected' : '' }}>
+      Bekliyor
+    </option>
+    <option value="Bakıma Başlandı |0|"
+      {{ (is_array($settings['status'] ?? null) && in_array('Bakıma Başlandı |0|', $settings['status'])) ? 'selected' : '' }}>
+      Bakıma Başlandı
+    </option>
+    <option value="Firma Yönlendirildi |2|"
+      {{ (is_array($settings['status'] ?? null) && in_array('Firma Yönlendirildi |2|', $settings['status'])) ? 'selected' : '' }}>
+      Firma Yönlendirildi
+    </option>
+    <option value="Malzeme Bekliyor |2|"
+      {{ (is_array($settings['status'] ?? null) && in_array('Malzeme Bekliyor |2|', $settings['status'])) ? 'selected' : '' }}>
+      Malzeme Bekliyor
+    </option>
+    <option value="Onay |1|"
+      {{ (is_array($settings['status'] ?? null) && in_array('Onay |1|', $settings['status'])) ? 'selected' : '' }}>
+      Tamamlandı
+    </option>
+  </select>
+</div>
+<br>
+
+<div class="form-group" style="width: 100%;">
+  <label class="control-label"><strong>Veri Gösterme Limiti</strong></label>
+  <input type="number" 
+         name="setting[limit]" 
+         class="form-control" 
+         style="width: 100%;" 
+         value="{{ $settings['limit'] ?? '10' }}" />
+</div>
+
+<!-- Select2 başlatma -->
+<script>
+  $(document).ready(function() {
+    $('.select2').select2({
+      placeholder: 'Durum(lar) seçiniz',
+      allowClear: true
+    });
+  });
+</script>

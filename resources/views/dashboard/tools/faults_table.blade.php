@@ -1,164 +1,207 @@
-<div class="tool_data row faults_table">
-    @include('dashboard.tools.toolSettings', ['tool' => $tool])
-    @php
-        $staffs = App\Staff::select('*')
-            ->where('company_id', Auth::user()->company_id)
-            ->get();
-        
-    @endphp
-    @can('browse', app('App\Fault'))
-        <div class="table-responsive">
-            <table id="faults_table_tool_{{ $tool->id }}" class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Durum</th>
-                        <th>Ekipman - Arıza Kodu - Açıklama</th>
-                        <th>Oluşturma</th>
-                        <th>Bildiren Personel</th>
-                        <th></th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
+@include('dashboard.tools.toolSettings',['tool'=>$tool])
 
-        <div class="modal fade" id="acceptModal" role="dialog">
-            <div class="modal-dialog">
+@php
+    // Şirket personellerini çekiyoruz (Bakımcı listesi)
+    $staffs = App\Staff::where('company_id', Auth::user()->company_id)->get();
 
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Arızayı Kabul Et</h4>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('faultsActions') }}" method="POST">
-                            {{ csrf_field() }}
-                            <input type="hidden" name='action' value='accept' />
-                            <input type="hidden" name='id' class='modalidinput' />
-                            <div class="form-group row">
-                                <label for="maintainer_id" class="col-md-4">Bakımcı</label>
-                                <select class="selector col-md-8" name='maintainer_id'>
-                                    <option value=''>Bakım Elemanı Seçin</option>
-                                    @foreach ($staffs as $staff)
-                                        <option value='{{ $staff->id }}'>{{ $staff->name }}</option>
-                                    @endforeach
-                                </select>
+    // Tool settings'ini JSON olarak alıp diziye çeviriyoruz
+    $settings = json_decode($tool->settings, true);
+    // Seçilen durumlar (status) ve limit değerini alıyoruz
+    $statuses = $settings['status'] ?? [];
+    $limit = $settings['limit'] ?? 10;
+
+    // Fault modelinde 'status' sütununa göre filtreleme yapıp, son eklenen $limit adet kaydı çekiyoruz.
+    $faults = App\Fault::whereIn('status', $statuses)
+                ->orderBy('created_at', 'desc')
+                ->limit($limit)
+                ->get();
+@endphp
+
+<div class="table-responsive">
+    <table id="faults_table_tool_{{ $tool->id }}" class="table table-hover">
+        <thead>
+            <tr>
+                <th>Durum</th>
+                <th>Ekipman</th>
+                <th>Arıza Kodu</th>
+                <th>Açıklama</th>
+                <th>Oluşturma</th>
+                <th>Bildiren Personel</th>
+                <th>İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($faults as $fault)
+                @php
+                    // Varsayılan arka plan ve metin rengi
+                    $rowBgColor = '#FFFFFF';
+                    $rowTextColor = '#333';
+
+                    // Statüye göre arka plan rengi ayarlaması
+                    switch ($fault->status) {
+                        case 'Yeni':
+                            $rowBgColor = '#ffcccc'; // Açık kırmızı
+                            break;
+                        case 'Bekliyor |0|':
+                            $rowBgColor = '#ffe5cc'; // Açık turuncu
+                            break;
+                        case 'Bakıma Başlandı |0|':
+                            $rowBgColor = '#ffffcc'; // Açık sarı
+                            break;
+                        case 'Firma Yönlendirildi |2|':
+                            $rowBgColor = '#ccf2ff'; // Açık mavi
+                            break;
+                        case 'Malzeme Bekliyor |2|':
+                            $rowBgColor = '#99e6ff'; // Bir tık koyu mavi
+                            break;
+                        case 'Onay |1|':
+                            $rowBgColor = '#ccffcc'; // Açık yeşil
+                            break;
+                        case 'Bitti |1|':
+                            $rowBgColor = '#99ff99'; // Bir tık koyu yeşil
+                            break;
+                    }
+                @endphp
+                <tr style="background-color: {{ $rowBgColor }}; color: {{ $rowTextColor }};">
+                    <td>{{ $fault->status }}</td>
+                    <td>{{ optional($fault->equipment)->name ?? 'Belirtilmemiş' }}</td>
+                    <td>{{ $fault->fault_code }}</td>
+                    <td>{{ $fault->fault_comment }}</td>
+                    <td>{{ $fault->created_at }}</td>
+                    <td>{{ $fault->reporting_user }}</td>
+                    <td>
+                        @if($fault->status === 'Yeni')
+                            <!-- Arızayı Kabul Et Butonu -->
+                            <button type="button"
+                                    class="btn btn-sm btn-dark"
+                                    data-toggle="modal"
+                                    data-target="#acceptModal-{{ $fault->id }}"
+                                    title="Arızayı Kabul Et"
+                                    style="display: block; margin-left: 0; width: 90px;">
+                                <i class="voyager-paper-plane"></i>
+                            </button>
+
+                            <!-- Arızayı Kabul Et Modalı -->
+                            <div class="modal fade"
+                                 id="acceptModal-{{ $fault->id }}"
+                                 tabindex="-1"
+                                 role="dialog"
+                                 aria-labelledby="acceptModalLabel-{{ $fault->id }}"
+                                 aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <form action="{{ route('yeni-gelen-is-emirleri.accept', $fault->id) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header bg-primary text-white">
+                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat" style="outline: none;">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                                <h4 class="modal-title" id="acceptModalLabel-{{ $fault->id }}">
+                                                    Arızayı Kabul Et
+                                                </h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="form-group" style="width: 100%;">
+                                                    <label for="staff_id-{{ $fault->id }}" style="display: block;">Bakımcı</label>
+                                                    <select name="staff_id"
+                                                            id="staff_id-{{ $fault->id }}"
+                                                            class="form-control"
+                                                            style="width: 100%; margin-top: 5px;">
+                                                        <option value="">Seçiniz</option>
+                                                        @foreach($staffs as $staff)
+                                                            <option value="{{ $staff->id }}">{{ $staff->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                                                    Kapat
+                                                </button>
+                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                    Kabul Et
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
+                        @else
+                            <!-- İşlem Gir Butonu -->
+                            <button type="button"
+                                    class="btn btn-sm btn-dark"
+                                    data-toggle="modal"
+                                    data-target="#processModal-{{ $fault->id }}"
+                                    title="İşlem Gir"
+                                    style="display: block; margin-left: 0; width: 90px;">
+                                <i class="voyager-fire"></i>
+                            </button>
 
-                            <input type="submit" class="btn btn-danger pull-right delete-confirm" value="Kabul Et">
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="actionModal" role="dialog">
-            <div class="modal-dialog">
-
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Arıza İşlemi</h4>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('faultsActions') }}" method="POST">
-
-                            <input type="hidden" name='action' value='action' />
-
-                            <input type="hidden" name='id' class='modalidinput' />
-                            <div class="form-group row">
-                                <label for="status" class="col-md-4">İşlem</label>
-                                <select class="selector col-md-8" name='status'>
-
-                                    <option value='Bekliyor |0|'>Bekliyor</option>
-                                    <option value='Bakıma Başlandı |0|'>Bakıma Başlandı</option>
-                                    <option value='Firma Yönlendirildi |2|'>Firma Yönlendirildi</option>
-                                    <option value='Malzeme Bekliyor |2|'>Malzeme Bekliyor</option>
-                                    <option value='Onay |1|'>Tamamlandı</option>
-
-                                </select>
+                            <!-- İşlem Gir Modalı -->
+                            <div class="modal fade"
+                                 id="processModal-{{ $fault->id }}"
+                                 tabindex="-1"
+                                 role="dialog"
+                                 aria-labelledby="processModalLabel-{{ $fault->id }}"
+                                 aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <form action="{{ route('yeni-gelen-is-emirleri.process', $fault->id) }}" method="POST">
+                                            @csrf
+                                            <div class="modal-header bg-primary text-white">
+                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat" style="outline: none;">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                                <h4 class="modal-title w-100 text-center"
+                                                    id="processModalLabel-{{ $fault->id }}"
+                                                    style="font-size: 1.3rem; margin-top: 2rem;">
+                                                    İşlem Gir
+                                                </h4>
+                                            </div>
+                                            <!-- Modal Body: Durum dropdown (550px), Açıklama input (550px) -->
+                                            <div class="modal-body">
+                                                <!-- Durum Alanı -->
+                                                <div class="form-group" style="margin-bottom: 20px;">
+                                                    <label for="status-{{ $fault->id }}" style="display: block;">Durum</label>
+                                                    <select name="status"
+                                                            id="status-{{ $fault->id }}"
+                                                            class="form-control"
+                                                            style="width: 550px; margin-top: 5px;">
+                                                        <option value="Bekliyor |0|">Bekliyor</option>
+                                                        <option value="Bakıma Başlandı |0|">Bakıma Başlandı</option>
+                                                        <option value="Firma Yönlendirildi |2|">Firmaya Yönlendirildi</option>
+                                                        <option value="Malzeme Bekliyor |2|">Malzeme Bekliyor</option>
+                                                        <option value="Onay |1|">Tamamlandı</option>
+                                                    </select>
+                                                </div>
+                                                <!-- Açıklama Alanı -->
+                                                <div class="form-group">
+                                                    <label for="comment-{{ $fault->id }}" style="display: block;">Açıklama</label>
+                                                    <input type="text"
+                                                           name="comment"
+                                                           id="comment-{{ $fault->id }}"
+                                                           class="form-control"
+                                                           placeholder="Açıklama girin..."
+                                                           style="width: 550px; margin-top: 5px;">
+                                                </div>
+                                            </div>
+                                            <!-- /Modal Body -->
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
+                                                    Kapat
+                                                </button>
+                                                <button type="submit" class="btn btn-sm btn-primary font-weight-bold">
+                                                    Kaydet
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group row">
-                                <label for="note" class="col-md-4">Açıklama</label>
-                                <textarea name="maintainer_note" class="col-md-8" rows="6"></textarea>
-                            </div>
-                            {{ csrf_field() }}
-                            <input type="hidden" name='id' class='modalidinput' />
-                            <input type="submit" class="btn btn-danger pull-right delete-confirm" value="İşlem Gir">
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="closeModal" role="dialog">
-            <div class="modal-dialog">
-
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Arızayı Kapat</h4>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="{{ route('faultsActions') }}" method="POST">
-                            {{ csrf_field() }}
-
-                            <input type="hidden" name='action' value='close' />
-                            <input type="hidden" name='id' class='modalidinput' />
-                            <input type="submit" class="btn btn-danger pull-right delete-confirm" value="Arızayı Kapat">
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-
-
-        <style>
-            .bekliyor td {
-                background: #FF5;
-                color: #526069;
-            }
-
-            .basladi td {
-                background: #FF8;
-                color: #526069;
-            }
-
-            .yonlendirildi td {
-                background: #aef;
-                color: #526069;
-            }
-
-            .m_bekliyor td {
-                background: #aef;
-                color: #526069;
-            }
-
-            .onay td {
-                background: #9F9;
-                color: #526069;
-            }
-
-            .yeni td {
-                background: #F33;
-                color: #FFF;
-            }
-        </style>
-    @endcan
-    @can('add', app('App\Fault'))
-    @endcan
-
+                        @endif
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
 </div>

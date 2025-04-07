@@ -482,43 +482,6 @@ function DeviceChart(data) {
     });
 }
         function faults(data) {
-            Object.keys(data).forEach(function(k) {
-
-                if ($('#' + k).length) {
-                    var options = {
-                        title: 'Arızalar',
-                        pieHole: 0.4,
-                        pieSliceText: 'value',
-                        // is3D : true,
-                        slices: {
-                            0: {
-                                color: '#ff3333'
-                            },
-                            1: {
-                                color: '#99ff99'
-                            },
-                            2: {
-                                color: '#ffff55'
-                            },
-                            3: {
-                                color: '#ffff88'
-                            },
-                            4: {
-                                color: '#aaeeff'
-                            },
-                            5: {
-                                color: '#99ddee'
-                            }
-                        },
-                    };
-
-                    var chart = new google.visualization.PieChart(document.getElementById(k));
-                    var data2 = new google.visualization.arrayToDataTable(data[k]['fault']);
-
-                    chart.draw(data2, options);
-                }
-            });
-
 
         }
 
@@ -573,89 +536,10 @@ function DeviceChart(data) {
                                               $fontcolor = "#526069";
                                               break;
                                               case 'Yeni':*/
+        
         function faultsTable(data) {
-            Object.keys(data).forEach(function(k) {
-
-                if ($.fn.dataTable.isDataTable('#faults_table_' + k)) {
-                    var t = $('#faults_table_' + k).DataTable();
-                } else {
-                    var t = $('#faults_table_' + k).DataTable({
-                        "searching": false,
-                        "order": [
-                            [2, 'desc']
-                        ],
-                        paging: false,
-                        "info": false,
-                        "createdRow": function(row, data, dataIndex) {
-                            if (data[0].includes("Bekliyor |0|")) {
-                                $(row).addClass('bekliyor');
-                            } else if (data[0].includes("Bakıma Başlandı |0|")) {
-                                $(row).addClass('basladi');
-                            } else if (data[0].includes("Firma Yönlendirildi |2|")) {
-                                $(row).addClass('yonlendirildi');
-                            } else if (data[0].includes("Malzeme Bekliyor |2|")) {
-                                $(row).addClass('m_bekliyor');
-                            } else if (data[0].includes("Onay |1|")) {
-                                $(row).addClass('onay');
-                            } else if (data[0].includes("Yeni")) {
-                                $(row).addClass('yeni');
-                            }
-                        }
-                    });
-                }
-
-
-                t.clear();
-                Object.keys(data[k]).forEach(function(s) {
-                    actionbtn = '';
-                    @can('accept', app('App\Fault'))
-                        if (data[k][s]['status'] == 'Yeni') {
-                            actionbtn = '<a href="#" title="Kabul Et" data-id ="' +
-                                data[k][s]['id'] +
-                                '" class="btn btn-sm btn-danger pull-right edit modalidset" data-toggle="modal"  data-target="#acceptModal" >' +
-                                '<i class="voyager-paper-plane"></i> <span class="hidden-xs hidden-sm">Kabul Et</span></a>';
-                        } else if (data[k][s]['status'] != 'Onay |1|' && data[k][s]['status'] !=
-                            'Bitti |1|') {
-                            actionbtn = '<a href="#" title="İşlem Gir" data-id ="' +
-                                data[k][s]['id'] +
-                                '" class="btn btn-sm btn-warning pull-right edit modalidset" data-toggle="modal"  data-target="#actionModal">' +
-                                '<i class="voyager-fire"></i> <span class="hidden-xs hidden-sm">İşlem Gir</span></a>';
-                        }
-                    @endcan
-
-                    @can('close', app('App\Fault'))
-                        if (data[k][s]['status'] == 'Onay |1|') {
-
-                            actionbtn = '<a href="#" title="Arızayı Kapat" data-id ="' +
-                                data[k][s]['id'] +
-                                '" class="btn btn-sm btn-primary pull-right edit modalidset" data-toggle="modal"  data-target="#closeModal">' +
-                                '<i class="voyager-lightbulb"></i> <span class="hidden-xs hidden-sm">Arızayı Kapat</span></a>';
-                        }
-                    @endcan
-
-
-                    t.row.add([
-                    '<p title="Raporlayan : ' +
-                    data[k][s]['reporting_user'] + // mevcut bildiren personel verisi
-                    ' , Bakımcı : ' + data[k][s]['staff'] +
-                    '">' + data[k][s]['status'] + '</p>',
-                    data[k][s]['equipment'] +
-                    ' - ' + data[k][s]['fault_code'] +
-                    '<br>' +  data[k][s]['fault_comment'],
-                    '<p title="Kabul Edilme : ' + data[k][s]['accepted_at'] +
-                    '">' + data[k][s]['created_at'] + '</p>',
-                    data[k][s]['reporting_user'], // Yeni eklenen sütun için bildiren personel verisi
-                    actionbtn
-                ]).draw(false);
-
-                });
-            });
-        }
-
-        $('.faults_table').on('click', '.modalidset', function() {
-            console.log($(this).data('id'));
-            $('.modalidinput').val($(this).data('id'));
-        });
+       
+    }
 
 
         function period(data) {

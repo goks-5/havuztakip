@@ -355,41 +355,12 @@ class DashboardTool extends Model
     
     public function faults($settings, $tool)
     {
-        $value['fault'][] = ['Durum', 'Adet'];
-        $value['fault'][] = ['Yeni Arıza', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Yeni')->count()];
-        $value['fault'][] = ['Onay Bekleyen', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Onay |1|')
-            ->where('created_at', '>=', Carbon::now()->subHours('24')->toDateTimeString())->count()];
-        $value['fault'][] = ['Beklemede Olan', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Bekliyor |0|')->count()];
-        $value['fault'][] = ['Bakıma Başlanan', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Bakıma Başlandı |0|')->count()];
-        $value['fault'][] = ['Parça Bekleyen', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Malzeme Bekliyor |2|')->count()];
-        $value['fault'][] = ['Firmaya Yönlendirilen', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Firma Yönlendirildi |2|')->count()];
-
-        return $value;
+    
     }
 
     public function faults_table($settings, $tool)
     {
-        $faults = Fault::where('company_id', Auth::user()->company_id)
-            ->whereIn('status', $settings['status'])
-            ->orderBy('created_at', 'desc')
-            ->limit($settings['limit'])->get();
-        $return = [];
-        foreach ($faults as $fault) {
-            $return[] = [
-                'id' => $fault->id,
-                'equipment' => optional($fault->equipment)->name ?? 'No Equipment', // Null ise varsayılan değer döner
-                'staff' => optional($fault->staff)->name ?? 'No Staff',
-                'created_at' => $fault->created_at->format('Y-m-d H:i:s'),
-                'accepted_at' => $fault->accepted_at ? $fault->accepted_at->format('Y-m-d H:i:s') : null,
-                'fault_code' => $fault->fault_code ?? 'No Fault Code', // Null ise varsayılan metin döner
-                'fault_comment' => $fault->fault_comment ?? 'No Comment',
-                'reporting_user' => $fault->reporting_user,
-                'status' => $fault->status,
-            ];
-            
-        }
-
-        return $return;
+        
     }
 
     public function backgroud($settings, $tool)

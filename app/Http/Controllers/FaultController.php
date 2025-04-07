@@ -268,21 +268,19 @@ class FaultController extends Controller
     
     public function accept(Request $request, $id)
     {
-        // 1. Arızayı bul
         $fault = Fault::findOrFail($id);
 
-        // 2. Formdan gelen staff_id değerini maintainer_id alanına ata
+        // 1. Formdan gelen staff_id değerini maintainer_id alanına ata
         $fault->maintainer_id = $request->input('staff_id');
 
-        // İsterseniz statüyü de değiştirebilirsiniz (örnek)
+        // 2. Durumu güncelle (örnek: Bekliyor |0|)
         $fault->status = 'Bekliyor |0|';
 
         // 3. Veritabanına kaydet
         $fault->save();
 
-        // 4. Başarılı işlem sonrası liste sayfasına yönlendir
-        return redirect()->route('yeni-gelen-is-emirleri.browse')
-                        ->with('success', 'Arıza kabul edildi ve bakımcı atandı.');
+        // 4. Başarılı işlem sonrası mevcut sayfada kal
+        return redirect()->back()->with('success', 'Arıza kabul edildi ve bakımcı atandı.');
     }
 
     public function pdf($id)
