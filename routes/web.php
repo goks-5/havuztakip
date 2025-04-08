@@ -390,6 +390,11 @@ Route::group(['prefix' => ''], function () {
     Route::get('/tum-is-emirleri', [FaultController::class, 'tumIsEmirleriBrowse'])
     ->name('tum-is-emirleri.browse');
 
+    Route::get('/projeler', function () {
+        $offers = DB::table('offer')->where('is_editable', 2)->get();
+        return view('vendor.voyager.projeler.browse', compact('offers'));
+    })->name('projeler.browse');
+    
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });

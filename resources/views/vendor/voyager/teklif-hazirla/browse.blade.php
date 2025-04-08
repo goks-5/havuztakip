@@ -116,7 +116,7 @@
                                     data-id="{{ $offer->id }}"
                                     style="
                                         display: {{ $offer->is_editable == 1 ? 'inline-block' : 'none' }};
-                                        background-color: #9B59B6;  /* Mor ton */
+                                        background-color: #9B59B6;
                                         border-color: #9B59B6;
                                         color: #fff;
                                     ">
@@ -149,8 +149,8 @@
                                     data-caliscak_kisi="{{ $offer->caliscak_kisi_sayisi ?? '' }}"
                                     style="
                                         display: {{ $offer->is_editable == 0 ? 'inline-block' : 'none' }};
-                                        background-color: #006400; 
-                                        border-color: #006400; 
+                                        background-color: #006400;
+                                        border-color: #006400;
                                         color: #fff;
                                     ">
                                     <i class="voyager-folder"></i>
@@ -202,7 +202,7 @@
                     @endforelse
                 </tbody>
             </table>
-           <!-- Sayfalama linki buraya -->
+            <!-- Sayfalama linki -->
             <div class="d-flex justify-content-end mt-3">
                 <nav aria-label="Sayfalama">
                     <ul class="pagination justify-content-end">
@@ -345,7 +345,7 @@
     </div>
 </div>
 
-<!-- Detay Modal -->
+<!-- Detay Modal (CKEditor eklendi) -->
 <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -358,7 +358,7 @@
       <div class="modal-body">
         <div class="form-group">
           <label for="detailInput">Detay</label>
-          <textarea class="form-control" id="detailInput" rows="5" placeholder=""></textarea>
+          <textarea class="form-control" id="detailInput" rows="5" placeholder="Detayları buraya giriniz"></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -369,7 +369,7 @@
   </div>
 </div>
 
-<!-- YENİ EKLENEN MODAL: Proje Oluştur -->
+<!-- Proje Oluştur Modal -->
 <div class="modal fade" id="projectCreateModal" tabindex="-1" role="dialog" aria-labelledby="projectCreateModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -407,8 +407,15 @@
 @endsection
 
 @section('javascript')
+<!-- CKEditor CDN -->
+<script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
 <script>
     $(document).ready(function () {
+        // CKEditor'ü 'detailInput' textarea üzerinde başlatma
+        if (typeof CKEDITOR !== 'undefined') {
+            CKEDITOR.replace('detailInput');
+        }
+
         // Durum filtreleme
         $('#statusFilter').on('change', function () {
             var selectedStatus = $(this).val();
@@ -438,9 +445,9 @@
             $('#offerTableBody').append(`
                 <tr>
                     <td>${rowNumber}</td>
-                    <td><input type="text" name="description[]" class="form-control" placeholder="Açıklama"></td>
-                    <td><input type="number" name="quantity[]" class="form-control quantity" placeholder="Adet" step="1" min="0"></td>
-                    <td><input type="number" name="unit_price[]" class="form-control unit-price" placeholder="Birim fiyat" step="0.01" min="0"></td>
+                    <td><input type="text" name="description[]" class="form-control" placeholder="Açıklama" required></td>
+                    <td><input type="number" name="quantity[]" class="form-control quantity" placeholder="Adet" step="1" min="0" required></td>
+                    <td><input type="number" name="unit_price[]" class="form-control unit-price" placeholder="Birim fiyat" step="0.01" min="0" required></td>
                     <td><input type="number" name="total_price[]" class="form-control total-price" placeholder="Toplam fiyat" readonly></td>
                 </tr>
             `);
@@ -581,30 +588,29 @@
         // Detay butonuna tıklanınca offerId'yi modal'a aktar ve modalı aç
         $(document).on('click', '.detail-offer-button', function() {
             var offerId = $(this).data('id');
-            // Modal elementine data-attribute olarak saklayın
             $('#detailModal').data('offerId', offerId).modal('show');
         });
 
-        // Detay modalındaki Kaydet butonuna tıklayınca AJAX ile detay güncellemesi yap
+        // Detay modalındaki Kaydet butonuna tıklayınca CKEditor üzerinden veriyi alıp AJAX ile gönderme
         $('#saveDetailBtn').on('click', function() {
-        var detailText = $('#detailInput').val();
-        var offerId = $('#detailModal').data('offerId'); // Saklanan offer id'sini al
-        $.ajax({
-            url: '/offer/update-details/' + offerId,
-            type: 'POST',
-            data: {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                details: detailText
-            },
-            success: function(response) {
-                console.log(response.message); // Alert yerine konsola yazdırıyoruz.
-                $('#detailModal').modal('hide');
-            },
-            error: function(xhr) {
-                console.error('Detay güncelleme hatası:', xhr.responseText);
-            }
+            var detailText = CKEDITOR.instances.detailInput.getData();
+            var offerId = $('#detailModal').data('offerId');
+            $.ajax({
+                url: '/offer/update-details/' + offerId,
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    details: detailText
+                },
+                success: function(response) {
+                    console.log(response.message);
+                    $('#detailModal').modal('hide');
+                },
+                error: function(xhr) {
+                    console.error('Detay güncelleme hatası:', xhr.responseText);
+                }
+            });
         });
-    });
 
         // Oluştur butonuna tıklama (sayfa yenilemeden güncelleme)
         $(document).on('click', '.create-offer-button', function () {
@@ -614,18 +620,16 @@
                 type: 'POST',
                 data: {
                     _token: $('meta[name="csrf-token"]').attr('content'),
-                    is_editable: 0 // Yeni durum: 0 (Teklif oluşturuldu)
+                    is_editable: 0
                 },
                 success: function () {
-                    // Butonları güncelle
                     $(`button.edit-offer-button[data-id="${offerId}"]`).hide();
                     $(`button.create-offer-button[data-id="${offerId}"]`).hide();
                     $(`button.send-offer-button[data-id="${offerId}"]`).show();
                     $(`button.project-create-button[data-id="${offerId}"]`).show();
                     $(`button.project-cancel-button[data-id="${offerId}"]`).show();
                     
-                    // Güncel durumu DOM'da anlık güncelle
-                    var newStatus = 0; // Teklif oluşturuldu
+                    var newStatus = 0;
                     var circleColor, statusText;
                     switch(newStatus){
                         case 1:
@@ -652,12 +656,9 @@
                             circleColor = 'gray';
                             statusText = 'Durum bilinmiyor';
                     }
-                    // Satırın data-status attribute'unu güncelle
                     const $row = $(`tr[data-id="${offerId}"]`);
                     $row.attr('data-status', newStatus);
-                    // İlk hücredeki dairenin rengini güncelle
                     $row.find('td:first div').css('background-color', circleColor);
-                    // Son hücredeki durumu güncelle
                     $row.find('td:last').text(statusText);
                 },
                 error: function (error) {
@@ -717,7 +718,6 @@
                     $(`button.project-create-button[data-id="${offerId}"]`).hide();
                     $(`button.project-cancel-button[data-id="${offerId}"]`).hide();
                     
-                    // Yeni durum: 3 (Teklif iptal edildi)
                     var newStatus = 3;
                     var circleColor = 'red';
                     var statusText = 'Teklif iptal edildi';

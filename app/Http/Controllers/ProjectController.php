@@ -34,18 +34,24 @@ class ProjectController extends Controller
     }
 
     public function view($offerId)
-{
-    // 1) project tablosundan, offer_id= $offerId olan kaydı bul
-    $project = Project::where('offer_id', $offerId)->firstOrFail();
-
-    // 2) offer tablosundan kaydı bul
-    $offer = Offer::findOrFail($offerId);
-
-    // 3) bills tablosundan, project_id = $project->id olan faturaları çek
-    $bills = \App\Bills::where('project_id', $project->id)->get();
-
-    // 4) view dosyasına verileri gönder
-    return view('vendor.voyager.teklif-hazirla.project', compact('project', 'offer', 'bills'));
-}
+    {
+        // 1) project tablosundan, offer_id= $offerId olan kaydı bul
+        $project = Project::where('offer_id', $offerId)->firstOrFail();
+    
+        // 2) offer tablosundan kaydı bul
+        $offer = Offer::findOrFail($offerId);
+    
+        // 3) bills tablosundan, project_id = $project->id olan faturaları çek
+        $bills = \App\Bills::where('project_id', $project->id)->get();
+    
+        // 4) CurrencyController'dan döviz kurlarını çekiyoruz.
+        // Bu metodu ayrı bir CurrencyController içinde oluşturduysanız, aşağıdaki şekilde çağırabilirsiniz:
+        $currencyData = app('App\Http\Controllers\CurrencyController')->getRates();
+        $usdRate = $currencyData['USD'];
+        $eurRate = $currencyData['EUR'];
+    
+        // 5) view dosyasına verileri gönder
+        return view('vendor.voyager.teklif-hazirla.project', compact('project', 'offer', 'bills', 'usdRate', 'eurRate'));
+    }    
 
 }

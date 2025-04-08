@@ -16,6 +16,7 @@ class BillsController extends Controller
             'fatura_numarasi' => 'required|integer|min:0',
             'fatura_bedeli'   => 'required|numeric|min:0',
             'tedarikci'       => 'required|string|max:255',
+            'para_birimi'     => 'required|in:TRY,USD,EUR', // Yeni eklenen alan
         ]);
 
         // Yeni fatura kaydını oluştur
@@ -25,10 +26,10 @@ class BillsController extends Controller
             'fatura_numarasi' => $request->fatura_numarasi,
             'fatura_bedeli'   => $request->fatura_bedeli,
             'tedarikci'       => $request->tedarikci,
+            'para_birimi'     => $request->para_birimi, // Yeni eklenen alanın kaydı
         ]);
 
         // Başarılı işlem sonrası geri yönlendir
         return redirect()->back()->with('success', 'Fatura başarıyla kaydedildi!');
     }
-    
 }

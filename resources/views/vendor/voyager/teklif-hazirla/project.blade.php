@@ -55,6 +55,7 @@
                                 <th>Fatura Adı</th>
                                 <th>Fatura Numarası</th>
                                 <th>Fatura Bedeli</th>
+                                <th>Para Birimi</th>
                                 <th>Tedarikçi</th>
                             </tr>
                         </thead>
@@ -64,6 +65,7 @@
                                     <td>{{ $bill->fatura_adi }}</td>
                                     <td>{{ $bill->fatura_numarasi }}</td>
                                     <td>{{ $bill->fatura_bedeli }}</td>
+                                    <td>{{ $bill->para_birimi }}</td>
                                     <td>{{ $bill->tedarikci }}</td>
                                 </tr>
                             @endforeach
@@ -79,6 +81,26 @@
         <!-- Kart Sonu -->
     </div>
     <!-- Container Sonu -->
+
+    <!-- Güncel Döviz Kurlarını Gösteren Bölüm -->
+    <div class="container py-4">
+        <hr>
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <p>
+                    <strong>Güncel Dolar Kuru:</strong>
+                    <i class="fa fa-usd" aria-hidden="true"></i>
+                    {{ $usdRate }} TL
+                </p>
+                <p>
+                    <strong>Güncel Euro Kuru:</strong>
+                    <i class="fa fa-eur" aria-hidden="true"></i>
+                    {{ $eurRate }} TL
+                </p>
+            </div>
+        </div>
+    </div>
+    <!-- Güncel Döviz Kurları Bölümü Sonu -->
 
 </div>
 <!-- Tüm sayfa beyaz arkaplan kapatma -->
@@ -117,6 +139,16 @@
                         <label for="fatura_bedeli">Fatura Bedeli</label>
                         <input type="number" class="form-control" id="fatura_bedeli" name="fatura_bedeli" min="0" required>
                     </div>
+                    <!-- 3.1) Para Birimi (Dropdown) -->
+                    <div class="form-group">
+                        <label for="para_birimi">Para Birimi</label>
+                        <select class="form-control" id="para_birimi" name="para_birimi" required>
+                            <option value="">Seçiniz</option>
+                            <option value="TRY">Türk Lirası</option>
+                            <option value="USD">Dolar</option>
+                            <option value="EUR">Euro</option>
+                        </select>
+                    </div>
                     <!-- 4) Tedarikçi -->
                     <div class="form-group">
                         <label for="tedarikci">Tedarikçi</label>
@@ -134,4 +166,5 @@
         </div>
     </div>
 </div>
+
 @endsection

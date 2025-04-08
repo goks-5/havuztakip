@@ -13,7 +13,8 @@ class Bills extends Model
         'fatura_adi',
         'fatura_numarasi',
         'fatura_bedeli',
-        'tedarikci'
+        'tedarikci',
+        'para_birimi'
     ];
 
     public $timestamps = false;
