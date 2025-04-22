@@ -54,6 +54,7 @@ class Ajax extends Controller
         $this->authorize('browse_admin');
         $devices = DB::table('devices')
             ->where('company_id', Auth::user()->company_id)
+            ->whereNull('deleted_at')
             ->get(['id', 'mac', 'name', 'tags', 'last_data', 'last_at', 'tags_last_change']);
         $timeout1 =  setting('device.ofline') * 60;
         $timeout2 =  setting('device.oflinesayac');
