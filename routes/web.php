@@ -14,6 +14,7 @@ use App\Http\Controllers\BillsController;
 use App\Http\Controllers\MeasurementController;
 use App\Fault;
 use App\Http\Controllers\FaultController;
+use App\Http\Controllers\VerilerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -394,6 +395,18 @@ Route::group(['prefix' => ''], function () {
         $offers = DB::table('offer')->where('is_editable', 2)->get();
         return view('vendor.voyager.projeler.browse', compact('offers'));
     })->name('projeler.browse');
+
+    Route::get('veriler', function () {
+        return view('vendor.voyager.veriler.browse');
+    })->name('voyager.veriler.browse');
+
+    Route::get('veriler/{id}', function ($id) {
+        $device = DB::table('devices')->find($id);
+        return view('vendor.voyager.veriler.show', compact('device'));
+    });
+
+    Route::get('veriler/{id}', [VerilerController::class, 'show'])
+     ->name('veriler.show');
     
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
