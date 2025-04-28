@@ -625,87 +625,55 @@ function DeviceChart(data) {
     function exportToTablo(divName) {
     console.log("Function triggered");
 
-    // 1. Get the table element containing the data
+    // 1. Tabloyu seç
     var table = document.getElementById(divName);
     if (!table) {
-        console.error("Table not found with the given divName:", divName);
+        console.error("Table not found:", divName);
         return;
     }
 
-    // 2. Create a new array to store formatted data
+    // 2. Tablo verilerini olduğu gibi al (formatı bozma)
     var tableData = [];
-
-    // 3. Include the headers (i.e., the dates row)
-    var headers = table.getElementsByTagName('thead')[0];
-    if (headers) {
-        var headerRowData = [];
-        var headerCols = headers.getElementsByTagName('th');
-        for (var h = 0; h < headerCols.length; h++) {
-            headerRowData.push(headerCols[h].innerText.trim());
-        }
-        tableData.push(headerRowData); // Add the header row to the table data
+    
+    // Başlıkları ekle (th)
+    var headers = table.querySelectorAll('thead th');
+    if (headers.length > 0) {
+        var headerRow = Array.from(headers).map(th => th.innerText.trim());
+        tableData.push(headerRow);
     }
 
-    // 4. Add the rest of the table's data (ignore rows without valid data)
-    var tableRows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-    for (var i = 0; i < tableRows.length; i++) {
+    // Satırları işle (td)
+    var rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
         var rowData = [];
-        var tableCols = tableRows[i].getElementsByTagName('td');
+        var cells = row.querySelectorAll('td');
+        cells.forEach(cell => {
+            // Hücre değerini formatlamadan olduğu gibi al
+            rowData.push(cell.innerText.trim());
+        });
+        if (rowData.length > 0) tableData.push(rowData);
+    });
 
-        for (var j = 0; j < tableCols.length; j++) {
-            var cellValue = tableCols[j].innerText.trim();
-
-            // Convert Turkish comma decimals to dots for proper Excel/Numbers recognition
-            cellValue = cellValue.replace(/\./g, '').replace(',', '.');
-
-            // Ensure that cellValue is treated as a number if it's numeric
-            if (!isNaN(cellValue) && cellValue !== '') {
-            // Ondalıklı sayılar için formatlama, ondalık kısmı gereksiz yere uzatmamak için
-            cellValue = parseFloat(cellValue).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 3 });
-            }
-            
-            rowData.push(cellValue);
-        }
-
-        // Only push the row if it contains actual data
-        if (rowData.length > 0 && rowData.some(val => val !== '')) {
-            tableData.push(rowData);
-        }
-    }
-
-    // 5. Create a workbook from the formatted table data
+    // 3. Excel dosyasını oluştur
     var worksheet = XLSX.utils.aoa_to_sheet(tableData);
+    
+    // 4. Türkçe formatı korumak için özel stil uygula
+    Object.keys(worksheet).forEach(key => {
+        if (!key.startsWith('!') && worksheet[key].v) {
+            // Sayısal değerleri tespit et (nokta/virgül içerenler)
+            if (typeof worksheet[key].v === 'string' && 
+                worksheet[key].v.match(/[\d.,]+/)) {
+                worksheet[key].t = 's'; // Türü string olarak zorla (formatı koru)
+            }
+        }
+    });
+
     var workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-
-    // 6. Create the Excel file in binary format
-    var wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
-
-    // 7. Helper function to convert the data to binary
-    function s2ab(s) {
-        var buf = new ArrayBuffer(s.length);
-        var view = new Uint8Array(buf);
-        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-        return buf;
-    }
-
-    // 8. Correct MIME type for Excel
-    var blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-    // 9. Create a link to download the file
-    var link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'tablo_verileri.xlsx'; // Name the file accordingly
-
-    // 10. Trigger the download process with a slight delay
-    setTimeout(function() {
-        link.click(); // Simulate a click on the download link
-        document.body.removeChild(link); // Remove the link from the DOM
-    }, 100); // Delay for 100ms
-
-    document.body.appendChild(link); // Append the link to the document
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Veriler");
+    
+    // 5. Dosyayı indir
+    XLSX.writeFile(workbook, 'tablo_verileri.xlsx');
 }
-
 
 
 function getTableData(table) {
