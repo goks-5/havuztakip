@@ -9,10 +9,10 @@
             <form action="{{ route('fault.store') }}" method="POST">
                 @csrf
 
-                <!-- Ekipman Dropdown -->
+                <!-- Ekipman Dropdown with Search -->
                 <div class="form-group">
                     <label for="equipmentSelect" style="font-weight: bold;">Ekipman</label>
-                    <select id="equipmentSelect" name="equipment_id" class="form-control" required>
+                    <select id="equipmentSelect" name="equipment_id" class="form-control select2-ajax" required>
                         <option value="">Seçiniz</option>
                         @foreach(\App\Equipment::all() as $equipment)
                             <option value="{{ $equipment->id }}">{{ $equipment->name }}</option>
@@ -71,4 +71,84 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('css')
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .select2-container--default .select2-selection--single {
+        height: 38px;
+        padding: 5px;
+        border: 1px solid #ced4da;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+</style>
+@endsection
+
+@section('javascript')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Basic Select2 with search
+    $('#equipmentSelect').select2({
+        placeholder: "Ekipman ara...",
+        allowClear: true,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "Sonuç bulunamadı";
+            },
+            searching: function() {
+                return "Aranıyor...";
+            },
+            inputTooShort: function() {
+                return "En az 1 karakter girin";
+            }
+        }
+    });
+
+    // Eğer çok fazla ekipman varsa, AJAX versiyonu (aktif değil)
+    /*
+    $('#equipmentSelect').select2({
+        ajax: {
+            url: '/equipment/search',
+            dataType: 'json',
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term,
+                    page: params.page || 1
+                };
+            },
+            processResults: function (data, params) {
+                params.page = params.page || 1;
+                return {
+                    results: data.data,
+                    pagination: {
+                        more: (params.page * 10) < data.total
+                    }
+                };
+            },
+            cache: true
+        },
+        placeholder: 'Ekipman ara...',
+        minimumInputLength: 1,
+        width: '100%',
+        language: {
+            noResults: function() {
+                return "Sonuç bulunamadı";
+            },
+            searching: function() {
+                return "Aranıyor...";
+            },
+            inputTooShort: function() {
+                return "En az 1 karakter girin";
+            }
+        }
+    });
+    */
+});
+</script>
 @endsection
