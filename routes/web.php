@@ -396,17 +396,13 @@ Route::group(['prefix' => ''], function () {
         return view('vendor.voyager.projeler.browse', compact('offers'));
     })->name('projeler.browse');
 
-    Route::get('veriler', function () {
-        return view('vendor.voyager.veriler.browse');
-    })->name('voyager.veriler.browse');
+    // Listeleme + arama
+    Route::get('veriler', [VerilerController::class, 'index'])
+    ->name('voyager.veriler.browse');
 
-    Route::get('veriler/{id}', function ($id) {
-        $device = DB::table('devices')->find($id);
-        return view('vendor.voyager.veriler.show', compact('device'));
-    });
-
+    // Tekil gösterim
     Route::get('veriler/{id}', [VerilerController::class, 'show'])
-     ->name('veriler.show');
+    ->name('veriler.show');
     
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);

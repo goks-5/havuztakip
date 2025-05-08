@@ -30,73 +30,76 @@
 @section('page_title', 'Veriler')
 
 @section('page_header')
-    <div class="page-header container-fluid">
-        <h1 class="page-title mb-0">
-            <i class="voyager-data"></i> Veriler
-        </h1>
-        <input type="text" id="searchBox" class="form-control form-control-sm" placeholder="Ara...">
-    </div>
+<form id="searchForm" method="GET" action="{{ route('voyager.veriler.browse') }}">
+  <div class="page-header container-fluid">
+    <h1 class="page-title mb-0">
+      <i class="voyager-data"></i> Veriler
+    </h1>
+    <input 
+      type="text" 
+      id="searchBox" 
+      name="search" 
+      class="form-control form-control-sm" 
+      placeholder="Ara..."
+      value="{{ old('search', $search) }}"
+    >
+  </div>
+</form>
 @stop
 
 @section('content')
 <div class="container-fluid">
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover" id="devicesTable">
-            <thead>
-                <tr>
-                    <th>Cihaz Id</th>
-                    <th>Cihaz Adı</th>
-                    <th>Son Veri Tarihi</th>
-                    <th>Etiketler</th>
-                    <th>Veriler</th> <!-- Yeni sütun -->
-                </tr>
-            </thead>
-            <tbody>
-                @php
-                    // Sadece silinmemişleri alıyoruz ve 10'arlı sayfalama
-                    $devices = DB::table('devices')
-                                ->whereNull('deleted_at')
-                                ->paginate(10);
-                @endphp
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover" id="devicesTable">
+      <thead>
+        <tr>
+          <th>Cihaz Id</th>
+          <th>Cihaz Adı</th>
+          <th>Son Veri Tarihi</th>
+          <th>Etiketler</th>
+          <th>Veriler</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($devices as $device)
+          <tr>
+            <td>{{ $device->device_id }}</td>
+            <td>{{ $device->name }}</td>
+            <td>{{ $device->last_at }}</td>
+            <td>
+              @foreach(json_decode($device->tags, true) ?: [] as $tag)
+                <div>{{ $tag }}</div>
+              @endforeach
+            </td>
+            <td>
+              <a href="{{ route('veriler.show', $device->id) }}"
+                 class="btn btn-sm btn-primary">
+                <i class="voyager-eye"></i>
+              </a>
+            </td>
+          </tr>
+        @endforeach
+      </tbody>
+    </table>
 
-                @foreach($devices as $device)
-                    <tr>
-                        <td>{{ $device->device_id }}</td>
-                        <td>{{ $device->name }}</td>
-                        <td>{{ $device->last_at }}</td>
-                        <td>
-                            @php
-                                $tags = json_decode($device->tags, true) ?: [];
-                            @endphp
-                            @foreach($tags as $tag)
-                                <div>{{ $tag }}</div>
-                            @endforeach
-                        </td>
-                        <td>
-                            <a href="/veriler/{{ $device->id }}" class="btn btn-sm btn-primary" title="Göster">
-                                <i class="voyager-eye"></i>
-                            </a>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        <div class="pagination-container">
-            {{ $devices->links() }}
-        </div>
+    <div class="pagination-container">
+      {{ $devices->links() }}
     </div>
+  </div>
 </div>
 @stop
 
 @section('javascript')
-    <script>
-        document.getElementById('searchBox').addEventListener('input', function() {
-            var filter = this.value.toLowerCase();
-            document.querySelectorAll('#devicesTable tbody tr').forEach(function(row) {
-                row.style.display = row.textContent.toLowerCase().includes(filter)
-                                  ? '' : 'none';
-            });
-        });
-    </script>
+<script>
+  const searchBox  = document.getElementById('searchBox');
+  const searchForm = document.getElementById('searchForm');
+  let debounceTimer;
+
+  searchBox.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      searchForm.submit();
+    }, 300);
+  });
+</script>
 @stop
