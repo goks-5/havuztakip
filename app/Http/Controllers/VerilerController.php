@@ -87,7 +87,7 @@ class VerilerController extends VoyagerBaseController
                 ->where('device_id', $device->id)
                 ->whereIn('data_id', $selectedDataIds)
                 ->whereBetween('created_at', [$dateStart, $dateEnd])
-                ->orderBy('created_at')
+                ->orderBy('created_at', 'desc')
                 ->get();
         } else {
             $tags = json_decode($device->tags, true) ?? [];
