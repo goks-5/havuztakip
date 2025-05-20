@@ -17,7 +17,8 @@
                 ->get();
 @endphp
 
-<div class="table-responsive">
+{{-- Tabloyu sarmalayan wrapper, her 10 saniyede bir yenilenecek --}}
+<div id="faults-table-tool-{{ $tool->id }}" class="table-responsive">
     <table id="faults_table_tool_{{ $tool->id }}" class="table table-hover">
         <thead>
             <tr>
@@ -40,25 +41,25 @@
                     // Statüye göre arka plan rengi ayarlaması
                     switch ($fault->status) {
                         case 'Yeni':
-                            $rowBgColor = '#ffcccc'; // Açık kırmızı
+                            $rowBgColor = '#ffcccc';
                             break;
                         case 'Bekliyor |0|':
-                            $rowBgColor = '#ffe5cc'; // Açık turuncu
+                            $rowBgColor = '#ffe5cc';
                             break;
                         case 'Bakıma Başlandı |0|':
-                            $rowBgColor = '#ffffcc'; // Açık sarı
+                            $rowBgColor = '#ffffcc';
                             break;
                         case 'Firma Yönlendirildi |2|':
-                            $rowBgColor = '#ccf2ff'; // Açık mavi
+                            $rowBgColor = '#ccf2ff';
                             break;
                         case 'Malzeme Bekliyor |2|':
-                            $rowBgColor = '#99e6ff'; // Bir tık koyu mavi
+                            $rowBgColor = '#99e6ff';
                             break;
                         case 'Onay |1|':
-                            $rowBgColor = '#ccffcc'; // Açık yeşil
+                            $rowBgColor = '#ccffcc';
                             break;
                         case 'Bitti |1|':
-                            $rowBgColor = '#99ff99'; // Bir tık koyu yeşil
+                            $rowBgColor = '#99ff99';
                             break;
                     }
                 @endphp
@@ -77,7 +78,7 @@
                                     data-toggle="modal"
                                     data-target="#acceptModal-{{ $fault->id }}"
                                     title="Arızayı Kabul Et"
-                                    style="display: block; margin-left: 0; width: 90px;">
+                                    style="width: 90px;">
                                 <i class="voyager-paper-plane"></i>
                             </button>
 
@@ -93,20 +94,15 @@
                                         <form action="{{ route('yeni-gelen-is-emirleri.accept', $fault->id) }}" method="POST">
                                             @csrf
                                             <div class="modal-header bg-primary text-white">
-                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat" style="outline: none;">
+                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
-                                                <h4 class="modal-title" id="acceptModalLabel-{{ $fault->id }}">
-                                                    Arızayı Kabul Et
-                                                </h4>
+                                                <h4 class="modal-title" id="acceptModalLabel-{{ $fault->id }}">Arızayı Kabul Et</h4>
                                             </div>
                                             <div class="modal-body">
-                                                <div class="form-group" style="width: 100%;">
-                                                    <label for="staff_id-{{ $fault->id }}" style="display: block;">Bakımcı</label>
-                                                    <select name="staff_id"
-                                                            id="staff_id-{{ $fault->id }}"
-                                                            class="form-control"
-                                                            style="width: 100%; margin-top: 5px;">
+                                                <div class="form-group">
+                                                    <label for="staff_id-{{ $fault->id }}">Bakımcı</label>
+                                                    <select name="staff_id" id="staff_id-{{ $fault->id }}" class="form-control">
                                                         <option value="">Seçiniz</option>
                                                         @foreach($staffs as $staff)
                                                             <option value="{{ $staff->id }}">{{ $staff->name }}</option>
@@ -115,12 +111,8 @@
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
-                                                    Kapat
-                                                </button>
-                                                <button type="submit" class="btn btn-sm btn-primary">
-                                                    Kabul Et
-                                                </button>
+                                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Kapat</button>
+                                                <button type="submit" class="btn btn-sm btn-primary">Kabul Et</button>
                                             </div>
                                         </form>
                                     </div>
@@ -133,7 +125,7 @@
                                     data-toggle="modal"
                                     data-target="#processModal-{{ $fault->id }}"
                                     title="İşlem Gir"
-                                    style="display: block; margin-left: 0; width: 90px;">
+                                    style="width: 90px;">
                                 <i class="voyager-fire"></i>
                             </button>
 
@@ -149,24 +141,15 @@
                                         <form action="{{ route('yeni-gelen-is-emirleri.process', $fault->id) }}" method="POST">
                                             @csrf
                                             <div class="modal-header bg-primary text-white">
-                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat" style="outline: none;">
+                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat">
                                                     <span aria-hidden="true">&times;</span>
                                                 </button>
-                                                <h4 class="modal-title w-100 text-center"
-                                                    id="processModalLabel-{{ $fault->id }}"
-                                                    style="font-size: 1.3rem; margin-top: 2rem;">
-                                                    İşlem Gir
-                                                </h4>
+                                                <h4 class="modal-title text-center" id="processModalLabel-{{ $fault->id }}">İşlem Gir</h4>
                                             </div>
-                                            <!-- Modal Body: Durum dropdown (550px), Açıklama input (550px) -->
                                             <div class="modal-body">
-                                                <!-- Durum Alanı -->
-                                                <div class="form-group" style="margin-bottom: 20px;">
-                                                    <label for="status-{{ $fault->id }}" style="display: block;">Durum</label>
-                                                    <select name="status"
-                                                            id="status-{{ $fault->id }}"
-                                                            class="form-control"
-                                                            style="width: 550px; margin-top: 5px;">
+                                                <div class="form-group">
+                                                    <label for="status-{{ $fault->id }}">Durum</label>
+                                                    <select name="status" id="status-{{ $fault->id }}" class="form-control">
                                                         <option value="Bekliyor |0|">Bekliyor</option>
                                                         <option value="Bakıma Başlandı |0|">Bakıma Başlandı</option>
                                                         <option value="Firma Yönlendirildi |2|">Firmaya Yönlendirildi</option>
@@ -174,25 +157,14 @@
                                                         <option value="Onay |1|">Tamamlandı</option>
                                                     </select>
                                                 </div>
-                                                <!-- Açıklama Alanı -->
                                                 <div class="form-group">
-                                                    <label for="comment-{{ $fault->id }}" style="display: block;">Açıklama</label>
-                                                    <input type="text"
-                                                           name="comment"
-                                                           id="comment-{{ $fault->id }}"
-                                                           class="form-control"
-                                                           placeholder="Açıklama girin..."
-                                                           style="width: 550px; margin-top: 5px;">
+                                                    <label for="comment-{{ $fault->id }}">Açıklama</label>
+                                                    <input type="text" name="comment" id="comment-{{ $fault->id }}" class="form-control" placeholder="Açıklama girin...">
                                                 </div>
                                             </div>
-                                            <!-- /Modal Body -->
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">
-                                                    Kapat
-                                                </button>
-                                                <button type="submit" class="btn btn-sm btn-primary font-weight-bold">
-                                                    Kaydet
-                                                </button>
+                                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Kapat</button>
+                                                <button type="submit" class="btn btn-sm btn-primary">Kaydet</button>
                                             </div>
                                         </form>
                                     </div>
@@ -205,3 +177,15 @@
         </tbody>
     </table>
 </div>
+
+@section('javascript')
+    <script>
+        $(function(){
+            setInterval(function(){
+                $('#faults-table-tool-{{ $tool->id }}').load(
+                    window.location.href + ' #faults-table-tool-{{ $tool->id }} > *'
+                );
+            }, 10000);
+        });
+    </script>
+@endsection
