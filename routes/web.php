@@ -291,56 +291,6 @@ Route::group(['prefix' => ''], function () {
 
     Route::get('/tamamlananlar', [FaultController::class, 'tamamlananlarBrowse'])->name('tamamlananlar.browse');
 
-    Route::get('/tum-is-emirleri', function () {
-        // Filtrelenecek durumlar
-        $statusList = [
-            '' => 'Tümü',
-            'Yeni' => 'Yeni',
-            'Bekliyor |0|' => 'Bekliyor',
-            'Bakıma Başlandı |0| ' => 'Bakıma Başlandı',
-            'Firma Yönlendirildi |2|' => 'Firmaya Yönlendirildi',
-            'Malzeme Bekliyor |2|' => 'Malzeme Bekleniyor',
-            'Onay |1|' => 'Onay',
-            'Bitti |1|' => 'Bitti',
-        ];
-
-        // Ana sorgu
-        $query = Fault::orderBy('created_at', 'desc');
-
-        // 1) Status filtre
-        if ($status = request('status')) {
-            $query->where('status', $status);
-        }
-
-        // 2) Genel arama
-        if ($search = request('search')) {
-            $query->where(function($q) use ($search) {
-                // faults tablosu sütunlarında arama
-                $q->where('status', 'like', "%{$search}%")
-                ->orWhere('fault_type', 'like', "%{$search}%")
-                ->orWhere('fault_code', 'like', "%{$search}%")
-                ->orWhere('fault_comment', 'like', "%{$search}%")
-                ->orWhere('reporting_user', 'like', "%{$search}%")
-                ->orWhere('maintainer_note', 'like', "%{$search}%");
-
-                // staff tablosunda da arama (ilişki tanımlı ise)
-                $q->orWhereHas('staff', function($staffQuery) use ($search) {
-                    $staffQuery->where('name', 'like', "%{$search}%");
-                });
-
-                // equipment tablosunda da arama (ilişki tanımlı ise)
-                $q->orWhereHas('equipment', function($equipQuery) use ($search) {
-                    $equipQuery->where('name', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // 100 kayıtla sayfalama
-        $faults = $query->paginate(100);
-
-        return view('vendor.voyager.tum-is-emirleri.browse', compact('faults', 'statusList'));
-    })->name('tum-is-emirleri.browse');
-
     Route::get('/tum-is-emirleri', [FaultController::class, 'tumIsEmirleriBrowse'])
     ->name('tum-is-emirleri.browse');
 

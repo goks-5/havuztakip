@@ -176,56 +176,50 @@ class FaultController extends Controller
         return view('vendor.voyager.tamamlananlar.browse', compact('faults'));
     }
 
-    public function tumIsEmirleriBrowse(Request $request)
+   public function tumIsEmirleriBrowse(Request $request)
     {
-        $query = Fault::orderBy('created_at', 'desc');
+        $companyId = auth()->user()->company_id;
 
-        // Status filtresi varsa uygula
+        // 1) Ana sorgu: sadece kendi şirketinize ait kayıtlar
+        $query = Fault::where('company_id', $companyId)
+            ->orderBy('created_at', 'desc');
+
+        // 2) Status filtresi
         if ($status = $request->input('status')) {
             $query->where('status', $status);
         }
 
-        // Genel arama
+        // 3) Genel arama
         if ($search = $request->input('search')) {
-            $query->where(function ($q) use ($search) {
+            $query->where(function($q) use ($search) {
                 $q->where('status', 'like', "%{$search}%")
-                  ->orWhere('fault_type', 'like', "%{$search}%")
-                  ->orWhere('fault_code', 'like', "%{$search}%")
-                  ->orWhere('fault_comment', 'like', "%{$search}%")
-                  ->orWhere('reporting_user', 'like', "%{$search}%")
-                  ->orWhere('maintainer_note', 'like', "%{$search}%");
-                $q->orWhereHas('staff', function($staffQuery) use ($search) {
-                    $staffQuery->where('name', 'like', "%{$search}%");
-                });
-                $q->orWhereHas('equipment', function($equipQuery) use ($search) {
-                    $equipQuery->where('name', 'like', "%{$search}%");
+                ->orWhere('fault_type', 'like', "%{$search}%")
+                ->orWhere('fault_code', 'like', "%{$search}%")
+                ->orWhere('fault_comment', 'like', "%{$search}%")
+                ->orWhere('reporting_user', 'like', "%{$search}%")
+                ->orWhere('maintainer_note', 'like', "%{$search}%")
+                ->orWhereHas('staff', function($st) use ($search) {
+                    $st->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('equipment', function($eq) use ($search) {
+                    $eq->where('name', 'like', "%{$search}%");
                 });
             });
         }
 
-        // Tarih aralığı filtresi (tek input, range modunda geliyor)
-        if ($range = $request->input('date_range')) {
-            // flatpickr, aralığı "2025-04-01 00:00 to 2025-04-02 23:59" gibi string döndürür
-            $dates = explode(' to ', $range);
-            if (count($dates) === 2) {
-                $start = trim($dates[0]);
-                $end = trim($dates[1]);
-                $query->whereBetween('created_at', [$start, $end]);
-            }
-        }
+        // 4) Sayfalama ve statusList’i view’a geçirme
+        $faults = $query->paginate(100)
+                        ->appends($request->only('status', 'search'));
 
-        $faults = $query->paginate(100);
-
-        // Status listesini oluşturuyoruz (örnek)
         $statusList = [
-            '' => 'Tümü',
-            'Yeni' => 'Yeni',
-            'Bekliyor |0|' => 'Bekliyor',
+            ''                    => 'Tümü',
+            'Yeni'                => 'Yeni',
+            'Bekliyor |0|'        => 'Bekliyor',
             'Bakıma Başlandı |0|' => 'Bakıma Başlandı',
             'Firma Yönlendirildi |2|' => 'Firmaya Yönlendirildi',
-            'Malzeme Bekliyor |2|' => 'Malzeme Bekleniyor',
-            'Onay |1|' => 'Onay',
-            'Bitti |1|' => 'Bitti',
+            'Malzeme Bekliyor |2|'     => 'Malzeme Bekleniyor',
+            'Onay |1|'            => 'Onay',
+            'Bitti |1|'           => 'Bitti',
         ];
 
         return view('vendor.voyager.tum-is-emirleri.browse', compact('faults', 'statusList'));
