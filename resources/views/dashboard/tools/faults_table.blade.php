@@ -7,7 +7,7 @@
     $settings = json_decode($tool->settings, true);
     $statuses = $settings['status'] ?? [];
     $limit    = $settings['limit']  ?? 10;
-    // Kayıtları alıyoruz
+    // Son kayıtları alıyoruz
     $faults   = App\Fault::whereIn('status', $statuses)
                   ->orderBy('created_at', 'desc')
                   ->limit($limit)
@@ -50,72 +50,21 @@
                     <td>{{ $fault->reporting_user }}</td>
                     <td>
                         @if($fault->status === 'Yeni')
-                            <button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#acceptModal-{{ $fault->id }}" style="width:90px;">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-dark accept-btn"
+                                data-fault-id="{{ $fault->id }}"
+                                style="width:90px;">
                                 <i class="voyager-paper-plane"></i>
                             </button>
-                            <div class="modal fade" id="acceptModal-{{ $fault->id }}" tabindex="-1">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <form action="{{ route('yeni-gelen-is-emirleri.accept', $fault->id) }}" method="POST">
-                                            @csrf
-                                            <div class="modal-header bg-primary text-white">
-                                                <h5 class="modal-title">Arızayı Kabul Et</h5>
-                                                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <label>Bakımcı</label>
-                                                <select name="staff_id" class="form-control mt-2">
-                                                    <option value="">Seçiniz</option>
-                                                    @foreach($staffs as $staff)
-                                                        <option value="{{ $staff->id }}">{{ $staff->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Kapat</button>
-                                                <button type="submit" class="btn btn-sm btn-primary">Kabul Et</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                         @else
-                            <button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#processModal-{{ $fault->id }}" style="width:90px;">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-dark process-btn"
+                                data-fault-id="{{ $fault->id }}"
+                                style="width:90px;">
                                 <i class="voyager-fire"></i>
                             </button>
-                            <div class="modal fade" id="processModal-{{ $fault->id }}" tabindex="-1">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <form action="{{ route('yeni-gelen-is-emirleri.process', $fault->id) }}" method="POST">
-                                            @csrf
-                                            <div class="modal-header bg-primary text-white">
-                                                <h5 class="modal-title">İşlem Gir</h5>
-                                                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="form-group">
-                                                    <label>Durum</label>
-                                                    <select name="status" class="form-control mt-2">
-                                                        <option value="Bekliyor |0|">Bekliyor</option>
-                                                        <option value="Bakıma Başlandı |0|">Bakıma Başlandı</option>
-                                                        <option value="Firma Yönlendirildi |2|">Firmaya Yönlendirildi</option>
-                                                        <option value="Malzeme Bekliyor |2|">Malzeme Bekliyor</option>
-                                                        <option value="Onay |1|">Tamamlandı</option>
-                                                    </select>
-                                                </div>
-                                                <div class="form-group mt-3">
-                                                    <label>Açıklama</label>
-                                                    <input type="text" name="comment" class="form-control mt-2" placeholder="Açıklama girin...">
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Kapat</button>
-                                                <button type="submit" class="btn btn-sm btn-primary">Kaydet</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                         @endif
                     </td>
                 </tr>
@@ -124,17 +73,81 @@
     </table>
 </div>
 
+{{-- Global “Arızayı Kabul Et” Modal --}}
+<div class="modal fade" id="globalAcceptModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="acceptForm" method="POST" action="">
+        @csrf
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Arızayı Kabul Et</h5>
+          <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <label>Bakımcı</label>
+          <select name="staff_id" class="form-control mt-2" id="globalStaffSelect">
+            <option value="">Seçiniz</option>
+            @foreach($staffs as $staff)
+              <option value="{{ $staff->id }}">{{ $staff->name }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Kapat</button>
+          <button type="submit" class="btn btn-sm btn-primary">Kabul Et</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{{-- Global “İşlem Gir” Modal --}}
+<div class="modal fade" id="globalProcessModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form id="processForm" method="POST" action="">
+        @csrf
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">İşlem Gir</h5>
+          <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Durum</label>
+            <select name="status" class="form-control mt-2">
+              <option value="Bekliyor |0|">Bekliyor</option>
+              <option value="Bakıma Başlandı |0|">Bakıma Başlandı</option>
+              <option value="Firma Yönlendirildi |2|">Firmaya Yönlendirildi</option>
+              <option value="Malzeme Bekliyor |2|">Malzeme Bekliyor</option>
+              <option value="Onay |1|">Tamamlandı</option>
+            </select>
+          </div>
+          <div class="form-group mt-3">
+            <label>Açıklama</label>
+            <input type="text" name="comment" class="form-control mt-2" placeholder="Açıklama girin...">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Kapat</button>
+          <button type="submit" class="btn btn-sm btn-primary">Kaydet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+@push('javascript')
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function(){
     const tbodyId = 'faults_body_{{ $tool->id }}';
     const selfUrl = window.location.href;
+    const baseUrl = "{{ url('yeni-gelen-is-emirleri') }}";
 
     function refreshFaults() {
         fetch(selfUrl, { method: 'GET' })
             .then(res => res.text())
             .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
+                const doc = new DOMParser().parseFromString(html, 'text/html');
                 const newBody = doc.getElementById(tbodyId);
                 if (newBody) {
                     document.getElementById(tbodyId).innerHTML = newBody.innerHTML;
@@ -143,8 +156,21 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(console.error);
     }
 
-    // İlk yüklemede ve her 10 saniyede bir
+    // Buton tıklanınca modal aç
+    $(document).on('click', '.accept-btn', function(){
+        const id = $(this).data('fault-id');
+        $('#acceptForm').attr('action', `${baseUrl}/${id}/accept`);
+        $('#globalAcceptModal').modal('show');
+    });
+    $(document).on('click', '.process-btn', function(){
+        const id = $(this).data('fault-id');
+        $('#processForm').attr('action', `${baseUrl}/${id}/process`);
+        $('#globalProcessModal').modal('show');
+    });
+
+    // İlk yükleme ve 10 saniyede bir yenile
     refreshFaults();
     setInterval(refreshFaults, 10000);
 });
 </script>
+@endpush
