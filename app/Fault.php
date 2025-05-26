@@ -13,7 +13,8 @@ class Fault extends Model
         'fault_code',
         'fault_comment',
         'reporting_user',
-        'status'
+        'status',
+        'company_id'
     ];
 
     protected $casts = [

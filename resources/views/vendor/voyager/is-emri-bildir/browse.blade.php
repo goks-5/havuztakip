@@ -14,7 +14,7 @@
                     <label for="equipmentSelect" style="font-weight: bold;">Ekipman</label>
                     <select id="equipmentSelect" name="equipment_id" class="form-control select2-ajax" required>
                         <option value="">Seçiniz</option>
-                        @foreach(\App\Equipment::all() as $equipment)
+                        @foreach(\App\Equipment::where('company_id', Auth::user()->company_id)->get() as $equipment)
                             <option value="{{ $equipment->id }}">{{ $equipment->name }}</option>
                         @endforeach
                     </select>
