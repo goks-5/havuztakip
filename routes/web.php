@@ -157,35 +157,6 @@ Route::group(['prefix' => ''], function () {
     Route::post('/faults/store', [FaultController::class, 'store'])->name('fault.store');
 
     Route::post('/is-emri-bildir', [FaultController::class, 'store'])->name('fault.store');
-    
-    Route::get('/yeni-gelen-is-emirleri', function () {
-        // Sadece "Yeni" statüsündeki kayıtları getirelim:
-        $query = Fault::where('status', 'Yeni')->orderBy('created_at', 'desc');
-
-        // Arama yapılıyorsa, ilgili sütunlarda arama yap:
-        if ($search = request('search')) {
-            $query->where(function($q) use ($search) {
-                $q->where('fault_type', 'like', "%{$search}%")
-                ->orWhere('fault_code', 'like', "%{$search}%")
-                ->orWhere('fault_comment', 'like', "%{$search}%")
-                ->orWhere('reporting_user', 'like', "%{$search}%")
-                ->orWhere('maintainer_note', 'like', "%{$search}%");
-                
-                // İlişkili tablolar üzerinden de arama yapabilirsiniz:
-                $q->orWhereHas('staff', function($staffQuery) use ($search) {
-                    $staffQuery->where('name', 'like', "%{$search}%");
-                });
-                $q->orWhereHas('equipment', function($equipQuery) use ($search) {
-                    $equipQuery->where('name', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // 100 kayıtla sayfalama
-        $faults = $query->paginate(100);
-
-        return view('vendor.voyager.yeni-gelen-is-emirleri.browse', compact('faults'));
-    })->name('yeni-gelen-is-emirleri.browse');
 
     Route::get('yeni-gelen-is-emirleri/{id}', [FaultController::class, 'show'])
     ->name('yeni-gelen-is-emirleri.show');
@@ -215,90 +186,101 @@ Route::group(['prefix' => ''], function () {
      ->name('yeni-gelen-is-emirleri.pdfView');
 
     Route::get('/islemdekiler', function () {
-        // "Bekliyor |0|" ve "Bakıma Başlandı |0|" statülerine sahip kayıtları getiriyoruz.
+        // 1) Giriş yapan kullanıcının company_id'sini alın
+        $companyId = Auth::user()->company_id;
+
+        // 2) "Bekliyor |0|" ve "Bakıma Başlandı |0|" statülerindeki ve sadece kendi company_id'nize ait kayıtlar
         $query = Fault::whereIn('status', ['Bekliyor |0|', 'Bakıma Başlandı |0|'])
+                    ->where('company_id', $companyId)
                     ->orderBy('created_at', 'desc');
 
-        // Arama parametresi varsa, ilgili sütunlarda arama yapıyoruz.
+        // 3) Arama filtresi varsa ekleyin
         if ($search = request('search')) {
             $query->where(function($q) use ($search) {
                 $q->where('fault_type', 'like', "%{$search}%")
                 ->orWhere('fault_code', 'like', "%{$search}%")
                 ->orWhere('fault_comment', 'like', "%{$search}%")
                 ->orWhere('reporting_user', 'like', "%{$search}%")
-                ->orWhere('maintainer_note', 'like', "%{$search}%");
-
-                // İlişkili tablolarda da arama (staff, equipment)
-                $q->orWhereHas('staff', function($staffQuery) use ($search) {
-                    $staffQuery->where('name', 'like', "%{$search}%");
-                });
-                $q->orWhereHas('equipment', function($equipQuery) use ($search) {
-                    $equipQuery->where('name', 'like', "%{$search}%");
+                ->orWhere('maintainer_note', 'like', "%{$search}%")
+                ->orWhereHas('staff', function($staffQ) use ($search) {
+                    $staffQ->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('equipment', function($eqQ) use ($search) {
+                    $eqQ->where('name', 'like', "%{$search}%");
                 });
             });
         }
 
-        // 100 kayıtla sayfalama
-        $faults = $query->paginate(100);
+        // 4) Sayfalama
+        $faults = $query->paginate(100)->appends(request()->only('search'));
 
         return view('vendor.voyager.islemdekiler.browse', compact('faults'));
     })->name('islemdekiler.browse');
 
     Route::get('/beklemeye-alinanlar', function () {
-        // Sadece "Firma Yönlendirildi |2|" ve "Malzeme Bekliyor |2|" statüsündeki kayıtları getiriyoruz.
-        $query = Fault::whereIn('status', ['Firma Yönlendirildi |2|', 'Malzeme Bekliyor |2|'])
+        // 1) Giriş yapanın şirketi
+        $companyId = Auth::user()->company_id;
+
+        // 2) İstenen statüler + kendi şirketinize ait kayıtlar
+        $query = Fault::whereIn('status', [
+                        'Firma Yönlendirildi |2|',
+                        'Malzeme Bekliyor |2|'
+                    ])
+                    ->where('company_id', $companyId)
                     ->orderBy('created_at', 'desc');
 
-        // Arama parametresi varsa, faults tablosunun ilgili sütunlarında ve ilişkili tablolarda arama yapıyoruz.
+        // 3) Arama filtrelemesi
         if ($search = request('search')) {
             $query->where(function($q) use ($search) {
                 $q->where('fault_type', 'like', "%{$search}%")
                 ->orWhere('fault_code', 'like', "%{$search}%")
                 ->orWhere('fault_comment', 'like', "%{$search}%")
                 ->orWhere('reporting_user', 'like', "%{$search}%")
-                ->orWhere('maintainer_note', 'like', "%{$search}%");
-
-                // İlişkili tablolar üzerinden arama (staff, equipment)
-                $q->orWhereHas('staff', function($staffQuery) use ($search) {
-                    $staffQuery->where('name', 'like', "%{$search}%");
-                });
-                $q->orWhereHas('equipment', function($equipQuery) use ($search) {
-                    $equipQuery->where('name', 'like', "%{$search}%");
+                ->orWhere('maintainer_note', 'like', "%{$search}%")
+                ->orWhereHas('staff', function($st) use ($search) {
+                    $st->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('equipment', function($eq) use ($search) {
+                    $eq->where('name', 'like', "%{$search}%");
                 });
             });
         }
 
-        // 100 kayıtla sayfalama
-        $faults = $query->paginate(100);
+        // 4) Sayfalama (arama terimini linklere ekleyin)
+        $faults = $query->paginate(100)->appends(request()->only('search'));
 
         return view('vendor.voyager.beklemeye-alinanlar.browse', compact('faults'));
     })->name('beklemeye-alinanlar.browse');
 
     Route::get('/onay-bekleyenler', function () {
-        // Sadece status "Onay |1|" olan kayıtları getiriyoruz.
-        $query = Fault::where('status', 'Onay |1|')->orderBy('created_at', 'desc');
+        // 1) Giriş yapan kullanıcının company_id'sini alalım
+        $companyId = Auth::user()->company_id;
 
-        // Arama parametresi varsa, faults tablosunun ilgili sütunlarında arama yapıyoruz.
+        // 2) Sadece status = 'Onay |1|' ve kendi şirketine ait kayıtlar
+        $query = Fault::where('status', 'Onay |1|')
+                    ->where('company_id', $companyId)
+                    ->orderBy('created_at', 'desc');
+
+        // 3) Arama parametresi varsa uygulayalım
         if ($search = request('search')) {
             $query->where(function($q) use ($search) {
-                $q->where('fault_type', 'like', "%{$search}%")
-                ->orWhere('fault_code', 'like', "%{$search}%")
+                $q->where('fault_type',    'like', "%{$search}%")
+                ->orWhere('fault_code',    'like', "%{$search}%")
                 ->orWhere('fault_comment', 'like', "%{$search}%")
-                ->orWhere('reporting_user', 'like', "%{$search}%")
-                ->orWhere('maintainer_note', 'like', "%{$search}%");
-
-                // İlişkili tablolar üzerinden de arama yapıyoruz:
-                $q->orWhereHas('staff', function($staffQuery) use ($search) {
-                    $staffQuery->where('name', 'like', "%{$search}%");
-                });
-                $q->orWhereHas('equipment', function($equipQuery) use ($search) {
-                    $equipQuery->where('name', 'like', "%{$search}%");
+                ->orWhere('reporting_user','like', "%{$search}%")
+                ->orWhere('maintainer_note','like', "%{$search}%")
+                ->orWhereHas('staff', function($st) use ($search) {
+                    $st->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('equipment', function($eq) use ($search) {
+                    $eq->where('name', 'like', "%{$search}%");
                 });
             });
         }
 
-        // 100 kayıtla sayfalama
-        $faults = $query->paginate(100);
+        // 4) Sayfalama ve arama terimini linklere ekleme
+        $faults = $query->paginate(100)
+                        ->appends(request()->only('search'));
 
         return view('vendor.voyager.onay-bekleyenler.browse', compact('faults'));
     })->name('onay-bekleyenler.browse');
@@ -306,35 +288,6 @@ Route::group(['prefix' => ''], function () {
     Route::get('/arizalar', [FaultController::class, 'index'])->name('arizalar.browse');
     Route::post('/arizalar/kapat', [FaultController::class, 'closeSelected'])->name('arizalar.kapat');
     Route::post('/ajax/faults_actions', [FaultController::class, 'actions'])->name('faultsActions');
-
-    Route::get('/tamamlananlar', function () {
-        // Sadece status "Bitti |1|" olan kayıtları oluşturulma tarihine göre sıralayalım.
-        $query = Fault::where('status', 'Bitti |1|')->orderBy('created_at', 'desc');
-
-        // Arama parametresi varsa, faults tablosunun ilgili sütunlarında ve ilişkili tablolarda arama yapalım.
-        if ($search = request('search')) {
-            $query->where(function($q) use ($search) {
-                $q->where('fault_type', 'like', "%{$search}%")
-                ->orWhere('fault_code', 'like', "%{$search}%")
-                ->orWhere('fault_comment', 'like', "%{$search}%")
-                ->orWhere('reporting_user', 'like', "%{$search}%")
-                ->orWhere('maintainer_note', 'like', "%{$search}%");
-
-                // İlişkili tablolar üzerinden arama (staff, equipment)
-                $q->orWhereHas('staff', function($staffQuery) use ($search) {
-                    $staffQuery->where('name', 'like', "%{$search}%");
-                });
-                $q->orWhereHas('equipment', function($equipQuery) use ($search) {
-                    $equipQuery->where('name', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // 100 kayıtla sayfalama
-        $faults = $query->paginate(100);
-
-        return view('vendor.voyager.tamamlananlar.browse', compact('faults'));
-    })->name('tamamlananlar.browse');
 
     Route::get('/tamamlananlar', [FaultController::class, 'tamamlananlarBrowse'])->name('tamamlananlar.browse');
 

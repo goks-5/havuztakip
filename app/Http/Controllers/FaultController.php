@@ -41,6 +41,7 @@ class FaultController extends Controller
             'fault_comment' => $request->fault_comment,
             'reporting_user' => $request->reporting_user,
             'status' => 'Yeni',
+            'company_id' => auth()->user()->company_id, 
         ]);
 
         return redirect()->back()->with('success', 'Arıza başarıyla eklendi.');
@@ -132,36 +133,45 @@ class FaultController extends Controller
 
     public function tamamlananlarBrowse(Request $request)
     {
-        $query = Fault::where('status', 'Bitti |1|')->orderBy('created_at', 'desc');
+        // 1) Giriş yapan kullanıcının company_id'si
+        $companyId = auth()->user()->company_id;
 
-        // Arama filtresi
+        // 2) "Bitti |1|" statüsündeki ve kendi şirketinize ait kayıtlar
+        $query = Fault::where('status', 'Bitti |1|')
+            ->where('company_id', $companyId)
+            ->orderBy('created_at', 'desc');
+
+        // 3) Arama filtresi
         if ($search = $request->input('search')) {
             $query->where(function($q) use ($search) {
-                $q->where('fault_type', 'like', "%{$search}%")
-                ->orWhere('fault_code', 'like', "%{$search}%")
+                $q->where('fault_type',    'like', "%{$search}%")
+                ->orWhere('fault_code',    'like', "%{$search}%")
                 ->orWhere('fault_comment', 'like', "%{$search}%")
-                ->orWhere('reporting_user', 'like', "%{$search}%")
-                ->orWhere('maintainer_note', 'like', "%{$search}%");
-                $q->orWhereHas('staff', function($staffQuery) use ($search) {
-                    $staffQuery->where('name', 'like', "%{$search}%");
-                });
-                $q->orWhereHas('equipment', function($equipQuery) use ($search) {
-                    $equipQuery->where('name', 'like', "%{$search}%");
+                ->orWhere('reporting_user','like', "%{$search}%")
+                ->orWhere('maintainer_note','like', "%{$search}%")
+                ->orWhereHas('staff', function($st) use ($search) {
+                    $st->where('name', 'like', "%{$search}%");
+                })
+                ->orWhereHas('equipment', function($eq) use ($search) {
+                    $eq->where('name', 'like', "%{$search}%");
                 });
             });
         }
 
-        // Tarih aralığı filtresi
+        // 4) Tarih aralığı filtresi (mevcut kodunuz neyse koruyun)
         if ($range = $request->input('date_range')) {
             $dates = explode(' to ', $range);
             if (count($dates) === 2) {
                 $start = trim($dates[0]);
-                $end = trim($dates[1]);
+                $end   = trim($dates[1]);
                 $query->whereBetween('created_at', [$start, $end]);
             }
         }
 
-        $faults = $query->paginate(100);
+        // 5) Sayfalama
+        $faults = $query
+            ->paginate(100)
+            ->appends($request->only('search', 'date_range'));
 
         return view('vendor.voyager.tamamlananlar.browse', compact('faults'));
     }
@@ -254,14 +264,28 @@ class FaultController extends Controller
                         ->with('success', 'Kayıt başarıyla silindi!');
     }
 
-    
-    
     public function browse(Request $request)
     {
-        $faults = Fault::where('status', 'Yeni')
-                    ->orderBy('created_at', 'desc')
-                    ->paginate(10);
-        $staffs = \App\Staff::all();
+        $companyId = auth()->user()->company_id;
+
+        $query = Fault::where('status', 'Yeni')
+            ->where('company_id', $companyId)
+            ->orderBy('created_at', 'desc');
+
+        if ($search = $request->input('search')) {
+            $query->where(function($q) use ($search) {
+                $q->where('fault_type', 'like', "%{$search}%")
+                ->orWhere('fault_code', 'like', "%{$search}%")
+                ->orWhere('fault_comment', 'like', "%{$search}%")
+                ->orWhere('reporting_user', 'like', "%{$search}%")
+                ->orWhere('maintainer_note', 'like', "%{$search}%")
+                ->orWhereHas('staff', fn($st)=> $st->where('name', 'like', "%{$search}%"))
+                ->orWhereHas('equipment', fn($eq)=> $eq->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $faults = $query->paginate(100)->appends($request->only('search'));
+        $staffs = \App\Staff::where('company_id', $companyId)->get();
 
         return view('vendor.voyager.yeni-gelen-is-emirleri.browse', compact('faults', 'staffs'));
     }
