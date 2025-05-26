@@ -2,23 +2,19 @@
 
 @php
     // Şirket personellerini çekiyoruz (Bakımcı listesi)
-    $staffs = App\Staff::where('company_id', Auth::user()->company_id)->get();
-
-    // Tool settings'ini JSON olarak alıp diziye çeviriyoruz
+    $staffs   = App\Staff::where('company_id', Auth::user()->company_id)->get();
+    // Tool ayarları
     $settings = json_decode($tool->settings, true);
-    // Seçilen durumlar (status) ve limit değerini alıyoruz
     $statuses = $settings['status'] ?? [];
-    $limit = $settings['limit'] ?? 10;
-
-    // Fault modelinde 'status' sütununa göre filtreleme yapıp, son eklenen $limit adet kaydı çekiyoruz.
-    $faults = App\Fault::whereIn('status', $statuses)
-                ->orderBy('created_at', 'desc')
-                ->limit($limit)
-                ->get();
+    $limit    = $settings['limit']  ?? 10;
+    // Kayıtları alıyoruz
+    $faults   = App\Fault::whereIn('status', $statuses)
+                  ->orderBy('created_at', 'desc')
+                  ->limit($limit)
+                  ->get();
 @endphp
 
-{{-- Tabloyu sarmalayan wrapper, her 10 saniyede bir yenilenecek --}}
-<div id="faults-table-tool-{{ $tool->id }}" class="table-responsive">
+<div class="table-responsive">
     <table id="faults_table_tool_{{ $tool->id }}" class="table table-hover">
         <thead>
             <tr>
@@ -31,84 +27,49 @@
                 <th>İşlemler</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="faults_body_{{ $tool->id }}">
             @foreach($faults as $fault)
                 @php
-                    // Varsayılan arka plan ve metin rengi
-                    $rowBgColor = '#FFFFFF';
-                    $rowTextColor = '#333';
-
-                    // Statüye göre arka plan rengi ayarlaması
-                    switch ($fault->status) {
-                        case 'Yeni':
-                            $rowBgColor = '#ffcccc';
-                            break;
-                        case 'Bekliyor |0|':
-                            $rowBgColor = '#ffe5cc';
-                            break;
-                        case 'Bakıma Başlandı |0|':
-                            $rowBgColor = '#ffffcc';
-                            break;
-                        case 'Firma Yönlendirildi |2|':
-                            $rowBgColor = '#ccf2ff';
-                            break;
-                        case 'Malzeme Bekliyor |2|':
-                            $rowBgColor = '#99e6ff';
-                            break;
-                        case 'Onay |1|':
-                            $rowBgColor = '#ccffcc';
-                            break;
-                        case 'Bitti |1|':
-                            $rowBgColor = '#99ff99';
-                            break;
+                    $rowBg = '#FFFFFF';
+                    switch($fault->status){
+                        case 'Yeni':                $rowBg = '#ffcccc'; break;
+                        case 'Bekliyor |0|':        $rowBg = '#ffe5cc'; break;
+                        case 'Bakıma Başlandı |0|': $rowBg = '#ffffcc'; break;
+                        case 'Firma Yönlendirildi |2|': $rowBg = '#ccf2ff'; break;
+                        case 'Malzeme Bekliyor |2|':    $rowBg = '#99e6ff'; break;
+                        case 'Onay |1|':            $rowBg = '#ccffcc'; break;
+                        case 'Bitti |1|':           $rowBg = '#99ff99'; break;
                     }
                 @endphp
-                <tr style="background-color: {{ $rowBgColor }}; color: {{ $rowTextColor }};">
+                <tr style="background-color: {{ $rowBg }}; color: #333;">
                     <td>{{ $fault->status }}</td>
-                    <td>{{ optional($fault->equipment)->name ?? 'Belirtilmemiş' }}</td>
+                    <td>{{ optional($fault->equipment)->name ?: 'Belirtilmemiş' }}</td>
                     <td>{{ $fault->fault_code }}</td>
                     <td>{{ $fault->fault_comment }}</td>
                     <td>{{ $fault->created_at }}</td>
                     <td>{{ $fault->reporting_user }}</td>
                     <td>
                         @if($fault->status === 'Yeni')
-                            <!-- Arızayı Kabul Et Butonu -->
-                            <button type="button"
-                                    class="btn btn-sm btn-dark"
-                                    data-toggle="modal"
-                                    data-target="#acceptModal-{{ $fault->id }}"
-                                    title="Arızayı Kabul Et"
-                                    style="width: 90px;">
+                            <button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#acceptModal-{{ $fault->id }}" style="width:90px;">
                                 <i class="voyager-paper-plane"></i>
                             </button>
-
-                            <!-- Arızayı Kabul Et Modalı -->
-                            <div class="modal fade"
-                                 id="acceptModal-{{ $fault->id }}"
-                                 tabindex="-1"
-                                 role="dialog"
-                                 aria-labelledby="acceptModalLabel-{{ $fault->id }}"
-                                 aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal fade" id="acceptModal-{{ $fault->id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
                                         <form action="{{ route('yeni-gelen-is-emirleri.accept', $fault->id) }}" method="POST">
                                             @csrf
                                             <div class="modal-header bg-primary text-white">
-                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                                <h4 class="modal-title" id="acceptModalLabel-{{ $fault->id }}">Arızayı Kabul Et</h4>
+                                                <h5 class="modal-title">Arızayı Kabul Et</h5>
+                                                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
                                             </div>
                                             <div class="modal-body">
-                                                <div class="form-group">
-                                                    <label for="staff_id-{{ $fault->id }}">Bakımcı</label>
-                                                    <select name="staff_id" id="staff_id-{{ $fault->id }}" class="form-control">
-                                                        <option value="">Seçiniz</option>
-                                                        @foreach($staffs as $staff)
-                                                            <option value="{{ $staff->id }}">{{ $staff->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
+                                                <label>Bakımcı</label>
+                                                <select name="staff_id" class="form-control mt-2">
+                                                    <option value="">Seçiniz</option>
+                                                    @foreach($staffs as $staff)
+                                                        <option value="{{ $staff->id }}">{{ $staff->name }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Kapat</button>
@@ -119,37 +80,22 @@
                                 </div>
                             </div>
                         @else
-                            <!-- İşlem Gir Butonu -->
-                            <button type="button"
-                                    class="btn btn-sm btn-dark"
-                                    data-toggle="modal"
-                                    data-target="#processModal-{{ $fault->id }}"
-                                    title="İşlem Gir"
-                                    style="width: 90px;">
+                            <button class="btn btn-sm btn-dark" data-toggle="modal" data-target="#processModal-{{ $fault->id }}" style="width:90px;">
                                 <i class="voyager-fire"></i>
                             </button>
-
-                            <!-- İşlem Gir Modalı -->
-                            <div class="modal fade"
-                                 id="processModal-{{ $fault->id }}"
-                                 tabindex="-1"
-                                 role="dialog"
-                                 aria-labelledby="processModalLabel-{{ $fault->id }}"
-                                 aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal fade" id="processModal-{{ $fault->id }}" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
                                         <form action="{{ route('yeni-gelen-is-emirleri.process', $fault->id) }}" method="POST">
                                             @csrf
                                             <div class="modal-header bg-primary text-white">
-                                                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                                <h4 class="modal-title text-center" id="processModalLabel-{{ $fault->id }}">İşlem Gir</h4>
+                                                <h5 class="modal-title">İşlem Gir</h5>
+                                                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
                                             </div>
                                             <div class="modal-body">
                                                 <div class="form-group">
-                                                    <label for="status-{{ $fault->id }}">Durum</label>
-                                                    <select name="status" id="status-{{ $fault->id }}" class="form-control">
+                                                    <label>Durum</label>
+                                                    <select name="status" class="form-control mt-2">
                                                         <option value="Bekliyor |0|">Bekliyor</option>
                                                         <option value="Bakıma Başlandı |0|">Bakıma Başlandı</option>
                                                         <option value="Firma Yönlendirildi |2|">Firmaya Yönlendirildi</option>
@@ -157,9 +103,9 @@
                                                         <option value="Onay |1|">Tamamlandı</option>
                                                     </select>
                                                 </div>
-                                                <div class="form-group">
-                                                    <label for="comment-{{ $fault->id }}">Açıklama</label>
-                                                    <input type="text" name="comment" id="comment-{{ $fault->id }}" class="form-control" placeholder="Açıklama girin...">
+                                                <div class="form-group mt-3">
+                                                    <label>Açıklama</label>
+                                                    <input type="text" name="comment" class="form-control mt-2" placeholder="Açıklama girin...">
                                                 </div>
                                             </div>
                                             <div class="modal-footer">
@@ -178,14 +124,27 @@
     </table>
 </div>
 
-@section('javascript')
-    <script>
-        $(function(){
-            setInterval(function(){
-                $('#faults-table-tool-{{ $tool->id }}').load(
-                    window.location.href + ' #faults-table-tool-{{ $tool->id }} > *'
-                );
-            }, 10000);
-        });
-    </script>
-@endsection
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tbodyId = 'faults_body_{{ $tool->id }}';
+    const selfUrl = window.location.href;
+
+    function refreshFaults() {
+        fetch(selfUrl, { method: 'GET' })
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newBody = doc.getElementById(tbodyId);
+                if (newBody) {
+                    document.getElementById(tbodyId).innerHTML = newBody.innerHTML;
+                }
+            })
+            .catch(console.error);
+    }
+
+    // İlk yüklemede ve her 10 saniyede bir
+    refreshFaults();
+    setInterval(refreshFaults, 10000);
+});
+</script>
