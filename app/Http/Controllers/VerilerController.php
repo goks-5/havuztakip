@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Device;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class VerilerController extends VoyagerBaseController
@@ -14,9 +15,10 @@ class VerilerController extends VoyagerBaseController
         // Gelen search parametresi
         $search = $request->input('search');
 
-        // Silinmemiş cihazları temel sorgu
+        // Silinmemiş ve kullanıcıya ait cihazları temel sorgu
         $query = DB::table('devices')
-                   ->whereNull('deleted_at');
+                   ->whereNull('deleted_at')
+                   ->where('company_id', Auth::user()->company_id);
 
         // Eğer arama terimi geldiyse ilgili sütunlarda filtre uygula
         if ($search) {
@@ -37,34 +39,35 @@ class VerilerController extends VoyagerBaseController
 
     public function show(Request $request, $id)
     {
-        $device = Device::findOrFail($id);
+        // Sadece kullanıcıya ait cihazı getir
+        $device = Device::where('company_id', Auth::user()->company_id)
+                        ->findOrFail($id);
 
         $period = $request->get('period');
-        $range = $request->get('range');
+        $range  = $request->get('range');
 
         $dateStart = now()->startOfDay();
-        $dateEnd = now();
+        $dateEnd   = now();
 
         $datas = collect(); // boş veri koleksiyonu
+        $tags  = json_decode($device->tags, true) ?? [];
+        $selectedDataIds = [];
 
         if ($range && $period) {
             [$start, $end] = explode(' - ', urldecode($range));
-            $dateStart = \Carbon\Carbon::createFromFormat('d.m.Y H:i', $start);
-            $dateEnd = \Carbon\Carbon::createFromFormat('d.m.Y H:i', $end);
-
-            $tags = json_decode($device->tags, true) ?? [];
+            $dateStart = Carbon::createFromFormat('d.m.Y H:i', $start);
+            $dateEnd   = Carbon::createFromFormat('d.m.Y H:i', $end);
 
             $typeBases = [
-                'endeks' => 0,
+                'endeks'  => 0,
                 'saatlik' => 100,
-                'günlük' => 200,
-                'haftalık' => 300,
-                'aylık' => 400,
-                'yıllık' => 500,
+                'günlük'  => 200,
+                'haftalık'=> 300,
+                'aylık'   => 400,
+                'yıllık'  => 500,
             ];
 
-            $selectedDataIds = [];
-
+            // Seçilen data_id’leri belirle
             if ($period === 'tümü') {
                 foreach (range(0, 5) as $i) {
                     $base = $i * 100;
@@ -83,23 +86,20 @@ class VerilerController extends VoyagerBaseController
                 }
             }
 
+            // Cihaz verilerini çek
             $datas = DB::table('device_datas')
                 ->where('device_id', $device->id)
                 ->whereIn('data_id', $selectedDataIds)
                 ->whereBetween('created_at', [$dateStart, $dateEnd])
                 ->orderBy('created_at', 'desc')
                 ->get();
-        } else {
-            $tags = json_decode($device->tags, true) ?? [];
-            $selectedDataIds = [];
         }
 
         return view('vendor.voyager.veriler.show', [
-            'device' => $device,
-            'datas' => $datas,
-            'tags' => $tags ?? [],
-            'selectedDataIds' => $selectedDataIds ?? [],
+            'device'            => $device,
+            'datas'             => $datas,
+            'tags'              => $tags,
+            'selectedDataIds'   => $selectedDataIds,
         ]);
     }
-
 }
