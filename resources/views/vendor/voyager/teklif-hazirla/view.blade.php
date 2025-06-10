@@ -138,7 +138,7 @@
 
     <!-- Detay İçerik (offer->details) biraz daha aşağı -->
     <div style="margin-left: 20mm; margin-right: 20mm; margin-top: 20mm; font-size: 12pt; color: #333; text-align: left;">
-        {!! nl2br(e($offer->details ?? 'Detay bulunamadı.')) !!}
+        {!! nl2br(strip_tags($offer->details ?? 'Detay bulunamadı.')) !!}
     </div>
 
     <!-- Şirket Bilgileri (2. sayfa) -->
