@@ -5,6 +5,7 @@ use App\Http\Middleware\EnsureTokenIsValid;
 use App\Http\Middleware\CheckCompanyToken;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\DeviceExcelController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,3 +28,8 @@ Route::get('/read/devices', 'Api@devices')->middleware([CheckCompanyToken::class
 Route::get('/read/device/{device_id}', 'Api@device')->middleware([CheckCompanyToken::class]);
 Route::get('/read/device/{device_id}/{index}', 'Api@tag')->middleware([CheckCompanyToken::class]);
 Route::post('/write/device/{device_id}/{index}/{value}', 'Api@writeTag')->middleware([CheckCompanyToken::class]);
+
+Route::get('excel/devices', [DeviceExcelController::class, 'index']);
+Route::get('excel/device/{id}/data/{dataId}', [DeviceExcelController::class, 'data']);
+Route::get('excel/device-daily-latest', [DeviceExcelController::class, 'dailyLatest']);
+
