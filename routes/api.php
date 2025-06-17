@@ -32,4 +32,4 @@ Route::post('/write/device/{device_id}/{index}/{value}', 'Api@writeTag')->middle
 Route::get('excel/devices', [DeviceExcelController::class, 'index']);
 Route::get('excel/device/{id}/data/{dataId}', [DeviceExcelController::class, 'data']);
 Route::get('excel/device-daily-latest', [DeviceExcelController::class, 'dailyLatest']);
-
+Route::get('excel/device-daily', [DeviceExcelController::class, 'dailyByDate']);
