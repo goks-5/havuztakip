@@ -176,53 +176,162 @@ class FaultController extends Controller
         return view('vendor.voyager.tamamlananlar.browse', compact('faults'));
     }
 
-   public function tumIsEmirleriBrowse(Request $request)
+    public function tumIsEmirleriBrowse(Request $request)
     {
         $companyId = auth()->user()->company_id;
 
-        // 1) Ana sorgu: sadece kendi şirketinize ait kayıtlar
-        $query = Fault::where('company_id', $companyId)
-            ->orderBy('created_at', 'desc');
+        // 1) Query’i kuruyoruz
+        $query = Fault::with(['staff','equipment'])
+            ->where('company_id', $companyId)
+            ->when($request->filled('status'),
+                  fn($q)=> $q->where('status', $request->status))
+            ->when($request->filled('durum'),
+                  fn($q)=> $q->where('status','like','%'.$request->durum.'%'))
+            ->when($request->filled('ekipman'),
+                  fn($q)=> $q->whereHas('equipment',
+                      fn($eq)=> $eq->where('name','like','%'.$request->ekipman.'%')
+                  ))
+            ->when($request->filled('fault_type'),
+                  fn($q)=> $q->where('fault_type','like','%'.$request->fault_type.'%'))
+            ->when($request->filled('fault_code'),
+                  fn($q)=> $q->where('fault_code','like','%'.$request->fault_code.'%'))
+            ->when($request->filled('fault_comment'),
+                  fn($q)=> $q->where('fault_comment','like','%'.$request->fault_comment.'%'))
+            ->when($request->filled('reporting_user'),
+                  fn($q)=> $q->where('reporting_user','like','%'.$request->reporting_user.'%'))
+            ->when($request->filled('created_at'),
+                  fn($q)=> $q->whereDate('created_at',$request->created_at))
+            ->when($request->filled('finish_at'),
+                  fn($q)=> $q->whereDate('finish_at',$request->finish_at))
+            ->when($request->filled('staff'),
+                  fn($q)=> $q->whereHas('staff',
+                      fn($st)=> $st->where('name','like','%'.$request->staff.'%')
+                  ))
+            ->when($request->filled('maintainer_note'),
+                  fn($q)=> $q->where('maintainer_note','like','%'.$request->maintainer_note.'%'))
+            ->when($request->filled('date_range'), function($q) use($request) {
+                $parts = explode(' to ', $request->date_range);
+                if(count($parts)===2) {
+                  $q->whereBetween('created_at', [
+                     trim($parts[0]), trim($parts[1])
+                  ]);
+                }
+            })
+            ->orderBy('created_at','desc');
 
-        // 2) Status filtresi
-        if ($status = $request->input('status')) {
-            $query->where('status', $status);
+        // 2) Eğer export=1 geldiyse CSV döndür
+        if ($request->filled('export')) {
+            $rows = $query->get();
+            $filename = 'is-emirleri_'.now()->format('Ymd_His').'.csv';
+            $headers = [
+                'Content-Type'        => 'text/csv; charset=UTF-8',
+                'Content-Disposition' => "attachment; filename=\"$filename\"",
+            ];
+            $columns = [
+              'Durum','Ekipman','Arıza Tipi','Arıza Kodu',
+              'Arıza Açıklaması','Bildiren Personel',
+              'Oluşturma','Tamamlanma','Bakımcı','Not'
+            ];
+            $callback = function() use($rows,$columns){
+                $out = fopen('php://output','w');
+                fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
+                fputcsv($out, $columns);
+                foreach($rows as $f){
+                    fputcsv($out, [
+                      $f->status,
+                      optional($f->equipment)->name,
+                      $f->fault_type,
+                      $f->fault_code,
+                      $f->fault_comment,
+                      $f->reporting_user,
+                      $f->created_at,
+                      $f->finish_at,
+                      optional($f->staff)->name,
+                      $f->maintainer_note,
+                    ]);
+                }
+                fclose($out);
+            };
+            return response()->stream($callback,200,$headers);
         }
 
-        // 3) Genel arama
-        if ($search = $request->input('search')) {
-            $query->where(function($q) use ($search) {
-                $q->where('status', 'like', "%{$search}%")
-                ->orWhere('fault_type', 'like', "%{$search}%")
-                ->orWhere('fault_code', 'like', "%{$search}%")
-                ->orWhere('fault_comment', 'like', "%{$search}%")
-                ->orWhere('reporting_user', 'like', "%{$search}%")
-                ->orWhere('maintainer_note', 'like', "%{$search}%")
-                ->orWhereHas('staff', function($st) use ($search) {
-                    $st->where('name', 'like', "%{$search}%");
-                })
-                ->orWhereHas('equipment', function($eq) use ($search) {
-                    $eq->where('name', 'like', "%{$search}%");
-                });
-            });
-        }
-
-        // 4) Sayfalama ve statusList’i view’a geçirme
-        $faults = $query->paginate(100)
-                        ->appends($request->only('status', 'search'));
+        // 3) Aksi halde pagination’a devam
+        $faults = $query->paginate(10)->appends($request->all());
 
         $statusList = [
-            ''                    => 'Tümü',
-            'Yeni'                => 'Yeni',
-            'Bekliyor |0|'        => 'Bekliyor',
-            'Bakıma Başlandı |0|' => 'Bakıma Başlandı',
-            'Firma Yönlendirildi |2|' => 'Firmaya Yönlendirildi',
-            'Malzeme Bekliyor |2|'     => 'Malzeme Bekleniyor',
-            'Onay |1|'            => 'Onay',
-            'Bitti |1|'           => 'Bitti',
+          ''                        => 'Tümü',
+          'Yeni'                    => 'Yeni',
+          'Bekliyor |0|'            => 'Bekliyor',
+          'Bakıma Başlandı |0|'     => 'Bakıma Başlandı',
+          'Firma Yönlendirildi |2|'=> 'Firmaya Yönlendirildi',
+          'Malzeme Bekliyor |2|'    => 'Malzeme Bekleniyor',
+          'Onay |1|'                => 'Onay',
+          'Bitti |1|'               => 'Bitti',
         ];
 
-        return view('vendor.voyager.tum-is-emirleri.browse', compact('faults', 'statusList'));
+        return view('vendor.voyager.tum-is-emirleri.browse', compact('faults','statusList'));
+    }
+
+    public function export(Request $request)
+    {
+        $companyId = auth()->user()->company_id;
+
+        // Aynı filtreleme mantığı:
+        $query = Fault::with(['staff','equipment'])
+            ->where('company_id',$companyId)
+            ->when($request->filled('status'),
+                  fn($q)=> $q->where('status',$request->status)
+            )
+            ->when($request->filled('durum'),
+                  fn($q)=> $q->where('status','like','%'.$request->durum.'%')
+            )
+            ->when($request->filled('ekipman'),
+                  fn($q)=> $q->whereHas('equipment',
+                      fn($eq)=> $eq->where('name','like','%'.$request->ekipman.'%')
+                  )
+            )
+            // … diğer sütun filtreleri tıpkı yukarıdaki gibi eklenmeli …
+            ->when($request->filled('date_range'), function($q) use($request) {
+                $parts = explode(' to ', $request->date_range);
+                if(count($parts)===2) {
+                    $q->whereBetween('created_at',[trim($parts[0]),trim($parts[1])]);
+                }
+            })
+            ->orderBy('created_at','desc');
+
+        $rows = $query->get();
+
+        // CSV üret
+        $filename = 'is-emirleri_'.now()->format('Ymd_His').'.csv';
+        $headers = [
+            'Content-Type'        => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+        $cols = ['Durum','Ekipman','Arıza Tipi','Arıza Kodu','Arıza Açıklaması','Bildiren Personel','Oluşturma','Tamamlanma','Bakımcı','Not'];
+
+        $callback = function() use($rows,$cols) {
+            $out = fopen('php://output','w');
+            // UTF-8 BOM
+            fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($out, $cols);
+            foreach($rows as $f){
+                fputcsv($out, [
+                    $f->status,
+                    optional($f->equipment)->name,
+                    $f->fault_type,
+                    $f->fault_code,
+                    $f->fault_comment,
+                    $f->reporting_user,
+                    $f->created_at,
+                    $f->finish_at,
+                    optional($f->staff)->name,
+                    $f->maintainer_note,
+                ]);
+            }
+            fclose($out);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function update(Request $request, $id)
