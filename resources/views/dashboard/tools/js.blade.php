@@ -624,57 +624,52 @@ function DeviceChart(data) {
 
     function exportToTablo(divName) {
     console.log("Function triggered");
+    const table = document.getElementById(divName);
+    if (!table) return console.error("Table not found:", divName);
 
-    // 1. Tabloyu seç
-    var table = document.getElementById(divName);
-    if (!table) {
-        console.error("Table not found:", divName);
-        return;
-    }
-
-    // 2. Tablo verilerini olduğu gibi al (formatı bozma)
-    var tableData = [];
-    
-    // Başlıkları ekle (th)
-    var headers = table.querySelectorAll('thead th');
-    if (headers.length > 0) {
-        var headerRow = Array.from(headers).map(th => th.innerText.trim());
-        tableData.push(headerRow);
-    }
-
-    // Satırları işle (td)
-    var rows = table.querySelectorAll('tbody tr');
-    rows.forEach(row => {
-        var rowData = [];
-        var cells = row.querySelectorAll('td');
-        cells.forEach(cell => {
-            // Hücre değerini formatlamadan olduğu gibi al
-            rowData.push(cell.innerText.trim());
-        });
-        if (rowData.length > 0) tableData.push(rowData);
-    });
-
-    // 3. Excel dosyasını oluştur
-    var worksheet = XLSX.utils.aoa_to_sheet(tableData);
-    
-    // 4. Türkçe formatı korumak için özel stil uygula
-    Object.keys(worksheet).forEach(key => {
-        if (!key.startsWith('!') && worksheet[key].v) {
-            // Sayısal değerleri tespit et (nokta/virgül içerenler)
-            if (typeof worksheet[key].v === 'string' && 
-                worksheet[key].v.match(/[\d.,]+/)) {
-                worksheet[key].t = 's'; // Türü string olarak zorla (formatı koru)
-            }
+    // Türkçe sayı -> JS number çevirici
+    const toNumberTR = (val) => {
+        if (typeof val !== 'string') return val;
+        const s = val.replace(/\s/g, '');
+        // 1.234.567,89 veya 123,45 gibi desenleri yakala
+        if (/^\d{1,3}(\.\d{3})*(,\d+)?$|^\d+(,\d+)?$/.test(s)) {
+            const num = Number(s.replace(/\./g, '').replace(',', '.'));
+            return isNaN(num) ? val : num;
         }
+        return val;
+    };
+
+    // 1) AOA oluştur
+    const tableData = [];
+    const headers = table.querySelectorAll('thead th');
+    if (headers.length) tableData.push(Array.from(headers).map(th => th.innerText.trim()));
+
+    table.querySelectorAll('tbody tr').forEach(row => {
+        const rowData = [];
+        row.querySelectorAll('td').forEach(cell => {
+            const raw = cell.innerText.trim();
+            rowData.push(toNumberTR(raw));
+        });
+        if (rowData.length) tableData.push(rowData);
     });
 
-    var workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Veriler");
-    
-    // 5. Dosyayı indir
-    XLSX.writeFile(workbook, 'tablo_verileri.xlsx');
-}
+    // 2) Sheet oluştur
+    const ws = XLSX.utils.aoa_to_sheet(tableData);
 
+    // 3) Sayı olan hücreleri numara olarak işaretle, isteğe bağlı format
+    for (const addr in ws) {
+        if (addr[0] === '!') continue;
+        const c = ws[addr];
+        if (typeof c.v === 'number') {
+            c.t = 'n';
+            c.z = '#,##0.###'; // binlik ayırıcı ve 3 ondalığa kadar
+        }
+    }
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Veriler");
+    XLSX.writeFile(wb, 'tablo_verileri.xlsx');
+}
 
 function getTableData(table) {
     var data = [];
