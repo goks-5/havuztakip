@@ -107,10 +107,6 @@
     <div style="position: absolute; top: 220mm; left: 20mm; right: 20mm;">
         <table style="width: 60%; border-collapse: collapse; font-size: 11pt;">
             <tr>
-            <td style="background-color: #0056b3 !important; color: white !important; padding: 10px !important; border-radius: 5px !important; text-align: left !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                <strong style="color: white !important;">Notlar:</strong>
-                {!! nl2br(e($offer->notes ?? 'Not eklenmedi.')) !!}
-            </td>
             </tr>
         </table>
     </div>

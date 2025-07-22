@@ -70,7 +70,15 @@
                                 default:
                                     $circleColor = 'gray';
                             }
+
+                            // Burayı butondan ÖNCE ekle
+                            $desc  = is_array($offer->description)  ? $offer->description  : explode(',', $offer->explanation  ?? '');
+                            $qty   = is_array($offer->quantity)     ? $offer->quantity     : explode(',', $offer->piece        ?? '');
+                            $unit  = is_array($offer->unit_price)   ? $offer->unit_price   : explode(',', $offer->unit_price   ?? '');
+                            $total = is_array($offer->total_price)  ? $offer->total_price  : explode(',', $offer->total_price  ?? '');
+
                         @endphp
+
                         <!-- Her satıra data-id ve data-status ekledik -->
                         <tr data-id="{{ $offer->id }}" data-status="{{ $offer->is_editable }}">
                             <!-- Durum göstergesi sütunu: Küçük yuvarlak (16x16 px) -->
@@ -100,10 +108,10 @@
                                     data-person_name="{{ e($offer->person_name) }}"
                                     data-person_email="{{ e($offer->person_email) }}"
                                     data-currency="{{ e($offer->currency) }}"
-                                    data-description="{{ e($offer->explanation ?? '') }}"
-                                    data-quantity="{{ str_replace('"', '', $offer->piece ?? '') }}"
-                                    data-unit_price="{{ str_replace('"', '', $offer->unit_price ?? '') }}"
-                                    data-total_price="{{ str_replace('"', '', $offer->total_price ?? '') }}"
+                                    data-desc='@json($desc)'
+                                    data-qty='@json($qty)'
+                                    data-unit='@json($unit)'
+                                    data-total='@json($total)'
                                     data-notes="{{ e($offer->notes ?? '') }}"
                                     data-is_editable="{{ $offer->is_editable }}"
                                     style="display: {{ $offer->is_editable == 1 ? 'inline-block' : 'none' }};">
@@ -318,8 +326,8 @@
                                 <tr>
                                     <td>1</td>
                                     <td><input type="text" name="description[]" class="form-control" placeholder="Açıklama" required></td>
-                                    <td><input type="number" name="quantity[]" class="form-control quantity" required></td>
-                                    <td><input type="number" name="unit_price[]" class="form-control unit-price" required></td>
+                                    <td><input type="number" name="quantity[]" class="form-control quantity" step="0.01" min="0" required></td>
+                                    <td><input type="number" name="unit_price[]" class="form-control unit-price" step="0.01" min="0" required></td>
                                     <td><input type="number" name="total_price[]" class="form-control total-price" readonly></td>
                                 </tr>
                             </tbody>
@@ -329,11 +337,6 @@
                     <div class="d-flex justify-content-start mt-3">
                         <button type="button" class="btn btn-primary me-2" id="addRowButton">Satır Ekle</button>
                         <button type="button" class="btn btn-danger" id="removeRowButton">Satır Sil</button>
-                    </div>
-                    <!-- Notlar Alanı -->
-                    <div class="form-group">
-                        <label for="notes">Notlar</label>
-                        <textarea class="form-control" id="notes" name="notes" placeholder="Notlarınızı buraya yazabilirsiniz"></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -445,10 +448,10 @@
             $('#offerTableBody').append(`
                 <tr>
                     <td>${rowNumber}</td>
-                    <td><input type="text" name="description[]" class="form-control" placeholder="Açıklama" required></td>
-                    <td><input type="number" name="quantity[]" class="form-control quantity" placeholder="Adet" step="1" min="0" required></td>
-                    <td><input type="number" name="unit_price[]" class="form-control unit-price" placeholder="Birim fiyat" step="0.01" min="0" required></td>
-                    <td><input type="number" name="total_price[]" class="form-control total-price" placeholder="Toplam fiyat" readonly></td>
+                    <td><input type="text" name="description[]" class="form-control" required></td>
+                    <td><input type="number" name="quantity[]" class="form-control quantity" step="0.01" min="0" required></td>
+                    <td><input type="number" name="unit_price[]" class="form-control unit-price" step="0.01" min="0" required></td>
+                    <td><input type="number" name="total_price[]" class="form-control total-price" readonly></td>
                 </tr>
             `);
         });
@@ -487,22 +490,29 @@
             $('#person_email').val(email);
         });
 
-        // Adet, Birim fiyat ve Toplam fiyat hesaplama
-        $(document).on('input', '.quantity', function () {
-            let value = parseInt($(this).val());
-            $(this).val(isNaN(value) || value < 0 ? 0 : value);
-            updateTotalPrice($(this).closest('tr'));
-        });
-        $(document).on('input', '.unit-price', function () {
-            let value = parseFloat($(this).val());
-            $(this).val(isNaN(value) || value < 0 ? 0 : value.toFixed(2));
-            updateTotalPrice($(this).closest('tr'));
-        });
-        function updateTotalPrice(row) {
-            const quantity = parseInt(row.find('.quantity').val()) || 0;
-            const unitPrice = parseFloat(row.find('.unit-price').val()) || 0;
-            row.find('.total-price').val((quantity * unitPrice).toFixed(2));
+        // Virgül/nokta farkını normalize eden helper
+        function toNum(v) {
+            return parseFloat(String(v).replace(',', '.')) || 0;
         }
+
+        // Satır toplamını hesapla
+        function calcRow($tr) {
+            const qty  = toNum($tr.find('.quantity').val());
+            const unit = toNum($tr.find('.unit-price').val());
+            const total = qty * unit;
+            // DB'ye düzgün gitsin diye noktalı, 2 hane
+            $tr.find('.total-price').val(total.toFixed(2));
+        }
+
+        // Adet & birim fiyat değişince toplamı güncelle
+        $(document).on('input change', '.quantity, .unit-price', function () {
+            calcRow($(this).closest('tr'));
+        });
+
+        // Form submit olurken boş kalmış satır olmasın
+        $('#addOfferModal form').on('submit', function () {
+            $('#offerTableBody tr').each(function () { calcRow($(this)); });
+        });
 
         // Kapat butonuyla modal kapatma
         $('.close-modal').on('click', function () {
@@ -511,38 +521,39 @@
 
         // Düzenle butonuna tıklama
         $(document).on('click', '.edit-offer-button', function () {
-            const id = $(this).data('id');
-            const title = $(this).data('title') || '';
-            const demandNo = $(this).data('demand_no') || '';
-            const deliveryDate = $(this).data('delivery_date') || '';
-            const company = $(this).data('company');
-            const personName = $(this).data('person_name');
+            // ------------- Genel bilgiler -------------
+            const id          = $(this).data('id');
+            const title       = $(this).data('title') || '';
+            const demandNo    = $(this).data('demand_no') || '';
+            const deliveryDate= $(this).data('delivery_date') || '';
+            const company     = $(this).data('company');
+            const personName  = $(this).data('person_name');
             const personEmail = $(this).data('person_email');
-            const currency = $(this).data('currency') || '';
-            const descriptions = $(this).data('description') || '';
-            const quantities = $(this).data('quantity') || '';
-            const unitPrices = $(this).data('unit_price') || '';
-            const totalPrices = $(this).data('total_price') || '';
-            const notes = $(this).data('notes') || '';
+            const currency    = $(this).data('currency') || '';
+            const notes       = $(this).data('notes') || '';
 
-            if (!title || !demandNo || !deliveryDate || !personName || !personEmail || !currency) {
-                alert('Bazı veriler eksik. Lütfen kontrol edin.');
-                return;
-            }
-            if (!descriptions || !quantities || !unitPrices || !totalPrices) {
-                alert('Açıklama, adet veya fiyat bilgileri eksik.');
-                return;
+            // ------------- Satır dizileri -------------
+            // jQuery .data() camelCase karıştırmasın diye attr + JSON.parse kullanıyoruz
+            const descriptionArray = JSON.parse($(this).attr('data-desc')  || '[]');
+            const quantityArray    = JSON.parse($(this).attr('data-qty')   || '[]');
+            const unitPriceArray   = JSON.parse($(this).attr('data-unit')  || '[]');
+            const totalPriceArray  = JSON.parse($(this).attr('data-total') || '[]');
+
+            // ------------- Formu update moduna al -------------
+            const $form = $('#addOfferModal form');
+            $form.attr('action', `/offer/update/${id}`).attr('method', 'POST');
+            if (!$form.find('input[name="_method"]').length) {
+                $form.append('<input type="hidden" name="_method" value="PUT">');
             }
 
-            const descriptionArray = typeof descriptions === 'string' ? descriptions.split(',') : [];
-            const quantityArray = typeof quantities === 'string' ? quantities.split(',') : [];
-            const unitPriceArray = typeof unitPrices === 'string' ? unitPrices.split(',') : [];
-            const totalPriceArray = typeof totalPrices === 'string' ? totalPrices.split(',') : [];
+            // ------------- Üst alanları doldur -------------
+            $('#title').val(title);
+            $('#demand_no').val(demandNo);
+            $('#delivery_date').val(deliveryDate);
+            $('#currency').val(currency);
+            $('#notes').val(notes);
 
-            $('#addOfferModal form').attr('action', `/offer/update/${id}`).attr('method', 'POST');
-            if (!$("input[name='_method']").length) {
-                $('#addOfferModal form').append('<input type="hidden" name="_method" value="PUT">');
-            }
+            // Firma & kişi dropdownlarını doldur
             $('#company').val(company);
             $.ajax({
                 url: '/get-users-by-company',
@@ -555,32 +566,39 @@
                     });
                     $('#person_name').val(personName);
                     $('#person_email').val(personEmail);
-                },
-                error: function () {
-                    alert('Kullanıcıları çekerken hata oluştu');
                 }
             });
 
-            $('#title').val(title);
-            $('#demand_no').val(demandNo);
-            $('#delivery_date').val(deliveryDate);
-            $('#company').val(company).trigger('change');
-            $('#person_name').val(personName).trigger('change');
-            $('#person_email').val(personEmail);
-            $('#currency').val(currency);
-            $('#notes').val(notes);
-            $('#offerTableBody').empty();
-            descriptionArray.forEach((description, index) => {
-                $('#offerTableBody').append(`
+            // ------------- Satırları doldur -------------
+            const $tbody = $('#offerTableBody');
+            $tbody.empty();                                   // !!! BURADA $$ DEĞİL $
+
+            if (!descriptionArray.length) {
+                // En az 1 boş satır
+                $tbody.append(`
                     <tr>
-                        <td>${index + 1}</td>
-                        <td><input type="text" name="description[]" class="form-control" value="${description}" required></td>
-                        <td><input type="number" name="quantity[]" class="form-control quantity" value="${quantityArray[index] || ''}" required></td>
-                        <td><input type="number" name="unit_price[]" class="form-control unit-price" value="${unitPriceArray[index] || ''}" required></td>
-                        <td><input type="number" name="total_price[]" class="form-control total-price" value="${totalPriceArray[index] || ''}" readonly></td>
+                        <td>1</td>
+                        <td><input type="text" name="description[]" class="form-control" required></td>
+                        <td><input type="number" name="quantity[]" class="form-control quantity" step="0.01" min="0" required></td>
+                        <td><input type="number" name="unit_price[]" class="form-control unit-price" step="0.01" min="0" required></td>
+                        <td><input type="number" name="total_price[]" class="form-control total-price" readonly></td>
                     </tr>
                 `);
-            });
+            } else {
+                descriptionArray.forEach((d, i) => {
+                    $tbody.append(`
+                        <tr>
+                            <td>${i + 1}</td>
+                            <td><input type="text" name="description[]" class="form-control" value="${d}" required></td>
+                            <td><input type="number" name="quantity[]" class="form-control quantity" step="0.01" min="0" value="${quantityArray[i] ?? ''}" required></td>
+                            <td><input type="number" name="unit_price[]" class="form-control unit-price" step="0.01" min="0" value="${unitPriceArray[i] ?? ''}" required></td>
+                            <td><input type="number" name="total_price[]" class="form-control total-price" value="${totalPriceArray[i] ?? ''}" readonly></td>
+                        </tr>
+                    `);
+                });
+            }
+
+            // Modal başlığını değiştir ve aç
             $('#addOfferModalLabel').text('Teklif Düzenle');
             $('#addOfferModal').modal('show');
         });
