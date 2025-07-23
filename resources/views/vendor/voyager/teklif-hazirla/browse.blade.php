@@ -331,6 +331,15 @@
                                     <td><input type="number" name="total_price[]" class="form-control total-price" readonly></td>
                                 </tr>
                             </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="4" class="text-right">Genel Toplam</th>
+                                    <th>
+                                        <input type="text" id="grandTotalView" class="form-control" readonly>
+                                        <input type="hidden" name="grand_total" id="grandTotal" value="0">
+                                    </th>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                     <!-- Satır Ekle / Sil Butonları -->
@@ -442,7 +451,6 @@
         const today = new Date().toISOString().split('T')[0];
         $('#delivery_date').attr('min', today);
 
-        // Satır ekleme
         $('#addRowButton').on('click', function () {
             const rowNumber = $('#offerTableBody tr').length + 1;
             $('#offerTableBody').append(`
@@ -454,13 +462,14 @@
                     <td><input type="number" name="total_price[]" class="form-control total-price" readonly></td>
                 </tr>
             `);
+            calcGrandTotal();
         });
 
-        // Satır silme
         $('#removeRowButton').on('click', function () {
             const rowCount = $('#offerTableBody tr').length;
             if (rowCount > 1) {
                 $('#offerTableBody tr:last').remove();
+                calcGrandTotal();
             } else {
                 alert('İlk satır silinemez!');
             }
@@ -495,23 +504,40 @@
             return parseFloat(String(v).replace(',', '.')) || 0;
         }
 
+        // Sayıyı TR formatında göster
+        function fmt(v) {
+            return v.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         // Satır toplamını hesapla
         function calcRow($tr) {
             const qty  = toNum($tr.find('.quantity').val());
             const unit = toNum($tr.find('.unit-price').val());
             const total = qty * unit;
-            // DB'ye düzgün gitsin diye noktalı, 2 hane
-            $tr.find('.total-price').val(total.toFixed(2));
+            $tr.find('.total-price').val(total.toFixed(2)); // DB için noktalı
+        }
+
+        // Tüm satırları toplayıp footer'a yaz
+        function calcGrandTotal() {
+            let sum = 0;
+            $('#offerTableBody tr').each(function () {
+                sum += toNum($(this).find('.total-price').val());
+            });
+            $('#grandTotal').val(sum.toFixed(2));        // DB için
+            $('#grandTotalView').val(fmt(sum));          // kullanıcıya güzel gösterim
         }
 
         // Adet & birim fiyat değişince toplamı güncelle
         $(document).on('input change', '.quantity, .unit-price', function () {
-            calcRow($(this).closest('tr'));
+            const $tr = $(this).closest('tr');
+            calcRow($tr);
+            calcGrandTotal();
         });
 
         // Form submit olurken boş kalmış satır olmasın
         $('#addOfferModal form').on('submit', function () {
             $('#offerTableBody tr').each(function () { calcRow($(this)); });
+            calcGrandTotal();
         });
 
         // Kapat butonuyla modal kapatma
@@ -601,6 +627,10 @@
             // Modal başlığını değiştir ve aç
             $('#addOfferModalLabel').text('Teklif Düzenle');
             $('#addOfferModal').modal('show');
+            $('#addOfferModal').on('shown.bs.modal', function () {
+            calcGrandTotal();
+});
+
         });
 
         // Detay butonuna tıklanınca offerId'yi modal'a aktar ve modalı aç
