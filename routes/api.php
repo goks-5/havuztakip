@@ -33,3 +33,6 @@ Route::get('excel/devices', [DeviceExcelController::class, 'index']);
 Route::get('excel/device/{id}/data/{dataId}', [DeviceExcelController::class, 'data']);
 Route::get('excel/device-daily-latest', [DeviceExcelController::class, 'dailyLatest']);
 Route::get('excel/device-daily', [DeviceExcelController::class, 'dailyByDate']);
+
+Route::get('/read/devices-tags-values', 'DeviceTagsApiController@index')
+     ->middleware([\App\Http\Middleware\CheckCompanyToken::class]);
