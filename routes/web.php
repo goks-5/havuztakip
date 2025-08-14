@@ -15,6 +15,9 @@ use App\Http\Controllers\MeasurementController;
 use App\Fault;
 use App\Http\Controllers\FaultController;
 use App\Http\Controllers\VerilerController;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -309,7 +312,83 @@ Route::group(['prefix' => ''], function () {
     // Tekil gösterim
     Route::get('veriler/{id}', [VerilerController::class, 'show'])
     ->name('veriler.show');
-    
+
+    Route::get('/mail-info-circle-now', function () {
+        $companyId = Auth::user()->company_id; // oturumdaki şirket
+        $devices = DB::table('devices')
+            ->where('company_id', $companyId)
+            ->whereNull('deleted_at')
+            ->get(['id','mac','name','tags','last_data','last_at','tags_last_change']);
+
+        $timeout1 = setting('device.ofline') * 60;
+        $timeout2 = setting('device.oflinesayac');
+        $timeout3 = setting('device.tag') * 60;
+
+        $summary = [
+            'ofline'          => 0,
+            'deviceCount'     => $devices->count(),
+            'pointCount'      => 0,
+            'oflineCount'     => 0,
+            'oflineDevices'   => [],
+            'changeTagsCount' => 0,
+            'changeTags'      => [],
+        ];
+
+        foreach ($devices as $device) {
+            $tags = [];
+            if (!is_null($device->tags)) {
+                $tags = array_filter(json_decode($device->tags, true), function ($k) {
+                    return $k < '1000';
+                }, ARRAY_FILTER_USE_KEY);
+            }
+
+            $summary['pointCount'] += count($tags);
+
+            $timeout = ($device->mac === '00:00:00:00:00:01') ? $timeout2 : $timeout1;
+
+            if (strtotime($device->last_at) + $timeout < time() && $device->mac !== '00:00:00:00:00:02') {
+                $summary['oflineCount']++;
+                $summary['oflineDevices'][] = [
+                    'name'    => $device->name,
+                    'mac'     => $device->mac,
+                    'last_at' => $device->last_at,
+                ];
+                $summary['ofline'] = 1;
+            }
+
+            // 1000 ve üzeri: değişim izlenen etiketler
+            $changeTags = [];
+            if (!is_null($device->tags)) {
+                $changeTags = array_filter(json_decode($device->tags, true), function ($k) {
+                    return $k >= '1000';
+                }, ARRAY_FILTER_USE_KEY);
+            }
+            $changeAt = json_decode($device->tags_last_change, true) ?: [];
+            $changeTags = array_replace($changeTags, $changeAt);
+
+            foreach ($changeTags as $tagkey => $value) {
+                if (strtotime($value) + $timeout3 < time()) {
+                    $tagName = $tags[$tagkey - 1000] ?? ('Tag#' . ($tagkey - 1000));
+                    $summary['changeTags'][] = [
+                        'name'        => $device->name,
+                        'tag'         => $tagName,
+                        'last_change' => $value,
+                    ];
+                    $summary['changeTagsCount']++;
+                    $summary['ofline'] = 1;
+                }
+            }
+        }
+
+        // Mailable oluşturmadan direkt view ile gönder
+        Mail::send('emails.info_circle', ['summary' => $summary], function ($m) {
+            $m->to('gookceturun@gmail.com')
+            ->subject('Enerji Yönetim - Durum Özeti');
+        });
+
+        return 'Durum özeti maili gönderildi.';
+    })->middleware('auth');
+        
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });

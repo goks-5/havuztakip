@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\sendReportsMail::class,
+        \App\Console\Commands\SendInfoCircleMail::class,
     ];
 
     /**
@@ -92,6 +93,12 @@ class Kernel extends ConsoleKernel
                 Log::info("deploy : $buffer");
             });
         })->dailyAt('02:44');
+
+        $schedule->command('mail:info-circle --to=gookceturun@gmail.com')
+        ->dailyAt('09:00')
+        ->timezone('Europe/Istanbul')
+        ->appendOutputTo(storage_path('logs/info-circle.log'));
+
     }
 
     /**
