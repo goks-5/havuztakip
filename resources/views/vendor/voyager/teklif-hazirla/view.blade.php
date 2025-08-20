@@ -63,17 +63,39 @@
                 </tr>
             </thead>
             <tbody>
-                @if (!empty($offer->unit_price) && !empty($offer->total_price))
-                    @foreach (explode(',', $offer->unit_price) as $index => $unit_price)
-                    <tr>
-                        <td style="padding: 6px; border: 1px solid #ddd;">
-                            {{ explode(',', $offer->explanation)[$index] ?? 'Açıklama yok' }}
-                        </td>
-                        <td style="padding: 6px; border: 1px solid #ddd;">{{ explode(',', $offer->piece)[$index] ?? '0' }}</td>
-                        <td style="padding: 6px; border: 1px solid #ddd;">{{ number_format($unit_price, 2) }} {{ $offer->currency }}</td>
-                        <td style="padding: 6px; border: 1px solid #ddd;">{{ number_format(explode(',', $offer->total_price)[$index] ?? 0, 2) }} {{ $offer->currency }}</td>
-                    </tr>
-                    @endforeach
+                @php
+                    // Açıklama JSON kaydedildiyse onu kullan; değilse eski CSV'den böl
+                    $descArr  = json_decode($offer->explanation ?? '', true);
+                    if (!is_array($descArr)) {
+                        $descArr = explode(',', $offer->explanation ?? '');
+                    }
+
+                    $pieceArr = explode(',', $offer->piece        ?? '');
+                    $unitArr  = explode(',', $offer->unit_price   ?? '');
+                    $totalArr = explode(',', $offer->total_price  ?? '');
+                @endphp
+                    @if (!empty($offer->unit_price) && !empty($offer->total_price))
+                    @foreach ($unitArr as $index => $unit_price)
+                <tr>
+                    <td style="padding: 6px; border: 1px solid #ddd;">
+                        {{-- Satır sonlarını görünür yap --}}
+                        {!! nl2br(e($descArr[$index] ?? 'Açıklama yok')) !!}
+                        {{-- Alternatif: sadece CSS ile de olur
+                        <div style="white-space: pre-line;">{{ $descArr[$index] ?? 'Açıklama yok' }}</div>
+                        --}}
+                    </td>
+                    <td style="padding: 6px; border: 1px solid #ddd;">
+                        {{ $pieceArr[$index] ?? '0' }}
+                    </td>
+                    <td style="padding: 6px; border: 1px solid #ddd;">
+                        {{ number_format((float)$unit_price, 2) }} {{ $offer->currency }}
+                    </td>
+                    <td style="padding: 6px; border: 1px solid #ddd;">
+                        {{ number_format((float)($totalArr[$index] ?? 0), 2) }} {{ $offer->currency }}
+                    </td>
+                </tr>
+                @endforeach
+
                 @else
                     <tr>
                         <td colspan="4" style="padding: 6px; text-align: center; border: 1px solid #ddd;">Veri bulunamadı.</td>

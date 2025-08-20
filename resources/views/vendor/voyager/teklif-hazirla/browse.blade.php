@@ -48,36 +48,30 @@
                 </thead>
                 <tbody>
                     @forelse ($offers as $offer)
-                        @php
-                            // is_editable değerine göre renk belirleme
-                            $circleColor = 'gray';
-                            switch ($offer->is_editable) {
-                                case 1:
-                                    $circleColor = 'yellow'; // Teklifin onaylanması bekleniyor
-                                    break;
-                                case 0:
-                                    $circleColor = 'orange'; // Teklif oluşturuldu
-                                    break;
-                                case 2:
-                                    $circleColor = 'green'; // Proje oluşturuldu
-                                    break;
-                                case 3:
-                                    $circleColor = 'red'; // Teklif iptal edildi
-                                    break;
-                                case 4:
-                                    $circleColor = 'red'; // Proje iptal edildi
-                                    break;
-                                default:
-                                    $circleColor = 'gray';
-                            }
+  @php
+    $circleColor = 'gray';
+    switch ($offer->is_editable) {
+        case 1: $circleColor = 'yellow'; break;
+        case 0: $circleColor = 'orange'; break;
+        case 2: $circleColor = 'green';  break;
+        case 3: $circleColor = 'red';    break;
+        case 4: $circleColor = 'red';    break;
+        default: $circleColor = 'gray';
+    }
 
-                            // Burayı butondan ÖNCE ekle
-                            $desc  = is_array($offer->description)  ? $offer->description  : explode(',', $offer->explanation  ?? '');
-                            $qty   = is_array($offer->quantity)     ? $offer->quantity     : explode(',', $offer->piece        ?? '');
-                            $unit  = is_array($offer->unit_price)   ? $offer->unit_price   : explode(',', $offer->unit_price   ?? '');
-                            $total = is_array($offer->total_price)  ? $offer->total_price  : explode(',', $offer->total_price  ?? '');
+    // AÇIKLAMA: önce JSON dene, olmazsa eski CSV'ye dön
+    $desc = [];
+    if (is_array($offer->explanation)) {
+        $desc = $offer->explanation;
+    } else {
+        $decoded = json_decode($offer->explanation ?? '', true);
+        $desc = is_array($decoded) ? $decoded : explode(',', $offer->explanation ?? '');
+    }
 
-                        @endphp
+    $qty   = is_array($offer->quantity)   ? $offer->quantity   : explode(',', $offer->piece        ?? '');
+    $unit  = is_array($offer->unit_price) ? $offer->unit_price : explode(',', $offer->unit_price   ?? '');
+    $total = is_array($offer->total_price)? $offer->total_price: explode(',', $offer->total_price  ?? '');
+@endphp
 
                         <!-- Her satıra data-id ve data-status ekledik -->
                         <tr data-id="{{ $offer->id }}" data-status="{{ $offer->is_editable }}">
@@ -325,7 +319,7 @@
                             <tbody id="offerTableBody">
                                 <tr>
                                     <td>1</td>
-                                    <td><input type="text" name="description[]" class="form-control" placeholder="Açıklama" required></td>
+                                    <td><textarea name="description[]" class="form-control desc-input" rows="2" placeholder="Açıklama" required></textarea></td>
                                     <td><input type="number" name="quantity[]" class="form-control quantity" step="0.01" min="0" required></td>
                                     <td><input type="number" name="unit_price[]" class="form-control unit-price" step="0.01" min="0" required></td>
                                     <td><input type="number" name="total_price[]" class="form-control total-price" readonly></td>
@@ -423,6 +417,12 @@
 <script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
 <script>
     $(document).ready(function () {
+    function escapeHtml(str) {
+    str = (str ?? '').toString();
+    return str.replace(/[&<>"']/g, function (m) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
+    });
+  }
         // CKEditor'ü 'detailInput' textarea üzerinde başlatma
         if (typeof CKEDITOR !== 'undefined') {
             CKEDITOR.replace('detailInput');
@@ -456,7 +456,7 @@
             $('#offerTableBody').append(`
                 <tr>
                     <td>${rowNumber}</td>
-                    <td><input type="text" name="description[]" class="form-control" required></td>
+                    <td><textarea name="description[]" class="form-control desc-input" rows="2" required></textarea></td>
                     <td><input type="number" name="quantity[]" class="form-control quantity" step="0.01" min="0" required></td>
                     <td><input type="number" name="unit_price[]" class="form-control unit-price" step="0.01" min="0" required></td>
                     <td><input type="number" name="total_price[]" class="form-control total-price" readonly></td>
@@ -601,27 +601,33 @@
 
             if (!descriptionArray.length) {
                 // En az 1 boş satır
+               $tbody.append(`
+                <tr>
+                    <td>1</td>
+                    <td><textarea name="description[]" class="form-control desc-input" rows="2" required></textarea></td>
+                    <td><input type="number" name="quantity[]" class="form-control quantity" step="0.01" min="0" required></td>
+                    <td><input type="number" name="unit_price[]" class="form-control unit-price" step="0.01" min="0" required></td>
+                    <td><input type="number" name="total_price[]" class="form-control total-price" readonly></td>
+                </tr>
+                `);
+
+                            } else {
+                            descriptionArray.forEach((d, i) => {
                 $tbody.append(`
                     <tr>
-                        <td>1</td>
-                        <td><input type="text" name="description[]" class="form-control" required></td>
-                        <td><input type="number" name="quantity[]" class="form-control quantity" step="0.01" min="0" required></td>
-                        <td><input type="number" name="unit_price[]" class="form-control unit-price" step="0.01" min="0" required></td>
-                        <td><input type="number" name="total_price[]" class="form-control total-price" readonly></td>
+                    <td>${i + 1}</td>
+                    <td>
+                        <textarea name="description[]" class="form-control desc-input" rows="2" required>${
+                        escapeHtml(d)
+                        }</textarea>
+                    </td>
+                    <td><input type="number" name="quantity[]" class="form-control quantity" step="0.01" min="0" value="${quantityArray[i] ?? ''}" required></td>
+                    <td><input type="number" name="unit_price[]" class="form-control unit-price" step="0.01" min="0" value="${unitPriceArray[i] ?? ''}" required></td>
+                    <td><input type="number" name="total_price[]" class="form-control total-price" value="${totalPriceArray[i] ?? ''}" readonly></td>
                     </tr>
                 `);
-            } else {
-                descriptionArray.forEach((d, i) => {
-                    $tbody.append(`
-                        <tr>
-                            <td>${i + 1}</td>
-                            <td><input type="text" name="description[]" class="form-control" value="${d}" required></td>
-                            <td><input type="number" name="quantity[]" class="form-control quantity" step="0.01" min="0" value="${quantityArray[i] ?? ''}" required></td>
-                            <td><input type="number" name="unit_price[]" class="form-control unit-price" step="0.01" min="0" value="${unitPriceArray[i] ?? ''}" required></td>
-                            <td><input type="number" name="total_price[]" class="form-control total-price" value="${totalPriceArray[i] ?? ''}" readonly></td>
-                        </tr>
-                    `);
                 });
+
             }
 
             // Modal başlığını değiştir ve aç
@@ -637,6 +643,13 @@
         $(document).on('click', '.detail-offer-button', function() {
             var offerId = $(this).data('id');
             $('#detailModal').data('offerId', offerId).modal('show');
+        });
+
+        $(document).on('keydown', '.desc-input', function(e){
+        if (e.key === 'Enter') {
+            // Sadece satır atla, form submit olmasın
+            e.stopPropagation();
+        }
         });
 
         // Detay modalındaki Kaydet butonuna tıklayınca CKEditor üzerinden veriyi alıp AJAX ile gönderme
