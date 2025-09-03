@@ -105,19 +105,26 @@ Route::group(['prefix' => ''], function () {
     
     // Firma Tablosu Browse Route
     Route::get('/firma-tablosu', function () {
-        $company = \App\Firm::all();        // Doğru tablo adı kullanıldı
-        return view('vendor.voyager.firma-tablosu.browse', compact('company'));
-    })->name('firma-tablosu.browse');
+    $company = \App\Firm::all();        // Doğru tablo adı kullanıldı
+    return view('vendor.voyager.firma-tablosu.browse', compact('company'));
+    })->name('firma-tablosu.browse')->middleware('role:34');
     
-    Route::post('/firma-tablosu/store', [CompanyController::class, 'store'])->name('firma-tablosu.store');
-    Route::delete('/firma-tablosu/destroy/{id}', [CompanyController::class, 'destroy'])->name('firma-tablosu.destroy');
-    Route::put('/firma-tablosu/update/{id}', [CompanyController::class, 'update'])->name('firma-tablosu.update');
-
+    Route::post('/firma-tablosu/store', [CompanyController::class, 'store'])
+    ->name('firma-tablosu.store')->middleware('role:34');
+    Route::delete('/firma-tablosu/destroy/{id}', [CompanyController::class, 'destroy'])
+    ->name('firma-tablosu.destroy')->middleware('role:34');
+    Route::put('/firma-tablosu/update/{id}', [CompanyController::class, 'update'])
+    ->name('firma-tablosu.update')->middleware('role:34');
+    
     // Kullanıcı Tablosu Rotaları (Değiştirildi)
-    Route::get('/kullanici-tablosu', [UserController::class, 'index'])->name('kullanici-tablosu.index');
-    Route::post('/kullanici-tablosu/store', [UserController::class, 'store'])->name('kullanici-tablosu.store');
-    Route::put('/kullanici-tablosu/update/{id}', [UserController::class, 'update'])->name('kullanici-tablosu.update');
-    Route::delete('/kullanici-tablosu/destroy/{id}', [UserController::class, 'destroy'])->name('kullanici-tablosu.destroy');
+     Route::get('/kullanici-tablosu', [UserController::class, 'index'])
+    ->name('kullanici-tablosu.index')->middleware('role:34');
+    Route::post('/kullanici-tablosu/store', [UserController::class, 'store'])
+    ->name('kullanici-tablosu.store')->middleware('role:34');
+    Route::put('/kullanici-tablosu/update/{id}', [UserController::class, 'update'])
+    ->name('kullanici-tablosu.update')->middleware('role:34');
+    Route::delete('/kullanici-tablosu/destroy/{id}', [UserController::class, 'destroy'])
+    ->name('kullanici-tablosu.destroy')->middleware('role:34');
 
     Route::get('/teklif-hazirla', function () {
         $offers = \App\Offer::all();
@@ -138,7 +145,9 @@ Route::group(['prefix' => ''], function () {
     Route::post('/teklif/store', [TeklifController::class, 'store'])->name('teklif.store');
     Route::post('/offer/store', [OfferController::class, 'store'])->name('offer.store');
     Route::get('/offer/view/{id}', [OfferController::class, 'view'])->name('offer.view');
-    Route::get('/teklif-hazirla', [OfferController::class, 'index'])->name('teklif-hazirla.browse');
+    Route::get('/teklif-hazirla', [OfferController::class, 'index'])
+    ->name('teklif-hazirla.browse')
+    ->middleware('role:34');
     Route::put('/offer/update/{id}', [OfferController::class, 'update'])->name('offer.update');
     Route::post('/offer/set-editable/{id}', [OfferController::class, 'setEditable'])->name('offer.setEditable');
     Route::post('/offer/send/{id}', [OfferController::class, 'send'])->name('offer.send');
@@ -301,9 +310,9 @@ Route::group(['prefix' => ''], function () {
      ->name('tum-is-emirleri.export');
 
     Route::get('/projeler', function () {
-        $offers = DB::table('offer')->where('is_editable', 2)->get();
-        return view('vendor.voyager.projeler.browse', compact('offers'));
-    })->name('projeler.browse');
+    $offers = DB::table('offer')->where('is_editable', 2)->get();
+    return view('vendor.voyager.projeler.browse', compact('offers'));
+    })->name('projeler.browse')->middleware('role:34');
 
     // Listeleme + arama
     Route::get('veriler', [VerilerController::class, 'index'])
