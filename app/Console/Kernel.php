@@ -31,14 +31,6 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         try {
-            $schedule->call(function () {
-                DeviceData::deleteOldData(93);
-            })->everyThirtyMinutes();
-        } catch (\Throwable $th) {
-            log::error($th->getMessage(), $th->getTrace());
-        }
-
-        try {
             if ((float)date("i") < 7) {
                 $schedule->call(function () {
                     Device::fillHourly();
