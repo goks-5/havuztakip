@@ -86,7 +86,7 @@ class Kernel extends ConsoleKernel
             });
         })->dailyAt('02:44');
 
-        $schedule->command('mail:info-circle --to=gookceturun@gmail.com')
+        $schedule->command('mail:info-circle --to=alparslan@tateknik.com')
         ->dailyAt('09:00')
         ->timezone('Europe/Istanbul')
         ->appendOutputTo(storage_path('logs/info-circle.log'));

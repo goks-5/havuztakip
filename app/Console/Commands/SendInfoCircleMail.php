@@ -29,7 +29,7 @@ class SendInfoCircleMail extends Command
             $q->where('company_id', $companyId);
         }
         $devices = $q->get([
-            'id','company_id','mac','name','tags','last_data','last_at','tags_last_change'
+            'id','company_id','mac','name','tags','last_data','last_at','tags_last_change','status'
         ]);
 
         // 2) Zaman aşımı ayarları
@@ -44,6 +44,8 @@ class SendInfoCircleMail extends Command
             'pointCount'      => 0,
             'oflineCount'     => 0,
             'oflineDevices'   => [],
+            'passiveCount'    => 0,
+            'passiveDevices'  => [],
             'changeTagsCount' => 0,
             'changeTags'      => [],
         ];
@@ -53,29 +55,41 @@ class SendInfoCircleMail extends Command
             $tags = [];
             if (!is_null($device->tags)) {
                 $tags = array_filter(json_decode($device->tags, true), function ($k) {
-                    return $k < '1000';
+                    return $k < 1000;
                 }, ARRAY_FILTER_USE_KEY);
             }
 
             $summary['pointCount'] += count($tags);
 
             $timeout = ($device->mac === '00:00:00:00:00:01') ? $timeout2 : $timeout1;
+            $isOffline = strtotime($device->last_at) + $timeout < time() && $device->mac !== '00:00:00:00:00:02';
+            $isPassive = ($device->status ?? 1) == 0;
 
-            if (strtotime($device->last_at) + $timeout < time() && $device->mac !== '00:00:00:00:00:02') {
+            if ($isOffline) {
                 $summary['oflineCount']++;
                 $summary['oflineDevices'][] = [
                     'name'    => $device->name,
                     'mac'     => $device->mac,
                     'last_at' => $device->last_at,
+                    'status'  => $isPassive ? 0 : 1,
                 ];
                 $summary['ofline'] = 1;
+            }
+
+            if ($isPassive) {
+                $summary['passiveCount']++;
+                $summary['passiveDevices'][] = [
+                    'id'     => $device->id,
+                    'name'   => $device->name,
+                    'status' => 0,
+                ];
             }
 
             // 1000+ anahtarlar: değişim izleme
             $changeTags = [];
             if (!is_null($device->tags)) {
                 $changeTags = array_filter(json_decode($device->tags, true), function ($k) {
-                    return $k >= '1000';
+                    return $k >= 1000;
                 }, ARRAY_FILTER_USE_KEY);
             }
             $changeAt = json_decode($device->tags_last_change, true) ?: [];
@@ -110,15 +124,19 @@ class SendInfoCircleMail extends Command
 
         // 5) Konu & gönderim
         $subject = sprintf(
-            '%s - Enerji Yönetim - Durum Özeti | Cihaz:%d Nokta:%d Offline:%d',
+            '%s - Enerji Yönetim - Durum Özeti | Cihaz:%d Nokta:%d Offline:%d Pasif:%d',
             $companyName,
             $summary['deviceCount'],
             $summary['pointCount'],
-            $summary['oflineCount']
+            $summary['oflineCount'],
+            $summary['passiveCount']
         );
 
         // HTML view varsa onu kullanıyoruz (resources/views/emails/info_circle.blade.php)
-        Mail::send('emails.info_circle', ['summary' => $summary, 'companyName' => $companyName], function ($m) use ($recipients, $subject) {
+        Mail::send('emails.info_circle', [
+            'summary'     => $summary,
+            'companyName' => $companyName
+        ], function ($m) use ($recipients, $subject) {
             $m->to($recipients)->subject($subject);
         });
 
