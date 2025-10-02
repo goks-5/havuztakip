@@ -487,7 +487,6 @@ class Devices extends VoyagerBaseController
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
-        // Compatibility with Model binding.
         $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
 
         $model = app($dataType->model_name);
@@ -500,53 +499,32 @@ class Devices extends VoyagerBaseController
             $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
         }
 
-        // Check permission
-        switch ($request->mac) {
-            case '00:00:00:00:00:00':
-                $this->authorize('virtual',  app('App\Device'));
-                break;
-            case '00:00:00:00:00:01':
-                $this->authorize('dosab',  app('App\Device'));
-                break;
-            case '00:00:00:00:00:02':
-                $this->authorize('manuel',  app('App\Device'));
-                break;
-            case '00:00:00:00:00:03':
-                $this->authorize('remote',  app('App\Device'));
-                break;
-                case '00:00:00:00:00:04':
-                    $this->authorize('virtual',  app('App\Device'));
-                    break;
-            default:
-                $this->authorize('edit',  app('App\Device'));
-                break;
-        }
+        // ✅ Checkbox için fix
+        $status = $request->has('status') ? 1 : 0;
+        $request->merge(['status' => $status]);
 
-        // Validate fields with ajax
+        // Validate
         $val = $this->validateBread($request->all(), $dataType->editRows, $dataType->name, $id)->validate();
 
         $dataAll = $request->all();
         if (!isset($dataAll['company_id']) || $dataAll['company_id'] ==  Auth::user()->company_id) {
             $dataType->editRows->push((object)[
                 "data_type_id" => 17,
-                "field" => "type",
-                "type" => "query_text",
-                "display_name" => "type",
+                "field" => "status",   // ✅ status alanını ekledik
+                "type" => "checkbox",
+                "display_name" => "Durum",
                 "edit" => 1,
                 "add" => 1,
                 "details" => "{}"
             ]);
-            $dataType->editRows->push((object)[
-                "data_type_id" => 17,
-                "field" => "tags_last_change",
-                "type" => "text",
-                "display_name" => "Tags Last Change",
-                "edit" => 1,
-                "add" => 1,
-                "details" => "{}"
-            ]);
-            $request->request->add(['tags_last_change' => []]);
-            $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
+
+        // Voyager'ın kendi update mekanizması
+        $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
+
+        // Status değerini zorla kaydet
+        $data->status = $status;
+        $data->save();
+
         }
 
         event(new BreadDataUpdated($dataType, $data));
@@ -562,6 +540,7 @@ class Devices extends VoyagerBaseController
             'alert-type' => 'success',
         ]);
     }
+    
     //***************************************
     //
     //                   /\

@@ -19,69 +19,79 @@ class Device extends Model
 
     public static function hourly()
     {
-        //  DB::enableQueryLog();
-        $sensorler =  DB::table('device_last_hours')->get();
+        $sensorler = DB::table('device_last_hours')->get();
+        $count = 0;
+
         foreach ($sensorler as $sensor) {
-            if (!Device::addhourly($sensor->device_id, $sensor->data_id, $sensor->last_hour)) {
-                $sensor2 = DB::table('device_datas')
-                    ->where('device_id', $sensor->device_id)
-                    ->where('data_id', $sensor->data_id)
-                    ->where('created_at', '>', date('Y-m-d H:i:s', strtotime("+30 minute", strtotime($sensor->last_hour))))->first(DB::raw('date_format( min( `device_datas`.`created_at` ), "%Y-%m-%d %H:00:00" ) as last_hour'));
-                if (isset($sensor2->last_hour)) {
-                    Device::addhourly($sensor->device_id, $sensor->data_id, $sensor2->last_hour);
-                }
+            $device = Device::find($sensor->device_id);
+
+            // Eğer cihaz pasifse veri ekleme
+            if (!$device || $device->status == 0) {
+                Log::info("Device {$sensor->device_id} pasif, hourly çalışmadı.");
+                continue;
+            }
+
+            $sonuc = Device::addhourly($sensor->device_id, $sensor->data_id, $sensor->last_hour);
+            if ($sonuc) {
+                $count++;
             }
         }
-        //  DB::table('test')->insert(['test'=>'ata','created_at'=>date('Y-m-d H:i:s')]);
-        //  dd(DB::getQueryLog());
-    }
 
+        Log::info("hourly tamamlandı, $count adet kayıt işlendi.");
+        return $count; // <-- ARTIK null dönmeyecek
+    }
 
     public static function fillHourly()
     {
         $devices = Device::where('mac', '<>', '00:00:00:00:00:00')
             ->where('last_at', '<', date('Y-m-d H:i:s', strtotime("-5 minute")))
             ->get();
-        dump('Offline cihazlara Saatlik data giriliyor' . count($devices) . " Adet cihaz var.");
-        Log::info('Offline cihazlara Saatlik data giriliyor' . count($devices) . " Adet cihaz var.");
+
+        dump('Offline cihazlara Saatlik data giriliyor ' . count($devices) . " Adet cihaz var.");
+        Log::info('Offline cihazlara Saatlik data giriliyor ' . count($devices) . " Adet cihaz var.");
+
         foreach ($devices as $device) {
+            // Eğer cihaz pasifse veri ekleme
+            if ($device->status == 0) {
+                dump($device->name . " pasif, saatlik veri eklenmedi.");
+                Log::info($device->name . " pasif, saatlik veri eklenmedi.");
+                continue;
+            }
 
             $lastdata = json_decode($device->last_data, true);
             $multiplier = json_decode($device->multiplier, true);
             $offset = json_decode($device->offset, true);
+
             if (is_array($lastdata)) {
                 $tagCount = 0;
                 foreach ($lastdata as $data_id => $value) {
                     if ($data_id < 100) {
                         $start = Carbon::now()->startOfHour();
-                        $device_data = DeviceData::where(["device_id" => $device->id, "data_id" => $data_id, 'hourly' => $start])->first();
+                        $device_data = DeviceData::where([
+                            "device_id" => $device->id,
+                            "data_id"   => $data_id,
+                            "hourly"    => $start
+                        ])->first();
+
                         if (!$device_data) {
-                            if (isset($offset[$data_id]) && !empty($offset[$data_id])) {
-                                $offsetValue = floatval($offset[$data_id]);
-                            } else {
-                                $offsetValue = 0;
-                            }
-                            if (isset($multiplier[$data_id]) && !empty($multiplier[$data_id])) {
-                                $multiplierValue = floatval($multiplier[$data_id]);
-                            } else {
-                                $multiplierValue = 1;
-                            }
+                            $offsetValue = isset($offset[$data_id]) ? floatval($offset[$data_id]) : 0;
+                            $multiplierValue = isset($multiplier[$data_id]) ? floatval($multiplier[$data_id]) : 1;
 
                             DeviceData::insert([
-                                "device_id" => $device->id,
-                                "data_id" => $data_id,
-                                "value" => $value,
-                                'created_at' => $start,
-                                'hourly' => $start,
-                                'multiplier' => $multiplierValue,
-                                'offset' => $offsetValue
+                                "device_id"  => $device->id,
+                                "data_id"    => $data_id,
+                                "value"      => $value,
+                                "created_at" => $start,
+                                "hourly"     => $start,
+                                "multiplier" => $multiplierValue,
+                                "offset"     => $offsetValue
                             ]);
                             ++$tagCount;
                         }
                     }
                 }
-                dump($device->name  . " ofline cihazına " .  $tagCount . ' Etiketine Saatlik Veri Girildi ');
-                Log::info($device->name  . " ofline cihazına " .  $tagCount . ' Etiketine Saatlik Veri Girildi ');
+                dump($device->name . " offline cihazına " . $tagCount . " Etiketine Saatlik Veri Girildi");
+                Log::info($device->name . " offline cihazına " . $tagCount . " Etiketine Saatlik Veri Girildi");
             }
         }
     }
@@ -177,8 +187,6 @@ class Device extends Model
         return round($result, 2);
     }
 
-
-
     private static function evalMath($expression)
     {
         // İzin verilen matematiksel fonksiyonlar listesi
@@ -239,10 +247,6 @@ class Device extends Model
         }
     }
     
-
-
-
-
     private static function echoTimer($start = false, $last = false)
     {
         $now = microtime(true);
@@ -257,11 +261,12 @@ class Device extends Model
         return $now;
     }
 
-    public static function diffData($id = null)
+   public static function diffData($id = null)
     {
         $startd = false;
         $last = false;
         $startd = Device::echoTimer($startd, $last);
+
         if ($id == null) {
             $devices = Device::where(function ($query) {
                 $query->Where('tags', 'LIKE', '% Saatlik"%')
@@ -270,14 +275,24 @@ class Device extends Model
                     ->orWhere('tags', 'LIKE', '% Aylık"%')
                     ->orWhere('tags', 'LIKE', '% Yıllık"%');
             })
-                ->orderBy("diff_at")->limit(500)->get();
+            ->orderBy("diff_at")
+            ->limit(500)
+            ->get();
         } else {
             $devices = Device::where('id', $id)->get();
         }
-        //  $last = Device::echoTimer($startd,$last); 
-        dump('döngüye giriyor ' . count($devices) . "Adet cihaz var.");
-        Log::info('döngüye giriyor ' . count($devices) . "Adet cihaz var.");
+
+        dump('döngüye giriyor ' . count($devices) . " Adet cihaz var.");
+        Log::info('döngüye giriyor ' . count($devices) . " Adet cihaz var.");
+
         foreach ($devices as $device) {
+            // pasif cihazı atla
+            if ($device->status == 0) {
+                dump($device->name . " pasif, diffData işlenmedi.");
+                Log::info($device->name . " pasif, diffData işlenmedi.");
+                continue;
+            }
+
             $device_id = $device->id;
             $last_data = json_decode($device->last_data, true);
             $types = json_decode($device->type, true);
@@ -289,9 +304,7 @@ class Device extends Model
             }
             $baseStart = Carbon::now()->subHours($setting['day_start_hour'])->subMinutes(40)->startOfDay()->addHours($setting['day_start_hour']);
 
-
             $deviceTags = json_decode($device->tags, true);
-
             $filteredData = [];
 
             foreach ($deviceTags as $key => $value) {
@@ -354,23 +367,22 @@ class Device extends Model
                 }
             }
             DB::table('devices')->where('id', $device->id)->update(['last_data' => json_encode($last_data, true), "diff_at" => date('Y-m-d H:i:s')]);
-            //   dump($device->name . " : " . $device->id);
-            //    $last = Device::echoTimer(false,$last);
         }
         Device::echoTimer($startd, false);
     }
+
     private static function addDiffData($device_id, $data_id, $targetData_id, $start, $end, $type = 'diff', $default = -1)
     {
-        //  dump($device_id, $data_id, $targetData_id, $start, $end, $type );
-        // $startd = false;
-        //  $lastd = false;
-        //   $startd = Device::echoTimer($startd,$lastd);
+        $device = Device::find($device_id);
+        if (!$device || $device->status == 0) {
+            Log::info("Device $device_id pasif, addDiffData çalışmadı.");
+            return 0;
+        }
 
         if ($type == 'diff' && $targetData_id >= 200) {
             $type = 'sum';
             $data_id = $data_id + 100;
         }
-
 
         $triger = false;
         $first = false;
@@ -381,22 +393,18 @@ class Device extends Model
             $start = Carbon::now()->subHours($time)->startOfDay()->addHours($time);
             $triger = Device::getValue($device_id, $data_id, $start, 60);
         } else {
-            // dump('first');
             $rememberKey = sha1("first_" . $device_id . "_" . $data_id . "_" . $start);
             $first =  Cache::remember($rememberKey, 86400, function () use ($device_id, $data_id, $start) {
                 return Device::getDayFirstValue($device_id, $data_id, $start);
             });
 
-            // $lastd = Device::echoTimer($startd,$lastd);
-            //  dump('Last');
             $last = Device::getDayLastValue($device_id, $data_id, $end, $start);
             if ($default == -1) {
                 $lastData = json_decode(Device::find($device_id)->last_data, true);
                 $default = $lastData[$data_id] ?? 0;
             }
-
-            //    $lastd = Device::echoTimer(false,$lastd);
         }
+
         $rememberKey = sha1("data_" . $device_id . "_" . $targetData_id . "_" . $start);
         $data = Cache::remember($rememberKey, 86400, function () use ($device_id, $targetData_id, $start) {
             return DB::table('device_datas')
@@ -404,13 +412,9 @@ class Device extends Model
                 ->where('data_id', $targetData_id)
                 ->where('created_at', $start)->first();
         });
-        //  dump('Data');
-        //  $lastd = Device::echoTimer(false,$lastd);
-
 
         if ($first) {
             $firstValue = $first->value;
-            // katsayı değişmişse ilk değeri yeni katsayıya göre hesapla.
             if ($last) {
                 if (
                     ($last->offset !== null && $first->offset !== null && $first->offset !== $last->offset) ||
@@ -422,26 +426,20 @@ class Device extends Model
         } else {
             $firstValue = $default;
         }
+
         if ($last) {
             $lastValue = $last->value;
         } else {
             $lastValue = $default;
         }
 
-
-
-
         switch ($type) {
-            case 'last':
-                $value = $lastValue;
-                break;
-            case 'first':
-                $value =  $firstValue;
-                break;
+            case 'last': $value = $lastValue; break;
+            case 'first': $value = $firstValue; break;
             case 'max':
                 $rememberKey = sha1("max_" . $device_id . "_" . $targetData_id . "_" . $start);
                 $value = Cache::remember($rememberKey, 600, function () use ($device_id, $data_id, $start, $end) {
-                    return  DB::table('device_datas')
+                    return DB::table('device_datas')
                         ->where('device_id', $device_id)
                         ->where('data_id', $data_id)
                         ->whereBetween('created_at', [$start, $end])
@@ -451,7 +449,7 @@ class Device extends Model
             case 'min':
                 $rememberKey = sha1("min_" . $device_id . "_" . $targetData_id . "_" . $start);
                 $value = Cache::remember($rememberKey, 600, function () use ($device_id, $data_id, $start, $end) {
-                    return  DB::table('device_datas')
+                    return DB::table('device_datas')
                         ->where('device_id', $device_id)
                         ->where('data_id', $data_id)
                         ->whereBetween('created_at', [$start, $end])
@@ -461,7 +459,7 @@ class Device extends Model
             case 'avg':
                 $rememberKey = sha1("avg_" . $device_id . "_" . $targetData_id . "_" . $start);
                 $value = Cache::remember($rememberKey, 600, function () use ($device_id, $data_id, $start, $end) {
-                    return   DB::table('device_datas')
+                    return DB::table('device_datas')
                         ->where('device_id', $device_id)
                         ->where('data_id', $data_id)
                         ->whereBetween('created_at', [$start, $end])
@@ -471,30 +469,31 @@ class Device extends Model
             case 'sum':
                 $rememberKey = sha1("sum_" . $device_id . "_" . $targetData_id . "_" . $start);
                 $value = Cache::remember($rememberKey, 600, function () use ($device_id, $data_id, $start, $end) {
-                    return   DB::table('device_datas')
+                    return DB::table('device_datas')
                         ->where('device_id', $device_id)
                         ->where('data_id', $data_id)
                         ->whereBetween('created_at', [$start, $end])
                         ->orderBy('created_at', 'desc')->sum('value');
                 });
                 break;
-            case 'triger':
-                $value = $triger->value;
-                break;
-            default:
-                $value = $lastValue -  $firstValue;
-                break;
+            case 'triger': $value = $triger->value; break;
+            default: $value = $lastValue - $firstValue; break;
         }
 
-        // $lastd = Device::echoTimer(false,$lastd);
         $value = round($value, 2);
-        // dump($type, $value);
-
 
         if ($data) {
             DB::table('device_datas')->where('id', $data->id)->update(['value' => $value]);
         } else {
-            DB::table('device_datas')->insert(["device_id" => $device_id, "data_id" => $targetData_id, "value" => $value, 'created_at' => $start, 'hourly' => $start, 'multiplier' => 1, 'offset' => 0]);
+            DB::table('device_datas')->insert([
+                "device_id" => $device_id,
+                "data_id"   => $targetData_id,
+                "value"     => $value,
+                'created_at'=> $start,
+                'hourly'    => $start,
+                'multiplier'=> 1,
+                'offset'    => 0
+            ]);
         }
         return $value;
     }
@@ -522,7 +521,6 @@ class Device extends Model
         return $data;
     }
 
-
     public static function getDayFirstValueOnCache($device_id, $data_id, $start)
     {
         $rememberKey = sha1("first_" . $device_id . "_" . $data_id . "_" . $start);
@@ -535,6 +533,7 @@ class Device extends Model
             return 0;
         }
     }
+
     public static function getDayLastValue($device_id, $data_id, $time, $start)
     {
         $islem = strtotime($time);
@@ -574,7 +573,6 @@ class Device extends Model
         }*/
         return $data;
     }
-
 
     private static function getValue($device_id, $data_id, $time, $maxMinute = 720, $diffMinute = 60)
     {
@@ -626,8 +624,6 @@ class Device extends Model
                 break;
         }
 
-
-
         $values = DB::table('device_datas')
             ->where('device_id', $device_id)
             ->where('data_id', $data_id)
@@ -640,7 +636,6 @@ class Device extends Model
 
     public function resetSub($time)
     {
-
         $subDevices = $this->findSubs();
 
         foreach ($subDevices as $subDevice) {
@@ -652,22 +647,27 @@ class Device extends Model
     /*
     return Device 
     */
+
     protected function findSubs()
     {
         return  Device::where('formula', 'like', "%[" . $this->id . "_%")->get();
     }
 
-
-
-
-    protected function reCalculate($time)
+   protected function reCalculate($time)
     {
+        // pasif cihazı atla
+        if ($this->status == 0) {
+            Log::info("Device {$this->id} pasif, reCalculate yapılmadı.");
+            return;
+        }
+
         $setting = CompanySetting::select('day_start_hour', 'week_start_day', 'month_start_day')->find($this->company_id);
         $baseStart = Carbon::parse($time)->subHours($setting['day_start_hour'])->startOfDay()->addHours($setting['day_start_hour']);
         $tags = json_decode($this->formula);
         $allTags = json_decode($this->tags, true);
         $types = json_decode($this->type, true);
         $degistir = array();
+
         foreach ($tags as $tag) {
             $match = array();
             preg_match_all('/\[(.*?)\]/', $tag, $match);
@@ -675,20 +675,7 @@ class Device extends Model
                 foreach ($match[1] as $device_dataid) {
                     $device = explode("_", $device_dataid);
                     $value = self::getValue($device[0], $device[1], $baseStart);
-                    if ($value) {
-                        $degistir[$device_dataid] = $value->value;
-                    } else {
-                        $degistir[$device_dataid] = 0;
-                    }
-                }
-            } else {
-
-                $device = explode("_", $match[1]);
-                $value =  self::getValue($device[0], $device[1], $baseStart);
-                if ($value) {
-                    $degistir[$match[1]] = $value->value;
-                } else {
-                    $degistir[$match[1]] = 0;
+                    $degistir[$device_dataid] = $value ? $value->value : 0;
                 }
             }
         }
@@ -700,7 +687,7 @@ class Device extends Model
 
             $result = Device::calculate($tag);
             DeviceData::where('device_id', $this->id)->where('data_id', $data_id)->where('created_at', $baseStart)->delete();
-            DB::table('device_datas')->insert(['device_id' => $this->id, 'data_id' => $data_id, 'value' => $result, 'created_at' => $baseStart, 'hourly' => '$baseStart']);
+            DB::table('device_datas')->insert(['device_id' => $this->id, 'data_id' => $data_id, 'value' => $result, 'created_at' => $baseStart, 'hourly' => $baseStart]);
 
             $start = clone $baseStart;
             $type = 'diff';
@@ -742,9 +729,6 @@ class Device extends Model
         }
     }
 
-
-
-
     private static function addhourly($device_id, $data_id, $last_hour)
     {
         $sonsaat = strtotime($last_hour);
@@ -767,4 +751,5 @@ class Device extends Model
             return false;
         }
     }
+
 }
