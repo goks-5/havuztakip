@@ -50,52 +50,59 @@ class Ajax extends Controller
         }
     }
    public function deviceOnline()
-{
-    $this->authorize('browse_admin');
+    {
+        $this->authorize('browse_admin');
 
-    $devices = DB::table('devices')
-        ->where('company_id', Auth::user()->company_id)
-        ->whereNull('deleted_at')
-        ->get(['id', 'mac', 'name', 'tags', 'last_data', 'last_at']);
+        $devices = DB::table('devices')
+            ->where('company_id', Auth::user()->company_id)
+            ->whereNull('deleted_at')
+            ->get(['id', 'mac', 'name', 'tags', 'last_data', 'last_at', 'status']);
 
-    $timeout1 = setting('device.ofline') * 60;
-    $timeout2 = setting('device.oflinesayac');
+        $timeout1 = setting('device.ofline') * 60;
+        $timeout2 = setting('device.oflinesayac');
 
-    $cikti["ofline"] = 0;
-    $cikti['deviceCount'] = count($devices);
-    $cikti['pointCount'] = 0;
-    $cikti['oflineCount'] = 0;
-    $cikti['oflineDevices'] = [];
+        $cikti = [
+            "ofline"        => 0,
+            "deviceCount"   => count($devices),
+            "pointCount"    => 0,
+            "oflineCount"   => 0,
+            "passiveCount"  => 0,
+            "oflineDevices" => [],
+            "passiveDevices"=> []
+        ];
 
-    foreach ($devices as $device) {
-        $tags = [];
+        foreach ($devices as $device) {
+            $tags = [];
 
-        // Normal tagler (0–99)
-        if (!is_null($device->tags)) {
-            $tags = array_filter(json_decode($device->tags, true), function ($k) {
-                return $k < 100;
-            }, ARRAY_FILTER_USE_KEY);
+            // Normal tagler (0–99)
+            if (!is_null($device->tags)) {
+                $tags = array_filter(json_decode($device->tags, true), function ($k) {
+                    return $k < 100;
+                }, ARRAY_FILTER_USE_KEY);
+            }
+
+            $cikti['pointCount'] += count($tags);
+
+            // MAC adresine göre timeout seçimi
+            $timeout = ($device->mac == '00:00:00:00:00:01') ? $timeout2 : $timeout1;
+
+            $isOffline = strtotime($device->last_at) + $timeout < strtotime('now') && $device->mac != '00:00:00:00:00:02';
+            $isPassive = $device->status == 0;
+
+            if ($isOffline) {
+                ++$cikti['oflineCount'];
+                $cikti['oflineDevices'][] = $device;
+                $cikti["ofline"] = 1;
+            }
+
+            if ($isPassive) {
+                ++$cikti['passiveCount'];
+                $cikti['passiveDevices'][] = $device;
+            }
         }
 
-        $cikti['pointCount'] += count($tags);
-
-        // MAC adresine göre timeout seçimi
-        if ($device->mac == '00:00:00:00:00:01') {
-            $timeout = $timeout2;
-        } else {
-            $timeout = $timeout1;
-        }
-
-        // Cihaz çevrimdışı kontrolü
-        if (strtotime($device->last_at) + $timeout < strtotime('now') && $device->mac != '00:00:00:00:00:02') {
-            ++$cikti['oflineCount'];
-            $cikti['oflineDevices'][] = $device;
-            $cikti["ofline"] = 1;
-        }
+        return response()->json($cikti);
     }
-
-    return json_encode($cikti);
-}
 
     public function DeviceList()
     {
