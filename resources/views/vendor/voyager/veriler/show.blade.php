@@ -8,7 +8,7 @@
         justify-content: space-between;
         align-items: flex-end;
         flex-wrap: wrap;
-        margin-top: 30px; /* 🔼 Buraya eklendi */
+        margin-top: 30px;
         margin-bottom: 20px;
         padding-bottom: 20px;
         border-bottom: 2px solid #ddd;
@@ -116,6 +116,18 @@
             $currentPage,
             ['path' => request()->url(), 'query' => request()->query()]
         );
+
+        // Period -> offset eşleşmesi
+        $period = request('period');
+        $offsetMap = [
+            'endeks'   => 0,
+            'saatlik'  => 100,
+            'günlük'   => 200,
+            'haftalık' => 300,
+            'aylık'    => 400,
+            'yıllık'   => 500,
+        ];
+        $offset = $offsetMap[strtolower($period ?? 'endeks')] ?? 0;
     @endphp
 
     {{-- Görünen Tablo --}}
@@ -133,11 +145,9 @@
                 @forelse($paginated as $timestamp => $cells)
                     <tr>
                         <td>{{ $timestamp }}</td>
-                        @foreach($tagList as $baseId => $label)
+                        @foreach($tagList as $id => $label)
                             @php
-                                $periodLabel = ucfirst(request('period')) == 'Endeks' ? '' : ' ' . ucfirst(request('period'));
-                                $data_id = collect($tags)->search(trim($label . $periodLabel));
-                                $value = optional($cells->firstWhere('data_id', (int) $data_id))->value;
+                                $value = optional($cells->firstWhere('data_id', (int) $id + $offset))->value;
                             @endphp
                             <td>{{ $value ?? '-' }}</td>
                         @endforeach
@@ -169,11 +179,9 @@
             @foreach($grouped as $timestamp => $cells)
                 <tr>
                     <td>{{ $timestamp }}</td>
-                    @foreach($tagList as $baseId => $label)
+                    @foreach($tagList as $id => $label)
                         @php
-                            $periodLabel = ucfirst(request('period')) == 'Endeks' ? '' : ' ' . ucfirst(request('period'));
-                            $data_id = collect($tags)->search(trim($label . $periodLabel));
-                            $value = optional($cells->firstWhere('data_id', (int) $data_id))->value;
+                            $value = optional($cells->firstWhere('data_id', (int) $id + $offset))->value;
                         @endphp
                         <td>{{ $value ?? '-' }}</td>
                     @endforeach
