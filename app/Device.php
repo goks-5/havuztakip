@@ -420,7 +420,14 @@ class Device extends Model
                     ($last->offset !== null && $first->offset !== null && $first->offset !== $last->offset) ||
                     ($last->multiplier !== null && $first->multiplier !== null && $first->multiplier !== $last->multiplier)
                 ) {
-                    $firstValue =  (($firstValue - $first->offset) / $first->multiplier) * $last->multiplier  + $last->offset;
+                    // multiplier 0 kontrolü ekledik
+                    if (!empty($first->multiplier) && $first->multiplier != 0) {
+                        $firstValue = (($firstValue - $first->offset) / $first->multiplier) * $last->multiplier + $last->offset;
+                    } else {
+                        // multiplier 0 veya null ise fallback
+                        Log::warning("Device {$device_id} - data_id {$data_id}: first->multiplier 0 olduğu için division atlandı.");
+                        $firstValue = $firstValue; // istersen burada $default veya 0 da verebilirsin
+                    }
                 }
             }
         } else {
