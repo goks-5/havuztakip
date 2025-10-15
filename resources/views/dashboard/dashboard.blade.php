@@ -2,10 +2,6 @@
 
 @section('content')
 
-
-
-
-
 <div class="page-content" style="min-height:800px">
   <div class="boards" >
 
@@ -148,8 +144,6 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
   </div>
 </div>
 
-
-
 @stop
 
 @section('css')
@@ -179,12 +173,13 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
 
   .voyager .boards .nav-tabs a {
     text-align: center;
-    background: #f8f8f8;
-    border: 1px solid #f1f1f1;
+    background: #e2e2e2;
+    border: 1px solid #d0d0d0;
     position: relative;
     top: -1px;
     border-bottom-left-radius: 0px;
     border-bottom-right-radius: 0px;
+    color: #444;
   }
 
   .voyager .boards .nav-tabs a i {
@@ -195,9 +190,9 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
   .nav-tabs>li.active>a,
   .nav-tabs>li.active>a:focus,
   .nav-tabs>li.active>a:hover {
-    background: #fff !important;
-    color: #555 !important;
-    border-bottom: 1px solid #fff !important;
+    background: #f2f2f2 !important;
+    color: #333 !important;
+    border-bottom: 1px solid #f2f2f2 !important;
     top: -1px !important;
   }
 
@@ -206,48 +201,59 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
     transition: all 0.3s ease;
   }
 
-
   .nav-tabs>li.active>a:focus {
     top: 0px !important;
   }
-  .boardDelete ,
-  .boardcopy ,
+
+  .boardDelete,
+  .boardcopy,
   .boardpaste {
-    position: absolute!important;
-    margin: 0px!important;
-    padding: 0px!important;
-    color: #555!important;
-    opacity: .15;
-    filter: alpha(opacity=10);
+    position: absolute !important;
+    margin: 0px !important;
+    padding: 0px !important;
+    color: #555 !important;
+    opacity: .25;
     z-index: 2;
     right: 5px;
   }
-  .boardDelete i ,
-  .boardcopy i ,
+
+  .boardDelete i,
+  .boardcopy i,
   .boardpaste i {
-    font-size: 16px!important;
-  }
-  .boardDelete i:hover ,
-   .boardcopy i:hover ,
-   .boardpaste i:hover
-   {
-    border-radius: 9px;
-    background: #9E9E9E;
-    color: #000!important;
-    line-height: 16px;
-}
-  .voyager .boards .nav-tabs>li>a:hover {
-    background-color: #fff !important;
+    font-size: 16px !important;
   }
 
+  .boardDelete i:hover,
+  .boardcopy i:hover,
+  .boardpaste i:hover {
+    border-radius: 9px;
+    background: #7d7d7d;
+    color: #000 !important;
+    line-height: 16px;
+  }
+
+  .voyager .boards .nav-tabs>li>a:hover {
+    background-color: #ebebeb !important;
+  }
+
+  /* 📦 Kutular: Çerçeve yerine soft gölge efekti */
   .resizable {
     position: absolute;
     top: 110px;
     left: 70px;
     width: 160px;
     height: 100px;
-    border-width: 2.5px;
-    border-color: #f9f9f9;
+    border: none; /* 🔹 Çerçeve kaldırıldı */
+    border-radius: 10px; /* 🔹 Köşeler yumuşatıldı */
+    background-color: #f9f9f9; /* Hafif açık zemin */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* 🔹 Soft gölge efekti */
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+  }
+
+  /* Hover efekti: gölge derinleşir */
+  .resizable:hover {
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+    transform: translateY(-2px);
   }
 
   .tool_data {
@@ -256,28 +262,18 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
     width: calc(100% - 2px) !important;
   }
 
+  /* Çerçeve iç kenarlık kaldırıldı */
   .resizable:before {
-    position: absolute;
-    display: contents;
-    content: '';
-    border: 1px solid #9E9E9E;
-    height: 100%;
-    width: 100%;
-    box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
+    content: none;
   }
 
   .ui-icon-gripsmall-diagonal-se {
-    opacity: 0.1;
-    filter: alpha(opacity=10);
+    opacity: 0.15;
   }
 
   .ui-icon-gripsmall-diagonal-se:hover {
     opacity: 1;
-    filter: alpha(opacity=100);
   }
-
 
   .dashboardmenu {
     right: 10px;
@@ -298,9 +294,7 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
     }
   }
 </style>
-
 @stop
-
 
 @section('javascript')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
