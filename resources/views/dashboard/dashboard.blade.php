@@ -8,11 +8,10 @@
     <ul class="nav nav-tabs">
       @foreach ($boards as $key => $value)
       <li class="@if($value->id == $board->id)active @endif" data-id="{{$value->id}}">
-      <a class="boardlink" href="{{route('dashboardnew' , $value->id)}}" data-id="{{$value->id}}">{{$value->title}}</a>
-       <a class="boardcopy edithide" data-board="enerjiboard-{{$value->id}}" style="right: 45px;"><i class="voyager-images"></i></a>
-      <a class="boardpaste edithide" data-board="{{$value->id}}" style="right: 25px;"><i class="voyager-wand"></i></a>
-      <a class="boardDelete deleteModal edithide" data-action_type="delete_board" data-board="{{$value->id}}"><i class="voyager-x"></i></a>
-     
+        <a class="boardlink" href="{{route('dashboardnew' , $value->id)}}" data-id="{{$value->id}}">{{$value->title}}</a>
+        <a class="boardcopy edithide" data-board="enerjiboard-{{$value->id}}" style="right: 45px;"><i class="voyager-images"></i></a>
+        <a class="boardpaste edithide" data-board="{{$value->id}}" style="right: 25px;"><i class="voyager-wand"></i></a>
+        <a class="boardDelete deleteModal edithide" data-action_type="delete_board" data-board="{{$value->id}}"><i class="voyager-x"></i></a>
       </li>
       @endforeach
       <li style="min-width: unset;"  class="edithide">
@@ -20,44 +19,41 @@
       </li>
     </ul>
   </div>
+
   <label class="checkbox-inline dashboardmenu" style="padding: 0px 0px;">
-  <input class="dashboardmenu" type="checkbox" data-toggle="toggle" data-size="mini" data-width="50" data-on="<i class='voyager-tools'></i>" data-off="<i class='voyager-lock'></i>" id="editOnOff"> </label>
+    <input class="dashboardmenu" type="checkbox" data-toggle="toggle" data-size="mini" data-width="50" data-on="<i class='voyager-tools'></i>" data-off="<i class='voyager-lock'></i>" id="editOnOff">
+  </label>
   <a class="dashboardmenu edithide" data-toggle="modal" href="#toolTypeModal" style="right: 80px;font-size: 24px;"><i class="voyager-plus"></i></a>
 
   @include('voyager::alerts')
   @include('voyager::dimmers')
 
-
   @foreach ($tools as $tool)
-  @php
-  $settings = array();
-  $settings = json_decode($tool->settings,true);
-  if (isset($settings['css'])){
-    echo "<style>";
-    echo "#td_".$tool->id."{";
-    echo "text-align:center;align-content:center;";
-foreach ($settings['css'] as $key => $value) {
-  echo "$key:$value;";
-}
-echo "}";
-if (isset($settings['css']['background']) && $settings['css']['background'] == 'rgba(0, 0, 0, 0)') {
-    echo "#td_".$tool->id.":before{border:0!important}";
+    @php
+      $settings = array();
+      $settings = json_decode($tool->settings,true);
+      if (isset($settings['css'])){
+        echo "<style>";
+        echo "#td_".$tool->id."{";
+        echo "text-align:center;align-content:center;";
+        foreach ($settings['css'] as $key => $value) {
+          echo "$key:$value;";
+        }
+        echo "}";
+        if (isset($settings['css']['background']) && $settings['css']['background'] == 'rgba(0, 0, 0, 0)') {
+          echo "#td_".$tool->id.":before{border:0!important}";
+        }
+        echo "</style>";
+      }
+    @endphp
 
-}
-    echo "</style>";
-  }
-  @endphp
-  <div class="ui-widget-content resizable" data-tool="{{$tool->id}}" id="td_{{$tool->id}}" style="{{ $tool->style }}" >
-    @include('dashboard.tools.'.$tool->type,['tool'=>$tool,'settings'=>$settings])
-  </div>
+    <div class="ui-widget-content resizable" data-tool="{{$tool->id}}" id="td_{{$tool->id}}" style="{{ $tool->style }}">
+      @include('dashboard.tools.'.$tool->type,['tool'=>$tool,'settings'=>$settings])
+    </div>
   @endforeach
-
-
-
 </div>
 
 @include('widget.ajaxModal')
-
 
 <div class="modal fade" id="toolTypeModal" role="dialog">
   <div class="modal-dialog">
@@ -69,11 +65,16 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
       </div>
       <div>
         <ul class="row">
-
-@foreach ($toolSets as $toolSet)
-  <li class="deviceTypeList  ajaxmodal addtype col-xs-3" data-dismiss="modal" data-type="{{$toolSet->slug}}" data-board="{{$board->id}}" data-action_type="add_tool" style="background:url('{{ Voyager::image( $toolSet->image ) }}')" title="{{$toolSet->name}}">
-  </li>
-@endforeach
+          @foreach ($toolSets as $toolSet)
+            <li class="deviceTypeList  ajaxmodal addtype col-xs-3"
+                data-dismiss="modal"
+                data-type="{{$toolSet->slug}}"
+                data-board="{{$board->id}}"
+                data-action_type="add_tool"
+                style="background:url('{{ Voyager::image( $toolSet->image ) }}')"
+                title="{{$toolSet->name}}">
+            </li>
+          @endforeach
         </ul>
       </div>
       <div class="modal-footer">
@@ -85,7 +86,6 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
 
 <div class="modal fade" id="deleteModal" role="dialog">
   <div class="modal-dialog">
-
     <div class="modal-content">
       <div class="modal-header">
         <h4>Silmek İstediğinize Eminmisiniz</h4>
@@ -98,17 +98,12 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
           <input type="hidden" name="board" />
           <input type="hidden" name="action_type" />
           <div class="form-group row">
-
             <button type="submit" class="btn btn-danger col-xs-4" style="margin: 0 5%;">Sil</button>
             <button type="button" class="btn btn-default col-xs-4" style="margin: 0 5%;" data-dismiss="modal">Vazgeç</button>
-
           </div>
         </form>
-
-
       </div>
-      <div class="modal-footer">
-      </div>
+      <div class="modal-footer"></div>
     </div>
   </div>
 </div>
@@ -125,14 +120,12 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
           {{ csrf_field() }}
           <input type="hidden" name="action_type" value="addBoard"/>
           <div class="form-group row">
-            <div class="col-xs-2">
-            </div>
+            <div class="col-xs-2"></div>
             <div class="col-xs-8">
               <label class="control-label">İzleme Ekranı Adı</label>
               <input type="text" name="title" class="form-control" required="">
             </div>
-            <div class="col-xs-2">
-            </div>
+            <div class="col-xs-2"></div>
           </div>
         </div>
         <div class="modal-footer">
@@ -156,142 +149,59 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
     background: none;
     border-bottom: 0px;
   }
-
-  .voyager .boards .nav-tabs .active a {
-    border: 0px;
-  }
-
-  .voyager .boards .nav-tabs a i {
-    display: block;
-    font-size: 22px;
-  }
-
-  .voyager .boards .nav-tabs>li {
-    margin-bottom: -1px !important;
-    min-width: 100px;
-  }
-
+  .voyager .boards .nav-tabs .active a { border: 0px; }
+  .voyager .boards .nav-tabs a i { display:block; font-size:22px; }
+  .voyager .boards .nav-tabs>li { margin-bottom:-1px!important; min-width:100px; }
   .voyager .boards .nav-tabs a {
-    text-align: center;
-    background: #e2e2e2;
-    border: 1px solid #d0d0d0;
-    position: relative;
-    top: -1px;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
-    color: #444;
+    text-align:center; background:#e2e2e2; border:1px solid #d0d0d0;
+    position:relative; top:-1px; border-bottom-left-radius:0; border-bottom-right-radius:0; color:#444;
   }
-
-  .voyager .boards .nav-tabs a i {
-    display: block;
-    font-size: 22px;
-  }
-
   .nav-tabs>li.active>a,
   .nav-tabs>li.active>a:focus,
   .nav-tabs>li.active>a:hover {
-    background: #f2f2f2 !important;
-    color: #333 !important;
-    border-bottom: 1px solid #f2f2f2 !important;
-    top: -1px !important;
+    background:#f2f2f2!important; color:#333!important; border-bottom:1px solid #f2f2f2!important; top:-1px!important;
   }
+  .nav-tabs>li a { padding:5px 20px; transition:all .3s ease; }
+  .nav-tabs>li.active>a:focus { top:0!important; }
 
-  .nav-tabs>li a {
-    padding: 5px 20px;
-    transition: all 0.3s ease;
+  .boardDelete,.boardcopy,.boardpaste {
+    position:absolute!important; margin:0!important; padding:0!important; color:#555!important; opacity:.25; z-index:2; right:5px;
   }
-
-  .nav-tabs>li.active>a:focus {
-    top: 0px !important;
+  .boardDelete i,.boardcopy i,.boardpaste i { font-size:16px!important; }
+  .boardDelete i:hover,.boardcopy i:hover,.boardpaste i:hover {
+    border-radius:9px; background:#7d7d7d; color:#000!important; line-height:16px;
   }
+  .voyager .boards .nav-tabs>li>a:hover { background-color:#ebebeb!important; }
 
-  .boardDelete,
-  .boardcopy,
-  .boardpaste {
-    position: absolute !important;
-    margin: 0px !important;
-    padding: 0px !important;
-    color: #555 !important;
-    opacity: .25;
-    z-index: 2;
-    right: 5px;
-  }
-
-  .boardDelete i,
-  .boardcopy i,
-  .boardpaste i {
-    font-size: 16px !important;
-  }
-
-  .boardDelete i:hover,
-  .boardcopy i:hover,
-  .boardpaste i:hover {
-    border-radius: 9px;
-    background: #7d7d7d;
-    color: #000 !important;
-    line-height: 16px;
-  }
-
-  .voyager .boards .nav-tabs>li>a:hover {
-    background-color: #ebebeb !important;
-  }
-
-  /* 📦 Kutular: Çerçeve yerine soft gölge efekti */
+  /* 📦 Kutular */
   .resizable {
-    position: absolute;
-    top: 110px;
-    left: 70px;
-    width: 160px;
-    height: 100px;
-    border: none; /* 🔹 Çerçeve kaldırıldı */
-    border-radius: 10px; /* 🔹 Köşeler yumuşatıldı */
-    background-color: #f9f9f9; /* Hafif açık zemin */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* 🔹 Soft gölge efekti */
-    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    position:absolute; top:110px; left:70px; width:160px; height:100px;
+    border:none; border-radius:10px; background-color:#f9f9f9;
+    box-shadow:0 4px 10px rgba(0,0,0,.15);
+    transition: box-shadow .3s ease; /* transform'u kaldırdık */
   }
-
-  /* Hover efekti: gölge derinleşir */
   .resizable:hover {
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
-    transform: translateY(-2px);
+    /* transform: translateY(-2px);  İstersen geri açabilirsin */
+    box-shadow:0 8px 18px rgba(0,0,0,.25);
   }
 
-  .tool_data {
-    margin: 1px !important;
-    height: calc(100% - 2px) !important;
-    width: calc(100% - 2px) !important;
+  /* 🔒 Modal açıkken olası transform/hover efektlerini iptal et (kesin çözüm) */
+  .modal-open .resizable,
+  .modal-open .resizable:hover {
+    transform: none !important;
   }
 
-  /* Çerçeve iç kenarlık kaldırıldı */
-  .resizable:before {
-    content: none;
-  }
+  .tool_data { margin:1px!important; height:calc(100% - 2px)!important; width:calc(100% - 2px)!important; }
+  .resizable:before { content:none; }
 
-  .ui-icon-gripsmall-diagonal-se {
-    opacity: 0.15;
-  }
+  .ui-icon-gripsmall-diagonal-se { opacity:.15; }
+  .ui-icon-gripsmall-diagonal-se:hover { opacity:1; }
 
-  .ui-icon-gripsmall-diagonal-se:hover {
-    opacity: 1;
-  }
-
-  .dashboardmenu {
-    right: 10px;
-    top: 62px;
-    position: absolute;
-  }
-
-  .dashboardmenu .dropdown-content {
-    transform: translate3d(-200px, -20px, 0px);
-  }
+  .dashboardmenu { right:10px; top:62px; position:absolute; }
+  .dashboardmenu .dropdown-content { transform: translate3d(-200px,-20px,0); }
 
   @media only screen and (max-width: 768px) {
-    .resizable {
-      position: relative;
-      top: unset !important;
-      left: unset !important;
-      width: 100% !important;
-    }
+    .resizable { position:relative; top:unset!important; left:unset!important; width:100%!important; }
   }
 </style>
 @stop
@@ -307,10 +217,12 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
     'language': 'tr'
   });
 </script>
+
 @include('dashboard.tools.js')
+
 <script type="text/javascript">
   $(document).ready(function() {
-
+    // AJAX modal loader
     $('.ajaxmodal').click(function() {
       var pdata = $(this).data();
       pdata._token = "{{csrf_token()}}";
@@ -321,198 +233,135 @@ if (isset($settings['css']['background']) && $settings['css']['background'] == '
         success: function(response) {
           $('#modalBody').html(response);
           $('#empModal').modal('show');
-          $('.selectpicker').selectpicker({
-            noneSelectedText: 'Seçim Yapmalısınız'
-          });
+          $('.selectpicker').selectpicker({ noneSelectedText: 'Seçim Yapmalısınız' });
         }
       });
     });
 
+    // Delete confirm modal
     $('.deleteModal').click(function() {
       $("input[name='tool']").val($(this).data('tool'));
-        $("input[name='board']").val($(this).data('board'));
+      $("input[name='board']").val($(this).data('board'));
       $("input[name='action_type']").val($(this).data('action_type'));
       $('#deleteModal').modal('show');
     });
-    $('.addBoard').click(function() {
-      $('#addBoard').modal('show');
+
+    $('.addBoard').click(function() { $('#addBoard').modal('show'); });
+
+    // Board panoya kopyala
+    $(".boardcopy").click(function() {
+      var boardData = $(this).data("board");
+      var textarea = document.createElement("textarea");
+      textarea.value = boardData;
+      document.body.appendChild(textarea);
+      textarea.select(); document.execCommand("copy");
+      document.body.removeChild(textarea);
+      alert("Board panoya kopyalandı ");
+    });
+
+    // Panodan board yapıştır
+    $(".boardpaste").click(function() {
+      var target = $(this).data("board");
+      navigator.clipboard.readText().then(function(pano) {
+        var sourceboard = pano.replace('enerjiboard-','');
+        if (sourceboard != pano){
+          if (sourceboard != target){
+            $.ajax({
+              url: '{{route('dashboarddata')}}' + '/' + sourceboard + '/' + target,
+              method: "GET",
+              success: function() { location.reload(); },
+              error: function(xhr, status, error) { alert("Veri alınamadı:"); console.log(error); }
+            });
+          } else { alert("Hedefle kaynak aynı olamaz "); }
+        } else { alert("Panoda board yok "); }
+      }).catch(function(error) {
+        alert("Panodan veri alınamadı: "); console.log(error);
+      });
+    });
+
+    // 🔧 Modal'ları body altına taşı — transform hiyerarşisinden kurtar (KESİN ÇÖZÜM)
+    $(document).on('show.bs.modal', '.modal', function () {
+      // Aynı modal tekrar tekrar taşınmaya çalışılmasın
+      if (!$(this).parent().is('body')) {
+        $(this).appendTo('body');
+      }
     });
   });
-
-
-  $(document).ready(function() {
-    $(".boardcopy").click(function() {
-        var boardData = $(this).data("board"); // data-board değerini al
-
-        // Bir textarea oluşturarak içine veriyi yerleştir
-        var textarea = document.createElement("textarea");
-        textarea.value = boardData;
-
-        // Dokümanın sonuna textarea elemanını ekle
-        document.body.appendChild(textarea);
-
-        // Veriyi seç ve kopyala
-        textarea.select();
-        document.execCommand("copy");
-
-        // Artık textarea'ya ihtiyaç yok, kaldırabiliriz
-        document.body.removeChild(textarea);
-        alert("Board panoya kopyalandı ");
-
-    });
-
-    $(".boardpaste").click(function() {
-        var target = $(this).data("board"); // data-board değerini al
-
-
-        navigator.clipboard.readText().then(function(pano) {
-         var sourceboard = pano.replace('enerjiboard-', '');;
-           if(sourceboard != pano ){      
-                if (sourceboard != target){
-                  $.ajax({
-                      url: '{{route('dashboarddata')}}' + '/' + sourceboard + '/' + target , 
-                      method: "GET",
-                      success: function(response) {
-                      location.reload();
-                      },
-                      error: function(xhr, status, error) {
-                      alert("Veri alınamadı:");
-                      console.log(error);
-                      }
-                      });
-              } else{
-                alert("Hedefle kaynak aynı olamaz ");
-              }
-            }else{
-              alert("Panoda board yok ");
-            }         
-           
-        }).catch(function(error) {
-            alert("Panodan veri alınamadı: ");
-            console.log(error);
-        });
-
-        
-    });
-});
-  
 </script>
 
 <script type="text/javascript">
-// Sürükle ve bırak işlevselliği için yeni eklenen kod bloğu
+// Basit sürükle-bırak
 document.addEventListener('DOMContentLoaded', function() {
-    var draggedItem = null;
-
-    document.querySelectorAll('.nav-tabs > li').forEach(function(item) {
-        item.setAttribute('draggable', true);
-
-        item.addEventListener('dragstart', function(e) {
-            draggedItem = this; // Sürüklenen öğeyi kaydet
-            e.dataTransfer.effectAllowed = 'move'; // Sadece taşıma işlemine izin ver
-        }, false);
-
-        item.addEventListener('dragover', function(e) {
-            e.preventDefault(); // Drop olayını etkinleştirmek için
-            this.classList.add('over'); // Stil değişikliği için (opsiyonel)
-        }, false);
-
-        item.addEventListener('dragleave', function(e) {
-            this.classList.remove('over'); // Stil değişikliğini geri al (opsiyonel)
-        }, false);
-
-        item.addEventListener('drop', function(e) {
-            e.stopPropagation(); // Tarayıcı öntanımlı davranışını önle
-            if (draggedItem !== this) {
-                var allTabs = Array.from(document.querySelectorAll('.nav-tabs > li'));
-                var draggedIndex = allTabs.indexOf(draggedItem);
-                var droppedIndex = allTabs.indexOf(this);
-
-                if (draggedIndex < droppedIndex) {
-                    this.parentNode.insertBefore(draggedItem, this.nextSibling);
-                } else {
-                    this.parentNode.insertBefore(draggedItem, this);
-                }
-            }
-            this.classList.remove('over'); // Stil değişikliğini geri al (opsiyonel)
-        }, false);
-    });
+  var draggedItem = null;
+  document.querySelectorAll('.nav-tabs > li').forEach(function(item) {
+    item.setAttribute('draggable', true);
+    item.addEventListener('dragstart', function(e) { draggedItem = this; e.dataTransfer.effectAllowed = 'move'; }, false);
+    item.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('over'); }, false);
+    item.addEventListener('dragleave', function(e) { this.classList.remove('over'); }, false);
+    item.addEventListener('drop', function(e) {
+      e.stopPropagation();
+      if (draggedItem !== this) {
+        var allTabs = Array.from(document.querySelectorAll('.nav-tabs > li'));
+        var draggedIndex = allTabs.indexOf(draggedItem);
+        var droppedIndex = allTabs.indexOf(this);
+        if (draggedIndex < droppedIndex) { this.parentNode.insertBefore(draggedItem, this.nextSibling); }
+        else { this.parentNode.insertBefore(draggedItem, this); }
+      }
+      this.classList.remove('over');
+    }, false);
+  });
 });
 </script>
 
 <script type="text/javascript">
+// Toggle ile sürükle-bırak açık/kapalı + sıralamayı sakla
 document.addEventListener('DOMContentLoaded', function() {
-    var tabsContainer = document.querySelector('.nav-tabs');
-    var draggedItem = null;
-    var isDraggable = false; // Sürükleyip bırakma başlangıçta kapalı
+  var tabsContainer = document.querySelector('.nav-tabs');
+  var draggedItem = null;
+  var isDraggable = false;
 
-    // Toggle butonunun durumunu kontrol et
-    $('#editOnOff').change(function() {
-        isDraggable = $(this).prop('checked');
-        // Tab'ların draggable özelliğini toggle durumuna göre ayarla
-        $('.nav-tabs > li').attr('draggable', isDraggable);
+  $('#editOnOff').change(function() {
+    isDraggable = $(this).prop('checked');
+    $('.nav-tabs > li').attr('draggable', isDraggable);
+  });
+
+  var savedOrder = localStorage.getItem('tabOrder');
+  if (savedOrder) { applyTabOrder(JSON.parse(savedOrder)); }
+
+  document.querySelectorAll('.nav-tabs > li').forEach(function(item) {
+    item.addEventListener('dragstart', function(e) {
+      if (isDraggable) { draggedItem = this; e.dataTransfer.effectAllowed = 'move'; }
+      else { e.preventDefault(); }
+    }, false);
+
+    item.addEventListener('dragover', function(e) { if (isDraggable) e.preventDefault(); }, false);
+
+    item.addEventListener('drop', function(e) {
+      if (!isDraggable) return;
+      e.stopPropagation();
+      if (draggedItem !== this) {
+        var allTabs = Array.from(document.querySelectorAll('.nav-tabs > li'));
+        var draggedIndex = allTabs.indexOf(draggedItem);
+        var droppedIndex = allTabs.indexOf(this);
+        if (draggedIndex < droppedIndex) { this.parentNode.insertBefore(draggedItem, this.nextSibling); }
+        else { this.parentNode.insertBefore(draggedItem, this); }
+        saveTabOrder();
+      }
+    }, false);
+  });
+
+  function saveTabOrder() {
+    var tabOrder = Array.from(document.querySelectorAll('.nav-tabs > li'))
+                        .map(function(item) { return item.dataset.id; });
+    localStorage.setItem('tabOrder', JSON.stringify(tabOrder));
+  }
+  function applyTabOrder(order) {
+    var currentOrder = Array.from(document.querySelectorAll('.nav-tabs > li'));
+    order.forEach(function(id) {
+      var tab = currentOrder.find(function(tab) { return tab && tab.dataset.id === id; });
+      if (tab) { tabsContainer.appendChild(tab); }
     });
-
-    // Sayfa yüklenirken tab sırasını geri yükle
-    var savedOrder = localStorage.getItem('tabOrder');
-    if (savedOrder) {
-        applyTabOrder(JSON.parse(savedOrder));
-    }
-
-    // Sürüklenen tab'ları ayarla
-    document.querySelectorAll('.nav-tabs > li').forEach(function(item) {
-        item.addEventListener('dragstart', function(e) {
-            if (isDraggable) {
-                draggedItem = this;
-                e.dataTransfer.effectAllowed = 'move';
-            } else {
-                e.preventDefault(); // Draggable değilse işlemi engelle
-            }
-        }, false);
-
-        item.addEventListener('dragover', function(e) {
-            if (isDraggable) {
-                e.preventDefault();
-            }
-        }, false);
-
-        item.addEventListener('drop', function(e) {
-            if (isDraggable) {
-                e.stopPropagation();
-                if (draggedItem !== this) {
-                    var allTabs = Array.from(document.querySelectorAll('.nav-tabs > li'));
-                    var draggedIndex = allTabs.indexOf(draggedItem);
-                    var droppedIndex = allTabs.indexOf(this);
-
-                    if (draggedIndex < droppedIndex) {
-                        this.parentNode.insertBefore(draggedItem, this.nextSibling);
-                    } else {
-                        this.parentNode.insertBefore(draggedItem, this);
-                    }
-
-                    // Yeni sıralamayı kaydet
-                    saveTabOrder();
-                }
-            }
-        }, false);
-    });
-
-    function saveTabOrder() {
-        var tabOrder = Array.from(document.querySelectorAll('.nav-tabs > li'))
-                            .map(function(item) { return item.dataset.id; });
-        localStorage.setItem('tabOrder', JSON.stringify(tabOrder));
-    }
-
-    function applyTabOrder(order) {
-        var currentOrder = Array.from(document.querySelectorAll('.nav-tabs > li'));
-        order.forEach(function(id) {
-            var tab = currentOrder.find(function(tab) { return tab.dataset.id === id; });
-            if (tab) {
-                tabsContainer.appendChild(tab);
-            }
-        });
-    }
+  }
 });
-
 </script>
-
 @stop
