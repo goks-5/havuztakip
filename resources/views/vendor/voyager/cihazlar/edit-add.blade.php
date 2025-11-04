@@ -113,12 +113,12 @@
             <label for="status">Cihaz Durumu</label><br>
 
             {{-- Toggle --}}
-            <input type="hidden" name="status" value="0">
+            <input type="hidden" name="_status_dirty" id="_status_dirty" value="0">
             <input type="checkbox" name="status" id="status" class="toggleswitch"
                 data-on='<i class="fa-solid fa-cogs"></i>'
                 data-off='<i class="fa-solid fa-triangle-exclamation"></i>'
                 data-onstyle="success" data-offstyle="danger"
-                {{ (int) old('status', $dataTypeContent->status ?? 0) === 1 ? 'checked' : '' }}>
+                {{ old('status', $dataTypeContent->status ?? 0) ? 'checked' : '' }}>
 
             {{-- Kilit butonu --}}
             <button type="button" id="lockToggle" class="btn btn-lg btn-dark ml-3">
@@ -310,39 +310,26 @@
             $("#statusConfirmModal").modal("show");
         });
 
-        // Modal - Hayır
-        $("#modalNo").on("click", function () {
-            $("#statusConfirmModal").modal("hide");
-            $("#status").prop("disabled", true);
-            isLocked = true;
-            $("#lockToggle i").removeClass("fa-unlock").addClass("fa-lock");
-        });
+          // Kullanıcı gerçekten toggle'ı değiştirdi mi?
+  $("#status").on("change", function () {
+      $("#_status_dirty").val("1");
+  });
 
-        // Modal - Evet
-        $("#modalYes").on("click", function () {
-            $("#statusConfirmModal").modal("hide");
-            $("#status").prop("disabled", false); // toggle aktif hale gelir
-            isLocked = false;
-            $("#lockToggle i").removeClass("fa-lock").addClass("fa-unlock");
-        });
+  // Kilidi açmak sadece input'u aktif eder; dirty bayrağını dokunma.
+  $("#modalYes").on("click", function () {
+      $("#statusConfirmModal").modal("hide");
+      $("#status").prop("disabled", false);
+      $("#lockToggle i").removeClass("fa-lock").addClass("fa-unlock");
+      // _status_dirty burada DEĞİŞMEZ (0 kalır); kullanıcı toggle'ı çevirirse change event 1 yapacak.
+  });
 
-        // Toggle'ı başlatmadan önce mevcut checked durumunu koru
-        $('.toggleswitch').each(function() {
-            const isChecked = $(this).prop('checked');
-            $(this).bootstrapToggle();
-            if (isChecked) {
-                $(this).bootstrapToggle('on');
-            } else {
-                $(this).bootstrapToggle('off');
-            }
-        });
-
-        $("#status").on("change", function (e) {
-            if ($("#status").prop("disabled")) {
-                e.preventDefault();
-                return false;
-            }
-        });
+  $("#modalNo").on("click", function () {
+      $("#statusConfirmModal").modal("hide");
+      $("#status").prop("disabled", true);
+      $("#lockToggle i").removeClass("fa-unlock").addClass("fa-lock");
+      // Güvenli tarafta kalmak için dirty'i sıfırla
+      $("#_status_dirty").val("0");
+  });
 
     });
     </script>

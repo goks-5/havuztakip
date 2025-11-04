@@ -481,65 +481,65 @@ class Devices extends VoyagerBaseController
     }
 
     // POST BR(E)AD
-    public function update(Request $request, $id)
-    {
-        $slug = $this->getSlug($request);
+public function update(Request $request, $id)
+{
+    $slug = $this->getSlug($request);
+    $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
-        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-
-        $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
-
-        $model = app($dataType->model_name);
-        if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope' . ucfirst($dataType->scope))) {
-            $model = $model->{$dataType->scope}();
-        }
-        if ($model && in_array(SoftDeletes::class, class_uses($model))) {
-            $data = $model->withTrashed()->findOrFail($id);
-        } else {
-            $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
-        }
-
-        // ✅ Checkbox için fix
-        $status = $request->has('status') ? 1 : 0;
-        $request->merge(['status' => $status]);
-
-        // Validate
-        $val = $this->validateBread($request->all(), $dataType->editRows, $dataType->name, $id)->validate();
-
-        $dataAll = $request->all();
-        if (!isset($dataAll['company_id']) || $dataAll['company_id'] ==  Auth::user()->company_id) {
-            $dataType->editRows->push((object)[
-                "data_type_id" => 17,
-                "field" => "status",   // ✅ status alanını ekledik
-                "type" => "checkbox",
-                "display_name" => "Durum",
-                "edit" => 1,
-                "add" => 1,
-                "details" => "{}"
-            ]);
-
-        // Voyager'ın kendi update mekanizması
-        $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
-
-        // Status değerini zorla kaydet
-        $data->status = $status;
-        $data->save();
-
-        }
-
-        event(new BreadDataUpdated($dataType, $data));
-
-        if (auth()->user()->can('browse', $model)) {
-            $redirect = redirect()->route("voyager.{$dataType->slug}.index");
-        } else {
-            $redirect = redirect()->back();
-        }
-
-        return $redirect->with([
-            'message'    => __('voyager::generic.successfully_updated') . " {$dataType->getTranslatedAttribute('display_name_singular')}",
-            'alert-type' => 'success',
-        ]);
+    // 1) Kaydı ÖNCE yükle
+    $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
+    $model = app($dataType->model_name);
+    if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope' . ucfirst($dataType->scope))) {
+        $model = $model->{$dataType->scope}();
     }
+    if ($model && in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses($model))) {
+        $data = $model->withTrashed()->findOrFail($id);
+    } else {
+        $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
+    }
+
+    // 2) Kullanıcı status'ü gerçekten değiştirdi mi?
+    $dirty = $request->input('_status_dirty') === '1';
+    $computedStatus = $dirty ? ($request->boolean('status') ? 1 : 0) : (int)$data->status;
+
+    // Voyager'ın update mekanizmasına doğru değeri ver
+    $request->merge(['status' => $computedStatus]);
+
+    // 3) (İsteğe bağlı) validasyon
+    $val = $this->validateBread($request->all(), $dataType->editRows, $dataType->name, $id)->validate();
+
+    // 4) BREAD’e status alanını ekle (formda olmadığı senaryolara karşı)
+    $dataType->editRows->push((object)[
+        "data_type_id" => $dataType->id ?? 0,
+        "field" => "status",
+        "type" => "checkbox",
+        "display_name" => "Durum",
+        "edit" => 1,
+        "add" => 1,
+        "details" => "{}"
+    ]);
+
+    // 5) Kayıt
+    $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
+
+    // 6) Emin olmak için statüyü zorla yaz ve kaydet
+    $data->status = $computedStatus;
+    $data->save();
+
+    event(new BreadDataUpdated($dataType, $data));
+
+    if (auth()->user()->can('browse', $model)) {
+        $redirect = redirect()->route("voyager.{$dataType->slug}.index");
+    } else {
+        $redirect = redirect()->back();
+    }
+
+    return $redirect->with([
+        'message'    => __('voyager::generic.successfully_updated') . " {$dataType->getTranslatedAttribute('display_name_singular')}",
+        'alert-type' => 'success',
+    ]);
+}
+
     
     //***************************************
     //
