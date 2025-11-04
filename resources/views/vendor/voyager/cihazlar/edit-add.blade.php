@@ -113,11 +113,12 @@
             <label for="status">Cihaz Durumu</label><br>
 
             {{-- Toggle --}}
+            <input type="hidden" name="status" value="0">
             <input type="checkbox" name="status" id="status" class="toggleswitch"
                 data-on='<i class="fa-solid fa-cogs"></i>'
                 data-off='<i class="fa-solid fa-triangle-exclamation"></i>'
                 data-onstyle="success" data-offstyle="danger"
-                {{ old('status', $dataTypeContent->status ?? 0) ? 'checked' : '' }}>
+                {{ (int) old('status', $dataTypeContent->status ?? 0) === 1 ? 'checked' : '' }}>
 
             {{-- Kilit butonu --}}
             <button type="button" id="lockToggle" class="btn btn-lg btn-dark ml-3">
@@ -324,6 +325,25 @@
             isLocked = false;
             $("#lockToggle i").removeClass("fa-lock").addClass("fa-unlock");
         });
+
+        // Toggle'ı başlatmadan önce mevcut checked durumunu koru
+        $('.toggleswitch').each(function() {
+            const isChecked = $(this).prop('checked');
+            $(this).bootstrapToggle();
+            if (isChecked) {
+                $(this).bootstrapToggle('on');
+            } else {
+                $(this).bootstrapToggle('off');
+            }
+        });
+
+        $("#status").on("change", function (e) {
+            if ($("#status").prop("disabled")) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
     });
     </script>
 
