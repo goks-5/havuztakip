@@ -80,15 +80,9 @@ document.addEventListener("DOMContentLoaded", function() {
         },
         series: [
             {
-                name: 'Veri 1',
+                name: 'Veri',
                 type: '{{$setting['type'] ?? 'bar'}}',
                 data: [120, 132, 101, 134, 90, 230],
-                barMaxWidth: 25
-            },
-            {
-                name: 'Veri 2',
-                type: '{{$setting['type'] ?? 'bar'}}',
-                data: [220, 182, 191, 234, 290, 330],
                 barMaxWidth: 25
             }
         ]
