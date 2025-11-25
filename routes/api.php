@@ -42,3 +42,4 @@ Route::get('excel/devices', [DeviceExcelController::class, 'index']);
 Route::get('excel/device/{id}/data/{dataId}', [DeviceExcelController::class, 'data']);
 Route::get('excel/device-daily-latest', [DeviceExcelController::class, 'dailyLatest']);
 Route::get('excel/device-daily', [DeviceExcelController::class, 'dailyByDate']);
+Route::get('/enerji/read/tag_value_cost/{device_id}/{tag_id}/{date1}/{date2}', 'DeviceTagsApiController@costBetweenDates');

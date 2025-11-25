@@ -154,4 +154,145 @@ class DeviceTagsApiController extends Controller
             return response()->json(['message' => 'Server Error'], 500);
         }
     }
+
+    /**
+     * İki tarih arasındaki ilk ve son değer farkını (Tüketim) hesaplar.
+     * URL: /enerji/read/tag_value_cost/{device_id}/{tag_id}/{date1}/{date2}
+     */
+    public function costBetweenDates(Request $request, $device_id, $tag_id, $date1, $date2)
+    {
+        // Log performans için kapalı
+        DB::disableQueryLog();
+
+        try {
+            // --- 1) Cihazı Bul ---
+            $dev = Device::where('device_id', $device_id)
+                         ->first(['id', 'device_id', 'name', 'tags']);
+
+            if (!$dev) {
+                return response()->json(['message' => 'device not found'], 404);
+            }
+
+            // --- 2) Tag ID Kontrolü ---
+            $tagId = (int) $tag_id;
+            // Tag ismini bulma (Mevcut yapını korudum)
+            $tagName = null;
+            $tagsJson = json_decode($dev->tags, true) ?: [];
+            if (!empty($tagsJson)) {
+                $map = [];
+                foreach ($tagsJson as $k => $v) {
+                    // Basit format: "1": "İsim"
+                    if (is_numeric($k)) {
+                        $d = (int)$k;
+                        if ($d >= 0 && $d <= 999) {
+                            $map[$d] = is_string($v) ? $v : json_encode($v, JSON_UNESCAPED_UNICODE);
+                        }
+                    } 
+                    // Karmaşık format: "sensor1": "1 İsim"
+                    elseif (is_string($v) && preg_match('/^\s*(\d+)\D*(.*)$/u', $v, $m)) {
+                        $d = (int)$m[1];
+                        $name = trim($m[2]) !== '' ? trim($m[2]) : $v;
+                        if ($d >= 0 && $d <= 999) {
+                            $map[$d] = $name;
+                        }
+                    }
+                }
+                if (array_key_exists($tagId, $map)) {
+                    $tagName = $map[$tagId];
+                }
+            }
+
+            // --- 3) Tarih Formatlama ---
+            try {
+                $startDate = Carbon::createFromFormat('Y-m-d', $date1)->startOfDay(); // date1 00:00:00
+                $endDate   = Carbon::createFromFormat('Y-m-d', $date2)->endOfDay();   // date2 23:59:59
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Invalid date format. Use YYYY-MM-DD'], 422);
+            }
+
+            // --- 4) İlk ve Son Veriyi Çekme ---
+            
+            // Hangi ID sütununu kullanacağız? (Önce PK, sonra String ID)
+            // Bu kontrolü sorgu içinde yapmak yerine bir kez belirleyelim:
+            // (Not: İki ayrı sorgu atmak performans açısından burası için daha sağlıklıdır)
+            
+            // A) Aralıktaki İLK Kayıt (En eski)
+            $firstRecord = DB::table('device_datas')
+                ->select('value', 'created_at')
+                ->where('device_id', $dev->id) // Önce PK dene
+                ->where('data_id', $tagId)
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->orderBy('created_at', 'asc') // Eskiden yeniye
+                ->first();
+
+            // Eğer PK ile bulamazsa String ID ile dene (Fallback)
+            if (!$firstRecord) {
+                $firstRecord = DB::table('device_datas')
+                    ->select('value', 'created_at')
+                    ->where('device_id', $dev->device_id)
+                    ->where('data_id', $tagId)
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->orderBy('created_at', 'asc')
+                    ->first();
+            }
+
+            // B) Aralıktaki SON Kayıt (En yeni)
+            // Sadece ilk kayıt varsa, son kayıt da odur diyemeyiz, tekrar sorgulamalıyız.
+            if ($firstRecord) {
+                 $lastRecord = DB::table('device_datas')
+                    ->select('value', 'created_at')
+                    ->where('device_id', $dev->id) // Önce PK
+                    ->where('data_id', $tagId)
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->orderBy('created_at', 'desc') // Yeniden eskiye
+                    ->first();
+                
+                 // Fallback
+                 if (!$lastRecord) {
+                     $lastRecord = DB::table('device_datas')
+                        ->select('value', 'created_at')
+                        ->where('device_id', $dev->device_id)
+                        ->where('data_id', $tagId)
+                        ->whereBetween('created_at', [$startDate, $endDate])
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+                 }
+            } else {
+                $lastRecord = null;
+            }
+
+            // --- 5) Hesaplama ---
+            $firstValue = $firstRecord ? (float)$firstRecord->value : 0;
+            $lastValue  = $lastRecord ? (float)$lastRecord->value : 0;
+            
+            // Fark (Tüketim)
+            // Eğer sadece 1 veri varsa fark 0 olur.
+            $consumption = ($lastRecord && $firstRecord) ? ($lastValue - $firstValue) : 0;
+
+            // Negatif çıkma ihtimaline karşı (Sayaç sıfırlanması vs.) kontrol istersen:
+            // if ($consumption < 0) $consumption = 0; // Opsiyonel
+
+            return response()->json([
+                'device_id'   => $dev->device_id,
+                'name'        => $dev->name,
+                'tag_name'    => $tagName,
+                'start_date'  => $startDate->toDateTimeString(),
+                'end_date'    => $endDate->toDateTimeString(),
+                'data' => [
+                    'first_value'    => $firstValue,
+                    'first_read_at'  => $firstRecord ? $firstRecord->created_at : null,
+                    'last_value'     => $lastValue,
+                    'last_read_at'   => $lastRecord ? $lastRecord->created_at : null,
+                    'difference'     => round($consumption, 3), // 3 haneye yuvarla
+                ]
+            ], 200);
+
+        } catch (\Throwable $e) {
+            Log::error('[costBetweenDates] ' . $e->getMessage(), [
+                'device_id' => $device_id,
+                'tag_id' => $tag_id
+            ]);
+            return response()->json(['message' => 'Server Error'], 500);
+        }
+    }
 }
