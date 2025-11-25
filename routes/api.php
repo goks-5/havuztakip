@@ -22,7 +22,7 @@ if(env('REDIRECT_HTTPS')){
     URL::forceScheme('https');
 }
 
-Route::get('/read/tag_value/{device_id}/{tag_id}/{date?}', [\App\Http\Controllers\DeviceTagsApiController::class, 'seriesByDeviceIdTag'])
+Route::get('/enerji/read/tag_value/{device_id}/{tag_id}/{date?}', [\App\Http\Controllers\DeviceTagsApiController::class, 'seriesByDeviceIdTag'])
   ->where([
     'device_id' => '[0-9]+',
     'tag_id'    => '\d{1,3}',          // 0–999
