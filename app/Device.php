@@ -474,20 +474,26 @@ class Device extends Model
                 });
                 break;
             case 'sum':
-                $rememberKey = sha1("sum_" . $device_id . "_" . $targetData_id . "_" . $start);
-                $value = Cache::remember($rememberKey, 600, function () use ($device_id, $data_id, $start, $end) {
-                    return DB::table('device_datas')
-                        ->where('device_id', $device_id)
-                        ->where('data_id', $data_id)
-                        ->whereBetween('created_at', [$start, $end])
-                        ->orderBy('created_at', 'desc')->sum('value');
-                });
-                break;
+            $rememberKey = sha1("sum_" . $device_id . "_" . $targetData_id . "_" . $start);
+            $value = Cache::remember($rememberKey, 600, function () use ($device_id, $data_id, $start, $end) {
+                return DB::table('device_datas')
+                    ->where('device_id', $device_id)
+                    ->where('data_id', $data_id)
+                    ->whereBetween('created_at', [$start, $end])
+                    ->selectRaw('SUM(CASE WHEN value < 0 THEN 0 ELSE value END) as s')
+                    ->value('s');
+            });
+            break;
             case 'triger': $value = $triger->value; break;
             default: $value = $lastValue - $firstValue; break;
         }
 
         $value = round($value, 2);
+
+        // ✅ 200+ tüm periyotlarda negatifse 0 yap (günlük/haftalık/aylık/yıllık)
+        if ($targetData_id >= 200 && $value < 0) {
+            $value = 0;
+        }
 
         if ($data) {
             DB::table('device_datas')->where('id', $data->id)->update(['value' => $value]);
