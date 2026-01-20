@@ -440,6 +440,24 @@ class Device extends Model
             $lastValue = $default;
         }
 
+        $forceValue = null;
+
+        if ($targetData_id >= 100 && $targetData_id < 200) {
+            $startTs = strtotime($start);
+            $endTs   = strtotime($end);
+            $tol = 180;
+
+            if (!$first || !$last) {
+                $forceValue = 0;
+            } else {
+                $firstTs = strtotime($first->created_at);
+                $lastTs  = strtotime($last->created_at);
+                if (abs($firstTs - $startTs) > $tol || abs($lastTs - $endTs) > $tol) {
+                    $forceValue = 0;
+                }
+            }
+        }
+
         switch ($type) {
             case 'last': $value = $lastValue; break;
             case 'first': $value = $firstValue; break;
@@ -484,8 +502,12 @@ class Device extends Model
                     ->value('s');
             });
             break;
-            case 'triger': $value = $triger->value; break;
+            case 'triger': $value = $triger ? $triger->value : 0; break;
             default: $value = $lastValue - $firstValue; break;
+        }
+
+        if ($forceValue !== null) {
+            $value = $forceValue;
         }
 
         $value = round($value, 2);
