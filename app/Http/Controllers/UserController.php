@@ -9,15 +9,30 @@ use App\Firm;
 class UserController extends Controller
 {
     public function index(Request $request)
-    {
-        $users = UserAccount::all();
-        $companies = Firm::all(['company_name']);
-        return view('vendor.voyager.kullanici-tablosu.browse', compact('users', 'companies'));
-    }
+{
+    $search = $request->get('search');
+
+    $users = UserAccount::where(function ($q) use ($search) {
+            if ($search) {
+                $q->where('user_name', 'like', "%{$search}%")
+                  ->orWhere('company_name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('telephone', 'like', "%{$search}%");
+            }
+        })
+        ->orderBy('id', 'desc')
+        ->paginate(10); // ✅ SADECE paginate
+
+    $companies = Firm::all(['company_name']);
+
+    return view(
+        'vendor.voyager.kullanici-tablosu.browse',
+        compact('users', 'companies', 'search')
+    );
+}
 
     public function store(Request $request)
     {
-        // **Validation: Artık 'password' yok!**
         $request->validate([
             'user_name' => 'required|string|max:255',
             'company_name' => 'required|string|max:255',
@@ -25,10 +40,6 @@ class UserController extends Controller
             'telephone' => 'required|string|max:15',
         ]);
 
-        // **Form verilerini ekrana yazdır (Debug için)**
-        \Log::info('Gelen Form Verileri:', $request->all());
-
-        // **Kullanıcıyı kaydet**
         UserAccount::create([
             'user_name' => $request->user_name,
             'company_name' => $request->company_name,
@@ -36,7 +47,9 @@ class UserController extends Controller
             'telephone' => $request->telephone,
         ]);
 
-        return redirect()->route('kullanici-tablosu.index')->with('success', 'Kullanıcı başarıyla eklendi.');
+        return redirect()
+            ->route('kullanici-tablosu.index')
+            ->with('success', 'Kullanıcı başarıyla eklendi.');
     }
 
     public function update(Request $request, $id)
@@ -49,16 +62,24 @@ class UserController extends Controller
         ]);
 
         $user = UserAccount::findOrFail($id);
-        $user->update($request->all());
+        $user->update($request->only([
+            'user_name',
+            'company_name',
+            'email',
+            'telephone'
+        ]));
 
-        return redirect()->route('kullanici-tablosu.index')->with('success', 'Kullanıcı başarıyla güncellendi.');
+        return redirect()
+            ->route('kullanici-tablosu.index')
+            ->with('success', 'Kullanıcı başarıyla güncellendi.');
     }
 
     public function destroy(Request $request, $id)
     {
-        $user = UserAccount::findOrFail($id);
-        $user->delete();
+        UserAccount::findOrFail($id)->delete();
 
-        return redirect()->route('kullanici-tablosu.index')->with('success', 'Kullanıcı başarıyla silindi.');
+        return redirect()
+            ->route('kullanici-tablosu.index')
+            ->with('success', 'Kullanıcı başarıyla silindi.');
     }
 }
