@@ -91,6 +91,8 @@ class Kernel extends ConsoleKernel
         ->timezone('Europe/Istanbul')
         ->appendOutputTo(storage_path('logs/info-circle.log'));
 
+        $schedule->command('check:device-limits')->hourly();
+
     }
 
     /**
