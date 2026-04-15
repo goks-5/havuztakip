@@ -145,13 +145,13 @@ $wsize =  floor(24 /$gCount);
 </div>
 
 <div class="col-xs-{{ $wsize }}">
-        <label class="control-label">Yuvarlama</label>
-        <select class="form-control select2" name="setting[numbers_round]">
-            <option value="1" {{ isset($settings['numbers_round']) && $settings['numbers_round'] == "1" ? 'selected' : '' }}>Seçili Değil</option>
-            <option value="2" {{ isset($settings['numbers_round']) && $settings['numbers_round'] == "2" ? 'selected' : '' }}>Tam Sayı Göster</option>
-            <option value="3" {{ isset($settings['numbers_round']) && $settings['numbers_round'] == "3" ? 'selected' : '' }}>Tam Sayıya Yuvarla</option>
-        </select>
-    </div>
+    <label class="control-label">Yuvarlama</label>
+    <select class="form-control select2" name="setting[numbers_round]">
+        <option value="1" {{ isset($settings['numbers_round']) && $settings['numbers_round'] == "1" ? 'selected' : '' }}>Seçili Değil</option>
+        <option value="2" {{ isset($settings['numbers_round']) && $settings['numbers_round'] == "2" ? 'selected' : '' }}>Tam Sayı Göster</option>
+        <option value="3" {{ isset($settings['numbers_round']) && $settings['numbers_round'] == "3" ? 'selected' : '' }}>Tam Sayıya Yuvarla</option>
+    </select>
+</div>
 
 <div class="clearfix"></div> <!-- Boşluk bırakmak için clearfix ekledik -->
 

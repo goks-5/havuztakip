@@ -197,30 +197,22 @@ class DashboardTool extends Model
     /**
      * Helper function to round numbers based on the settings
      */
+    
     private function roundNumber($number, $roundingOption)
     {
         if ($roundingOption == 1) {
-            return $number; // No changes
+            // Seçili Değil -> olduğu gibi göster
+            return $number;
         } elseif ($roundingOption == 2) {
-            // Ondalık kısmı sadece .000 ise gizle
-            return (fmod($number, 1) == 0) ? (int)$number : $number;
+            // Tam Sayı Göster -> ondalıklı kısmı tamamen kaldır
+            return (int) $number;
         } elseif ($roundingOption == 3) {
-            // .000 olan sayıları değiştirme, diğerlerini yuvarla
-            if (fmod($number, 1) == 0) {
-                return $number; // .000 ise değişiklik yapma
-            }
-            $decimalPart = $number - floor($number);
-            $roundedDecimal = round($decimalPart * 1000, 0);
-    
-            if ($roundedDecimal % 10 < 5) {
-                $roundedDecimal = floor($roundedDecimal / 10) * 10 + 5;
-            } else {
-                $roundedDecimal = ceil($roundedDecimal / 10) * 10;
-            }
-    
-            return floor($number) + ($roundedDecimal / 1000);
+            // Tam Sayıya Yuvarla -> en yakın 0 veya 5 ile biten tam sayıya yuvarla
+            $nearestFive = round($number / 5) * 5;
+            return (int) $nearestFive;
         }
-        return $number; // Default case
+
+        return $number;
     }
     
     public function sum_tag($settings, $tool)
