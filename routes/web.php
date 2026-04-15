@@ -12,6 +12,7 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\BillsController;
 use App\Http\Controllers\MeasurementController;
+use App\Http\Controllers\EventController;
 use App\Fault;
 use App\Http\Controllers\FaultController;
 use App\Http\Controllers\VerilerController;
@@ -397,7 +398,39 @@ Route::group(['prefix' => ''], function () {
 
         return 'Durum özeti maili gönderildi.';
     })->middleware('auth');
+    
+    Route::get('olay-ekle', [App\Http\Controllers\EventController::class, 'create'])->name('events.create');
+    // Form Kaydetme
+    Route::post('olay-ekle', [App\Http\Controllers\EventController::class, 'store'])->name('events.store');
+    // AJAX Tag Getirme (Kesin çözüm için URL yapısı sabitlendi)
+    Route::get('get-tags/{deviceId}', [App\Http\Controllers\EventController::class, 'getTags'])->name('events.get-tags');
         
+    Route::get('/admin/get-tags/{deviceId}', function($deviceId) {
+        \Illuminate\Support\Facades\Log::info("get-tags rotasına istek geldi. ID: " . $deviceId);
+        
+        $device = \App\Device::find($deviceId);
+        
+        if (!$device) {
+            \Illuminate\Support\Facades\Log::error("Cihaz bulunamadı! ID: " . $deviceId);
+            return response()->json(['error' => 'Cihaz bulunamadı'], 404);
+        }
+
+        $tagsRaw = json_decode($device->tags, true);
+        $formattedTags = [];
+        
+        if (is_array($tagsRaw)) {
+            foreach ($tagsRaw as $key => $value) {
+                $formattedTags[] = ['id' => (string)$key, 'name' => $value];
+            }
+        }
+
+        \Illuminate\Support\Facades\Log::info("Tagler başarıyla döndürülüyor. Toplam: " . count($formattedTags));
+        return response()->json($formattedTags);
+    })->middleware('web'); // Middleware ekleyerek session/auth desteğini sağladık
+
+    // Liste Sayfası
+    Route::get('bildirilmis-olaylar', [App\Http\Controllers\EventController::class, 'index'])->name('events.index');
+
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });
