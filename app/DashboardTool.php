@@ -75,15 +75,23 @@ class DashboardTool extends Model
 
         return ['value' => $lastdata[$settings['device_index']], 'tool' => $tool, 'alarm' => $alarm, 'sound' => $settings['sound']];
     }
+    
     public function device_data($settings, $tool)
     {
         $devices = Device::where('id', $settings['device'])->first();
+
         if ($devices) {
             $lastdata = json_decode($devices->last_data, true);
-            return $lastdata[$settings['device_index']] ?? "-";
-        } else {
-            return "-";
+            $rawValue = $lastdata[$settings['device_index']] ?? null;
+
+            if ($rawValue === null || $rawValue === '') {
+                return "-";
+            }
+
+            return $this->roundNumber($rawValue, $settings['numbers_round'] ?? 1);
         }
+
+        return "-";
     }
 
     public function last_date($settings, $tool)
