@@ -399,38 +399,23 @@ Route::group(['prefix' => ''], function () {
         return 'Durum özeti maili gönderildi.';
     })->middleware('auth');
     
-    Route::get('olay-ekle', [App\Http\Controllers\EventController::class, 'create'])->name('events.create');
-    // Form Kaydetme
-    Route::post('olay-ekle', [App\Http\Controllers\EventController::class, 'store'])->name('events.store');
-    // AJAX Tag Getirme (Kesin çözüm için URL yapısı sabitlendi)
-    Route::get('get-tags/{deviceId}', [App\Http\Controllers\EventController::class, 'getTags'])->name('events.get-tags');
-        
-    Route::get('/admin/get-tags/{deviceId}', function($deviceId) {
-        \Illuminate\Support\Facades\Log::info("get-tags rotasına istek geldi. ID: " . $deviceId);
-        
-        $device = \App\Device::find($deviceId);
-        
-        if (!$device) {
-            \Illuminate\Support\Facades\Log::error("Cihaz bulunamadı! ID: " . $deviceId);
-            return response()->json(['error' => 'Cihaz bulunamadı'], 404);
-        }
-
-        $tagsRaw = json_decode($device->tags, true);
-        $formattedTags = [];
-        
-        if (is_array($tagsRaw)) {
-            foreach ($tagsRaw as $key => $value) {
-                $formattedTags[] = ['id' => (string)$key, 'name' => $value];
-            }
-        }
-
-        \Illuminate\Support\Facades\Log::info("Tagler başarıyla döndürülüyor. Toplam: " . count($formattedTags));
-        return response()->json($formattedTags);
-    })->middleware('web'); // Middleware ekleyerek session/auth desteğini sağladık
-
     // Liste Sayfası
-    Route::get('bildirilmis-olaylar', [App\Http\Controllers\EventController::class, 'index'])->name('events.index');
-
+    Route::get('bildirilmis-olaylar', [EventController::class, 'index'])->name('events.index');
+    
+    // Yeni Ekleme Sayfası ve Kaydetme
+    Route::get('olay-ekle', [EventController::class, 'create'])->name('events.create');
+    Route::post('olay-ekle', [EventController::class, 'store'])->name('events.store');
+    
+    // Düzenleme Sayfası ve Güncelleme
+    Route::get('olay-duzenle/{id}', [EventController::class, 'edit'])->name('events.edit');
+    Route::put('olay-guncelle/{id}', [EventController::class, 'update'])->name('events.update');
+    
+    // Silme İşlemi
+    Route::delete('olay-sil/{id}', [EventController::class, 'destroy'])->name('events.destroy');
+    
+    // AJAX Tag Getirme (Tek ve Doğru Rota)
+    Route::get('get-tags/{deviceId}', [EventController::class, 'getTags'])->name('events.get-tags');
+    
     Voyager::routes();
     // Route::get('/ekran', ['uses' => 'Dashboards@index',   'as' => 'voyager.dashboard']);
 });

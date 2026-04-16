@@ -5,90 +5,88 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use TCG\Voyager\Http\Controllers\VoyagerBaseController;
 use App\Device;
+use App\NotifiedEvent;
+use Illuminate\Support\Facades\Log;
 
 class EventController extends VoyagerBaseController
 {
+    public function index(Request $request) 
+    {
+        $events = NotifiedEvent::with('device')->orderBy('created_at', 'desc')->get();
+        return view('vendor.voyager.bildirimler.index', compact('events'));
+    }
+
     public function create(Request $request)
     {
         $devices = Device::all();
-        // Dosyanın vendor/voyager/bildirimler/create.blade.php yolunda olduğundan emin olun
         return view('vendor.voyager.bildirimler.create', compact('devices'));
     }
 
     public function getTags($deviceId)
     {
-        // Cihazı buluyoruz
-        $device = \App\Device::find($deviceId);
-        
-        if (!$device || empty($device->tags)) {
-            return response()->json([]);
-        }
+        $device = Device::find($deviceId);
+        if (!$device || empty($device->tags)) return response()->json([]);
 
-        // JSON sütununu ({"0":"Quanta...", "200":"..."}) PHP dizisine çevir
         $tagsRaw = json_decode($device->tags, true);
-        
         $formattedTags = [];
         if (is_array($tagsRaw)) {
             foreach ($tagsRaw as $key => $value) {
-                // Dropdown için id ve name çiftlerini oluşturuyoruz
-                $formattedTags[] = [
-                    'id'   => $id_key = (string)$key, // "200" gibi anahtarlar
-                    'name' => $value                  // "Quanta 5 Hata Günlük" gibi isimler
-                ];
+                $formattedTags[] = ['id' => (string)$key, 'name' => $value];
             }
         }
-
         return response()->json($formattedTags);
     }
 
     public function store(Request $request)
     {
-        // Form verilerini doğrula
-        $request->validate([
-            'items.*.device_id' => 'required',
-            'items.*.tag_id'    => 'required',
-            'email'             => 'required|email'
-        ]);
+        $request->validate(['items.*.device_id' => 'required', 'items.*.tag_id' => 'required', 'items.*.email' => 'required|email']);
 
         try {
-            $count = 0;
-            // Blade'deki name="items[IDX][...]" yapısından gelen veriyi dönüyoruz
             foreach ($request->items as $item) {
-                // Eğer cihaz ve tag seçilmişse kaydet
-                if (!empty($item['device_id']) && !empty($item['tag_id'])) {
-                    \App\NotifiedEvent::create([
-                        'device_id' => $item['device_id'],
-                        'tag_id'    => $item['tag_id'],
-                        'min_value' => $item['min'] ?? 0,
-                        'max_value' => $item['max'] ?? 100,
-                        'email'     => $request->email,
-                        'status'    => 1
-                    ]);
-                    $count++;
-                }
+                NotifiedEvent::create([
+                    'device_id' => $item['device_id'],
+                    'tag_id'    => $item['tag_id'],
+                    'min_value' => $item['min'] ?? 0,
+                    'max_value' => $item['max'] ?? 100,
+                    'email'     => $item['email'],
+                    'status'    => 1
+                ]);
             }
-
-            return redirect()->back()->with([
-                'message'    => "$count adet olay başarıyla kaydedildi.",
-                'alert-type' => 'success'
-            ]);
-
+            return redirect()->route('events.index')->with(['message' => "Kaydedildi.", 'alert-type' => 'success']);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error("Olay Kayıt Hatası: " . $e->getMessage());
-            return redirect()->back()->with([
-                'message'    => "Bir hata oluştu: " . $e->getMessage(),
-                'alert-type' => 'error'
-            ]);
+            return redirect()->back()->with(['message' => $e->getMessage(), 'alert-type' => 'error']);
         }
     }
 
-    public function index(Request $request) 
+    // --- DÜZENLEME VE SİLME METODLARI ---
+
+    // edit metodunu bu şekilde değiştir
+    public function edit(Request $request, $id)
     {
-        // Verileri çekiyoruz
-        $events = \App\NotifiedEvent::with('device')->orderBy('created_at', 'desc')->get();
+        $event = NotifiedEvent::findOrFail($id);
+        $devices = Device::all();
+        return view('vendor.voyager.bildirimler.edit', compact('event', 'devices'));
+    }
+
+    // destroy metodunu bu şekilde değiştir
+    public function destroy(Request $request, $id)
+    {
+        $event = NotifiedEvent::findOrFail($id);
+        $event->delete();
+        return redirect()->route('events.index')->with([
+            'message'    => 'Kural silindi.',
+            'alert-type' => 'success'
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate(['device_id' => 'required', 'tag_id' => 'required', 'email' => 'required|email']);
         
-        // View'a gönderiyoruz
-        return view('vendor.voyager.bildirimler.index', compact('events'));
+        $event = NotifiedEvent::findOrFail($id);
+        $event->update($request->all());
+
+        return redirect()->route('events.index')->with(['message' => 'Kural başarıyla güncellendi.', 'alert-type' => 'success']);
     }
 
 }
