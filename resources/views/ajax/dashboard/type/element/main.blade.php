@@ -153,6 +153,17 @@ $wsize =  floor(24 /$gCount);
     </select>
 </div>
 
+<div class="col-xs-{{ $wsize }}">
+    <label class="control-label" style="display:block;">&nbsp;</label>
+    <div class="checkbox" style="margin-top: 0;">
+        <label>
+            <input type="checkbox" name="setting[thousand_separator]" value="1"
+                {{ isset($settings['thousand_separator']) && $settings['thousand_separator'] == 1 ? 'checked' : '' }}>
+            Binler basamağı göster
+        </label>
+    </div>
+</div>
+
 <div class="clearfix"></div> <!-- Boşluk bırakmak için clearfix ekledik -->
 
 <h5>Boyut</h5>

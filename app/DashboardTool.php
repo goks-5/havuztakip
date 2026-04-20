@@ -88,7 +88,12 @@ class DashboardTool extends Model
                 return "-";
             }
 
-            return $this->roundNumber($rawValue, $settings['numbers_round'] ?? 1);
+            $roundedValue = $this->roundNumber($rawValue, $settings['numbers_round'] ?? 1);
+
+            return $this->formatThousandSeparator(
+                $roundedValue,
+                $settings['thousand_separator'] ?? 0
+            );
         }
 
         return "-";
@@ -135,70 +140,107 @@ class DashboardTool extends Model
     public function period($settings, $tool)
     {
         $value = [];
-        $alignment = $settings['text_align'] ?? 'left'; // Default alignment
+        $alignment = $settings['text_align'] ?? 'left';
+
         if ($settings['data_type'] ?? 0) {
             $value['cols'][] = ['id' => 0, 'label' => 'Tarih', 'type' => 'string'];
         } else {
             $value['cols'][] = ['id' => 0, 'label' => 'Cihaz', 'type' => 'string'];
         }
-    
-        if ($settings['order_asc'] ?? 0) {         
-            $order = "asc";
-        } else {
-            $order = "desc";
-        }
-    
+
+        $order = ($settings['order_asc'] ?? 0) ? "asc" : "desc";
+
         $devices = [];
         $timearray = [];
         $colindex = 1;
+
         setlocale(LC_TIME, 'tr_TR.utf8');
-    
+
         foreach ($settings['devices'] as $key => $device) {
+
             if (!isset($devices[$device['device']])) {
                 $devices[$device['device']] = Device::where('id', $device['device'])->first();
             }
+
             $cdevice = $devices[$device['device']];
             $tags = json_decode($cdevice->tags, true);
-    
+
             $rows = Device::getdatas($device['device'], $device['device_index'], $settings['hour'], $order);
-    
+
             if ($settings['data_type'] ?? 0) {
-                $value['cols'][] = ['id' => $colindex, 'label' => $tags[$device['device_index']], 'type' => 'number'];
+
+                $value['cols'][] = [
+                    'id' => $colindex,
+                    'label' => $tags[$device['device_index']],
+                    'type' => 'number'
+                ];
                 ++$colindex;
+
                 foreach ($rows as $row) {
                     $time = Carbon::createFromTimestamp(strtotime($row->created_at));
                     $time = $time->formatLocalized('%a %d %b %Y');
-                    $timeindex = array_search($time, $timearray);
+
                     if (!in_array($time, $timearray)) {
                         $timearray[] = $time;
-                    }           
+                    }
                 }
+
                 foreach ($rows as $row) {
                     $time = Carbon::createFromTimestamp(strtotime($row->created_at));
                     $time = $time->formatLocalized('%a %d %b %Y');
                     $timeindex = array_search($time, $timearray);
+
                     $value['rows'][$timeindex]['c'][0]['v'] = $time;
-    
-                    // Sayı yuvarlama işlemi
-                    $value['rows'][$timeindex]['c'][$key + 1]['v'] = $this->roundNumber($row->value, $settings['numbers_round'] ?? 1);
+
+                    // 🔹 Önce round uygula
+                    $roundedValue = $this->roundNumber($row->value, $settings['numbers_round'] ?? 1);
+
+                    // 🔹 Sonra binlik ayırıcı uygula
+                    $formattedValue = $this->formatThousandSeparator(
+                        $roundedValue,
+                        $settings['thousand_separator'] ?? 0
+                    );
+
+                    $value['rows'][$timeindex]['c'][$key + 1]['v'] = $formattedValue;
                 }
+
             } else {
+
                 $value['rows'][$key]['c'][0]['v'] = $tags[$device['device_index']];
+
                 foreach ($rows as $row) {
                     $time = Carbon::createFromTimestamp(strtotime($row->created_at));
                     $time = $time->formatLocalized('%a %d %b %Y');
+
                     if (!in_array($time, $timearray)) {
                         $timearray[] = $time;
-                        $value['cols'][] = ['id' => $colindex, 'label' => $time, 'type' => 'number'];
+
+                        $value['cols'][] = [
+                            'id' => $colindex,
+                            'label' => $time,
+                            'type' => 'number'
+                        ];
                         ++$colindex;
                     }
+
                     $timeindex = array_search($time, $timearray);
-                    $value['rows'][$key]['c'][$timeindex + 1]['v'] = $this->roundNumber($row->value, $settings['numbers_round'] ?? 1);
+
+                    // 🔹 Önce round
+                    $roundedValue = $this->roundNumber($row->value, $settings['numbers_round'] ?? 1);
+
+                    // 🔹 Sonra format
+                    $formattedValue = $this->formatThousandSeparator(
+                        $roundedValue,
+                        $settings['thousand_separator'] ?? 0
+                    );
+
+                    $value['rows'][$key]['c'][$timeindex + 1]['v'] = $formattedValue;
                 }
             }
         }
-    
+
         $value['alignment'] = $alignment;
+
         return $value;
     }
     
@@ -221,6 +263,35 @@ class DashboardTool extends Model
         }
 
         return $number;
+    }
+
+    private function formatThousandSeparator($number, $useThousandSeparator = 0)
+    {
+        if ($number === null || $number === '') {
+            return '-';
+        }
+
+        if ($useThousandSeparator == 1 && is_numeric($number)) {
+            if ((float)$number == (int)$number) {
+                return number_format((float)$number, 0, ',', '.');
+            }
+
+            $decimalCount = $this->getDecimalCount($number);
+            return number_format((float)$number, $decimalCount, ',', '.');
+        }
+
+        return $number;
+    }
+
+    private function getDecimalCount($number)
+    {
+        $number = (string)$number;
+
+        if (strpos($number, '.') !== false) {
+            return strlen(rtrim(substr(strrchr($number, '.'), 1), '0'));
+        }
+
+        return 0;
     }
     
     public function sum_tag($settings, $tool)
