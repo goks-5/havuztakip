@@ -15,14 +15,23 @@ class DashboardTool extends Model
 {
     public function ajaxdata($tools)
     {
-        $return = array();
+        $return = [];
         foreach ($tools as $tool) {
             $type = $tool->type;
             $settings = json_decode($tool->settings, true);
-            $return[$type]['tool_' . $tool->id] = $this->$type($settings, $tool->id);
+    
+            // "oee_report" tipindeki tool ise, özel fonksiyonu çağır:
+            if ($type === 'oee_report') {
+                $return[$type]['tool_' . $tool->id] = $this->oee_report($settings, $tool->id);
+            }
+            // Değilse, eski usül $this->$type(...) çağır
+            else {
+                $return[$type]['tool_' . $tool->id] = $this->$type($settings, $tool->id);
+            }
         }
         return json_encode($return);
     }
+    
 
     public function device_data_gauge($settings, $tool)
     {
@@ -66,15 +75,28 @@ class DashboardTool extends Model
 
         return ['value' => $lastdata[$settings['device_index']], 'tool' => $tool, 'alarm' => $alarm, 'sound' => $settings['sound']];
     }
+    
     public function device_data($settings, $tool)
     {
         $devices = Device::where('id', $settings['device'])->first();
+
         if ($devices) {
             $lastdata = json_decode($devices->last_data, true);
-            return $lastdata[$settings['device_index']] ?? "-";
-        } else {
-            return "-";
+            $rawValue = $lastdata[$settings['device_index']] ?? null;
+
+            if ($rawValue === null || $rawValue === '') {
+                return "-";
+            }
+
+            $roundedValue = $this->roundNumber($rawValue, $settings['numbers_round'] ?? 1);
+
+            return $this->formatThousandSeparator(
+                $roundedValue,
+                $settings['thousand_separator'] ?? 0
+            );
         }
+
+        return "-";
     }
 
     public function last_date($settings, $tool)
@@ -117,68 +139,266 @@ class DashboardTool extends Model
 
     public function period($settings, $tool)
     {
+        $value = [];
+        $alignment = $settings['text_align'] ?? 'left';
+
         if ($settings['data_type'] ?? 0) {
             $value['cols'][] = ['id' => 0, 'label' => 'Tarih', 'type' => 'string'];
         } else {
             $value['cols'][] = ['id' => 0, 'label' => 'Cihaz', 'type' => 'string'];
         }
 
-        if ($settings['order_asc'] ?? 0) {         
-            $order = "asc";
-        } else {
-            $order = "desc";
-        }
+        $order = ($settings['order_asc'] ?? 0) ? "asc" : "desc";
 
-        $devices = array();
-        $timearray = array();
+        $devices = [];
+        $timearray = [];
         $colindex = 1;
+
         setlocale(LC_TIME, 'tr_TR.utf8');
 
+        foreach ($settings['devices'] as $key => $device) {
 
+            if (!isset($devices[$device['device']])) {
+                $devices[$device['device']] = Device::where('id', $device['device'])->first();
+            }
+
+            $cdevice = $devices[$device['device']];
+            $tags = json_decode($cdevice->tags, true);
+
+            $rows = Device::getdatas($device['device'], $device['device_index'], $settings['hour'], $order);
+
+            if ($settings['data_type'] ?? 0) {
+
+                $value['cols'][] = [
+                    'id' => $colindex,
+                    'label' => $tags[$device['device_index']],
+                    'type' => 'number'
+                ];
+                ++$colindex;
+
+                foreach ($rows as $row) {
+                    $time = Carbon::createFromTimestamp(strtotime($row->created_at));
+                    $time = $time->formatLocalized('%a %d %b %Y');
+
+                    if (!in_array($time, $timearray)) {
+                        $timearray[] = $time;
+                    }
+                }
+
+                foreach ($rows as $row) {
+                    $time = Carbon::createFromTimestamp(strtotime($row->created_at));
+                    $time = $time->formatLocalized('%a %d %b %Y');
+                    $timeindex = array_search($time, $timearray);
+
+                    $value['rows'][$timeindex]['c'][0]['v'] = $time;
+
+                    // 🔹 Önce round uygula
+                    $roundedValue = $this->roundNumber($row->value, $settings['numbers_round'] ?? 1);
+
+                    // 🔹 Sonra binlik ayırıcı uygula
+                    $formattedValue = $this->formatThousandSeparator(
+                        $roundedValue,
+                        $settings['thousand_separator'] ?? 0
+                    );
+
+                    $value['rows'][$timeindex]['c'][$key + 1]['v'] = $formattedValue;
+                }
+
+            } else {
+
+                $value['rows'][$key]['c'][0]['v'] = $tags[$device['device_index']];
+
+                foreach ($rows as $row) {
+                    $time = Carbon::createFromTimestamp(strtotime($row->created_at));
+                    $time = $time->formatLocalized('%a %d %b %Y');
+
+                    if (!in_array($time, $timearray)) {
+                        $timearray[] = $time;
+
+                        $value['cols'][] = [
+                            'id' => $colindex,
+                            'label' => $time,
+                            'type' => 'number'
+                        ];
+                        ++$colindex;
+                    }
+
+                    $timeindex = array_search($time, $timearray);
+
+                    // 🔹 Önce round
+                    $roundedValue = $this->roundNumber($row->value, $settings['numbers_round'] ?? 1);
+
+                    // 🔹 Sonra format
+                    $formattedValue = $this->formatThousandSeparator(
+                        $roundedValue,
+                        $settings['thousand_separator'] ?? 0
+                    );
+
+                    $value['rows'][$key]['c'][$timeindex + 1]['v'] = $formattedValue;
+                }
+            }
+        }
+
+        $value['alignment'] = $alignment;
+
+        return $value;
+    }
+    
+    /**
+     * Helper function to round numbers based on the settings
+     */
+    
+    private function roundNumber($number, $roundingOption)
+    {
+        if ($roundingOption == 1) {
+            // Seçili Değil -> olduğu gibi göster
+            return $number;
+        } elseif ($roundingOption == 2) {
+            // Tam Sayı Göster -> ondalıklı kısmı tamamen kaldır
+            return (int) $number;
+        } elseif ($roundingOption == 3) {
+            // Tam Sayıya Yuvarla -> en yakın 0 veya 5 ile biten tam sayıya yuvarla
+            $nearestFive = round($number / 5) * 5;
+            return (int) $nearestFive;
+        }
+
+        return $number;
+    }
+
+    private function formatThousandSeparator($number, $useThousandSeparator = 0)
+    {
+        if ($number === null || $number === '') {
+            return '-';
+        }
+
+        if ($useThousandSeparator == 1 && is_numeric($number)) {
+            if ((float)$number == (int)$number) {
+                return number_format((float)$number, 0, ',', '.');
+            }
+
+            $decimalCount = $this->getDecimalCount($number);
+            return number_format((float)$number, $decimalCount, ',', '.');
+        }
+
+        return $number;
+    }
+
+    private function getDecimalCount($number)
+    {
+        $number = (string)$number;
+
+        if (strpos($number, '.') !== false) {
+            return strlen(rtrim(substr(strrchr($number, '.'), 1), '0'));
+        }
+
+        return 0;
+    }
+    
+    public function sum_tag($settings, $tool)
+    {
+        $tags = [];
+        $devices = [];
+        $total['label'] = $settings['title'];
+        $total['value'] = 0;
+        $unit = $settings['unit'] ?? "";
         foreach ($settings['devices'] as $key => $device) {
             if (!isset($devices[$device['device']])) {
                 $devices[$device['device']] = Device::where('id', $device['device'])->first();
             }
-            $cdevice =   $devices[$device['device']];
-            $tags = json_decode($cdevice->tags, true);
+            if ( $devices[$device['device']]) {
+                $currrentDevice =  $devices[$device['device']];
+                $deviceTags = json_decode($currrentDevice->tags, true);
+                $lastdata = json_decode($currrentDevice->last_data, true);
+                $label = $deviceTags[$device['device_index']] ??  "-";
+                $value = $lastdata[$device['device_index']] ?? 0;
+                $total['value'] += $value;
+                $tags[] = ['label' => $label, 'value' => $value   . " $unit" ];
+            } 
+        }
+        
+        $total['value'] .=  " $unit";
+        return ['total' => $total , 'tags' => $tags];
+    }
 
-            $rows = Device::getdatas($device['device'], $device['device_index'], $settings['hour'], $order);
-            if ($settings['data_type'] ?? 0) {
-                $value['cols'][] = ['id' => $colindex, 'label' =>  $tags[$device['device_index']], 'type' => 'number'];
-                ++$colindex;
-                foreach ($rows as $row) {
-                    $time = Carbon::createFromTimestamp(strtotime($row->created_at));
-                    $time = $time->formatLocalized('%a %d %b %Y');
-                    $timeindex = array_search($time, $timearray);
-                    if (!in_array($time, $timearray)) {
-                        $timearray[] = $time;
-                    }           
-                }
-                foreach ($rows as $row) {
-                    $time = Carbon::createFromTimestamp(strtotime($row->created_at));
-                    $time = $time->formatLocalized('%a %d %b %Y');
-                    $timeindex = array_search($time, $timearray);
-                    $value['rows'][$timeindex]['c'][0]['v'] = $time;
-                    $value['rows'][$timeindex]['c'][$key + 1]['v'] = $row->value;
-                }
-            } else {
-                $value['rows'][$key]['c'][0]['v'] = $tags[$device['device_index']];
-                foreach ($rows as $row) {
-                    $time = Carbon::createFromTimestamp(strtotime($row->created_at));
-                    $time = $time->formatLocalized('%a %d %b %Y');
-                    if (!in_array($time, $timearray)) {
-                        $timearray[] = $time;
-                        $value['cols'][] = ['id' => $colindex, 'label' => $time, 'type' => 'number'];
-                        ++$colindex;
-                    }
-                    $timeindex = array_search($time, $timearray);
-                    $value['rows'][$key]['c'][$timeindex + 1]['v'] = $row->value;
-                }
+    public function go_to_tab_button($settings, $tool)
+    {
+        // Dashboard verilerini tutmak için boş bir array oluşturuyoruz.
+        $dashboards = [];
+        
+        // Kullanıcının kaydettiği dashboard ID'sini alıyoruz.
+        $dashboardId = $settings['dashboard_id'] ?? null;
+        
+        // Eğer dashboard ID varsa, o dashboard'u veritabanından buluyoruz.
+        if ($dashboardId) {
+            $dashboard = Dashboard::where('id', $dashboardId)->first();
+            
+            if ($dashboard) {
+                // Dashboard bilgilerini alıyoruz (başlık ve ID)
+                $label = $dashboard->title;
+                $id = $dashboard->id;
+                
+                // Tags mantığıyla yönlendirme butonuna tıklanacak dashboard verisini ekliyoruz.
+                $dashboards[] = ['label' => $label, 'id' => $id];
             }
         }
+    
+        // Eğer bir dashboard ID bulunmazsa, kullanıcıya "Dashboard seçilmemiş" mesajını gösterecek veriyi hazırlıyoruz.
+        $total['label'] = "Dashboard";
+        $total['value'] = $dashboardId ? $dashboard->title : "Dashboard seçilmemiş";
+    
+        // Kullanıcıyı ilgili dashboard'a yönlendirecek buton bilgilerini döndürüyoruz.
+        return [
+            'total' => $total,
+            'dashboards' => $dashboards
+        ];
+    }    
 
-        return $value;
-    }
+    public function oee_report($settings, $toolId)
+{
+    // Örnek: Blade'deki hesaplamaları buraya taşıyoruz
+    // 1) Gerekli model ve değişkenleri al
+    $deviceId   = $settings['device'] ?? null;
+    $hour       = isset($settings['hour']) ? intval($settings['hour']) : 6;
+    $startTime  = Carbon::now()->subHours($hour);
+
+    // Örnek kullanım değişkenleri
+    $plannedProductionTime = $settings['planned_production_time'] ?? 60;
+    $actualOutput          = $settings['actual_output'] ?? 0;
+    $expectedOutput        = $settings['expected_output'] ?? 1;
+
+    // Burada $totalWorkingMinutes, $chartData, $chartLabels gibi değerleri hesaplayın
+    // ...
+    // Örnek basit atamalar (kendi kodunuzdakini uyarlayın):
+    $totalWorkingMinutes = 120; // örnek
+    $chartLabels = ["08:00", "09:00", "10:00"]; 
+    $chartData   = [10, 20, 40]; 
+
+    // Kullanılabilirlik, Performans, Kalite ve OEE hesapları
+    $kullanilabilirlik = round(($totalWorkingMinutes / $plannedProductionTime) * 100);
+    $performans        = round(($expectedOutput > 0) ? ($actualOutput / $expectedOutput) * 100 : 0);
+    $kalite            = 100;
+    $oee               = round(($kullanilabilirlik * $performans * $kalite) / 10000, 1);
+
+    // Dönüşte ihtiyacınız olan her şeyi dizi olarak verin:
+    return [
+        'tool_id'            => $toolId,
+        'chartLabels'        => $chartLabels,
+        'chartData'          => $chartData,
+        'kullanilabilirlik'  => $kullanilabilirlik,
+        'performans'         => $performans,
+        'kalite'             => $kalite,
+        'oee'                => $oee,
+        // Tooltip'te göstermek istediğiniz diğer bilgiler
+        'device_name'        => 'Cihaz Adı',
+        'tag_name'           => 'Etiket Adı',
+        'timeRange'          => "Son {$hour} Saat",
+        'totalWorkingMinutes'=> $totalWorkingMinutes,
+        'plannedProductionTime' => $plannedProductionTime,
+        'actualOutput'       => $actualOutput,
+        'expectedOutput'     => $expectedOutput,
+    ];
+}
+
     public function device_chart($settings, $tool)
     {
         $value['cols'][] = ['id' => 0, 'label' => 'Tarih', 'type' => 'datetime'];
@@ -203,44 +423,15 @@ class DashboardTool extends Model
 
         return $value;
     }
-
+    
     public function faults($settings, $tool)
     {
-        $value['fault'][] = ['Durum', 'Adet'];
-        $value['fault'][] = ['Yeni Arıza', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Yeni')->count()];
-        $value['fault'][] = ['Onay Bekleyen', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Onay |1|')
-            ->where('created_at', '>=', Carbon::now()->subHours('24')->toDateTimeString())->count()];
-        $value['fault'][] = ['Beklemede Olan', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Bekliyor |0|')->count()];
-        $value['fault'][] = ['Bakıma Başlanan', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Bakıma Başlandı |0|')->count()];
-        $value['fault'][] = ['Parça Bekleyen', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Malzeme Bekliyor |2|')->count()];
-        $value['fault'][] = ['Firmaya Yönlendirilen', Fault::where('company_id', Auth::user()->company_id)->where('status', 'Firma Yönlendirildi |2|')->count()];
-
-        return $value;
+    
     }
 
     public function faults_table($settings, $tool)
     {
-        $faults = Fault::where('company_id', Auth::user()->company_id)
-            ->whereIn('status', $settings['status'])
-            ->orderBy('created_at', 'desc')
-            ->limit($settings['limit'])->get();
-        $return = [];
-        foreach ($faults as $fault) {
-            $return[] = [
-                'id' => $fault->id,
-                'equipment' => $fault->equipment->name,
-                'staff' => $fault->staff->name ?? null,
-                'created_at' => $fault->created_at->format('Y-m-d H:i:s'),
-                'accepted_at' =>  $fault->accepted_at ? $fault->accepted_at->format('Y-m-d H:i:s') : null,
-                'fault_code' => $fault->fault_code,
-                'fault_comment' => $fault->fault_comment,
-                'reporting_user' => $fault->reporting_user,
-                'status' => $fault->status,
-
-            ];
-        }
-
-        return $return;
+        
     }
 
     public function backgroud($settings, $tool)

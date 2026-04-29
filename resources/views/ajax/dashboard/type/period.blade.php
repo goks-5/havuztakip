@@ -44,3 +44,35 @@
               id='order_asc' {{ isset($settings['order_asc']) && $settings['order_asc'] == '1' ? 'checked' : '' }} />
       </div>
   </div>
+
+  <style>
+   .btn-default.active {
+    background-color: #007bff; /* Blue background for the active button */
+    color: white; /* White text for better visibility */
+}
+
+
+    .header-align-left,
+    .header-align-center,
+    .header-align-right {
+
+        text-align: right !important;
+    }
+
+</style>
+
+  <script>
+   function setAlignment(align) {
+    // Update the hidden input value
+    document.getElementById('text_align').value = align;
+
+    // Remove 'active' class from all buttons
+    document.querySelectorAll('.btn-group .btn').forEach(button => button.classList.remove('active'));
+
+    // Add 'active' class to the clicked button
+    document.querySelector(`input[name="setting[text_align]"][value="${align}"]`).closest('label').classList.add('active');
+
+    console.log("Alignment set to:", align); // Debugging
+}
+
+</script>

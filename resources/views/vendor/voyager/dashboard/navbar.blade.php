@@ -31,17 +31,21 @@
                 @endif
             </ol>
             @show
-            <ul class="nav navbar-nav navbar-left">
+          <ul class="nav navbar-nav navbar-left">
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle text-left" data-toggle="dropdown" role="button"
-                 aria-expanded="false"><i class="voyager-info-circled" id="device_info"></i></a>
+                <a href="#" class="dropdown-toggle text-left" data-toggle="dropdown" role="button" aria-expanded="false">
+                    <i class="voyager-info-circled" id="device_info"></i>
+                </a>
                 <ul class="dropdown-menu dropdown-menu-animated">
-                <li ><span class="ustcihaz">##</span> Cihaz <span id="ustnokta">##</span> Nokta</li>
-                <li ><span class="ustcihaz">##</span> Cihazdan <span id="cevrimdisi">##</span> Çevrim Dışı</li>
-                <li id='cevrimdisilar'></li>
-              </ul>
-              </li>
-              </ul>
+                    <li><span class="ustcihaz">##</span> Cihaz <span id="ustnokta">##</span> Nokta</li>
+                    <li><span class="ustcihaz">##</span> Cihazdan <span id="cevrimdisi">##</span> Çevrim Dışı</li>
+                    <li id="cevrimdisilar"></li>
+                    <li role="separator" class="divider"></li>
+                    <li><span class="ustcihaz">##</span> Cihazdan <span id="pasif">##</span> Pasif</li>
+                    <li id="pasifler"></li>
+                </ul>
+            </li>
+        </ul>
         </div>
 
         <ul class="nav navbar-nav @if (__('voyager::generic.is_rtl') == 'true') navbar-left @else navbar-right @endif">
@@ -99,7 +103,7 @@
     $.ajax({
       url: '{{route('deviceonline')}}',
       success: function(data) {
-        var lastdata = JSON.parse(data);
+        var lastdata = data;
         $('.ustcihaz').html(lastdata.deviceCount);
         $('#ustnokta').html(lastdata.pointCount);
         $('#cevrimdisi').html(lastdata.oflineCount);
@@ -135,4 +139,36 @@ $('#cevrimdisilar').html($yaz);
   setTimeout(deviceCheck,600);
 });
 </script>
+
+<script>
+  function loadDeviceInfo() {
+      $.get("{{ route('deviceonline') }}", function (data) {
+
+          // Üst bilgi
+          $(".ustcihaz").first().text(data.deviceCount);
+          $("#ustnokta").text(data.pointCount);
+
+          // Çevrimdışı cihaz bilgileri
+          $("#cevrimdisi").text(data.oflineCount);
+          let offlineList = "";
+          data.oflineDevices.forEach(d => {
+              offlineList += `<li>${d.name} Cihazına ${d.last_at} Den Beri Ulaşılamıyor ${d.status == 0 ? '(Pasif)' : ''}</li>`;
+          });
+          $("#cevrimdisilar").html(offlineList);
+
+          // Pasif cihaz bilgileri (çevrimdışılar da dahil)
+          $("#pasif").text(data.passiveCount);
+          let passiveList = "";
+          data.passiveDevices.forEach(d => {
+              passiveList += `<li>${d.name} (Pasif)</li>`;
+          });
+          $("#pasifler").html(passiveList);
+      });
+  }
+
+  setInterval(loadDeviceInfo, 10000);
+  loadDeviceInfo();
+
+</script>
+
 @endpush

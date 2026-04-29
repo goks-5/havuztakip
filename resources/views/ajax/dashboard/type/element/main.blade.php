@@ -135,22 +135,57 @@ $wsize =  floor(24 /$gCount);
     </div>
   @endif
 
-  @if($options->layer == 1)
-    <div class="col-xs-{{$wsize}}">
-        <label class="control-label">Hizalama</label>
-        <div class="btn-group alignment-buttons" role="group">
-            <button type="button" class="btn btn-default alignment-button" data-alignment="left" onclick="changeAlignment('left')">
-                <img src="/images/left.png" alt="Left Align">
-            </button>
-            <button type="button" class="btn btn-default alignment-button" data-alignment="center" onclick="changeAlignment('center')">
-                <img src="/images/center.png" alt="Center Align">
-            </button>
-            <button type="button" class="btn btn-default alignment-button" data-alignment="right" onclick="changeAlignment('right')">
-                <img src="/images/right.png" alt="Right Align">
-            </button>
-        </div>
+  <div class="col-xs-{{ $wsize }}">
+    <label class="control-label">Hizalama</label>
+    <select class="form-control" name="setting[text_align]" id="text_align">
+        <option value="left" {{ (isset($settings['text_align']) && $settings['text_align'] == 'left') ? 'selected' : '' }}>Sol</option>
+        <option value="center" {{ (isset($settings['text_align']) && $settings['text_align'] == 'center') ? 'selected' : '' }}>Merkez</option>
+        <option value="right" {{ (isset($settings['text_align']) && $settings['text_align'] == 'right') ? 'selected' : '' }}>Sağ</option>
+    </select>
+</div>
+
+<div class="col-xs-{{ $wsize }}">
+    <label class="control-label">Yuvarlama</label>
+    <select class="form-control select2" name="setting[numbers_round]">
+        <option value="1" {{ isset($settings['numbers_round']) && $settings['numbers_round'] == "1" ? 'selected' : '' }}>Seçili Değil</option>
+        <option value="2" {{ isset($settings['numbers_round']) && $settings['numbers_round'] == "2" ? 'selected' : '' }}>Tam Sayı Göster</option>
+        <option value="3" {{ isset($settings['numbers_round']) && $settings['numbers_round'] == "3" ? 'selected' : '' }}>Tam Sayıya Yuvarla</option>
+    </select>
+</div>
+
+<div class="col-xs-{{ $wsize }}">
+    <label class="control-label" style="display:block;">&nbsp;</label>
+    <div class="checkbox" style="margin-top: 0;">
+        <label>
+            <input type="checkbox" name="setting[thousand_separator]" value="1"
+                {{ isset($settings['thousand_separator']) && $settings['thousand_separator'] == 1 ? 'checked' : '' }}>
+            Binler basamağı göster
+        </label>
     </div>
-@endif
+</div>
+
+<div class="clearfix"></div> <!-- Boşluk bırakmak için clearfix ekledik -->
+
+<h5>Boyut</h5>
+    <div class="col-xs-6">
+        <label class="control-label">Genişlik (px)</label>
+        <input type="text" name="setting[style][width]" class="form-control" value="{{ $settings['style']['width'] ?? '' }}" placeholder="" />
+    </div>
+    <div class="col-xs-6">
+        <label class="control-label">Yükseklik (px)</label>
+        <input type="text" name="setting[style][height]" class="form-control" value="{{ $settings['style']['height'] ?? '' }}" placeholder="" />
+    </div>
+    <div class="clearfix"></div> <!-- Boşluk bırakmak için clearfix ekledik -->
+
+    <h5>Yerleşim</h5>
+    <div class="col-xs-6">
+        <label class="control-label">Soldan Boşluk (px)</label>
+        <input type="text" name="setting[style][left]" class="form-control" value="{{ $settings['style']['left'] ?? '' }}" placeholder="" />
+    </div>
+    <div class="col-xs-6">
+        <label class="control-label">Üstten Boşluk (px)</label>
+        <input type="text" name="setting[style][top]" class="form-control" value="{{ $settings['style']['top'] ?? '' }}" placeholder="" />
+    </div>
 
   @if($options->unit == 1 || $ek  > 0)
   <h5 class="col-xs-12">Diğer özellikler</h5>
@@ -161,92 +196,3 @@ $wsize =  floor(24 /$gCount);
 <input type="text" name="setting[unit]" class="form-control" value="{{$settings['unit'] ?? ''}}"/>
 </div>
 @endif
-
-<style>
-    .alignment-buttons {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px; /* Butonlar arasındaki boşluk */
-    }
-    .alignment-button {
-        flex: 1; /* Butonların eşit genişlikte olmasını sağlar */
-        padding: 5px; /* Butonların iç boşluğu */
-    }
-    .alignment-button img {
-        width: 20px; /* Resmin genişliği */
-        height: 20px; /* Resmin yüksekliği */
-    }
-    .alignment-button.selected {
-        border: 7px solid black; /* Seçili butonun kenarlığı */
-    }
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Yerel depolamadan hizalama verisini al
-    const savedAlignment = localStorage.getItem('selectedAlignment');
-
-    if (savedAlignment) {
-        // Hizalamayı geri yükle
-        setAlignmentButtonSelected(savedAlignment);
-        changeAlignment(savedAlignment, false);
-    }
-});
-
-function changeAlignment(alignment, save = true) {
-    // Hizalama türüne göre CSS sınıfını belirle
-    let alignmentClass;
-    switch (alignment) {
-        case 'left':
-            alignmentClass = 'text-left';
-            break;
-        case 'center':
-            alignmentClass = 'text-center';
-            break;
-        case 'right':
-            alignmentClass = 'text-right';
-            break;
-        default:
-            alignmentClass = '';
-    }
-  // Veriyi içeren elementin ID'sini veya sınıfını belirleyin
-  let dataElement = document.querySelector('.data-element-class'); // ID veya sınıfa göre değiştirin
-
-if (dataElement) {
-    // Mevcut hizalama sınıflarını temizle
-    dataElement.classList.remove('text-left', 'text-center', 'text-right');
-
-    // Yeni hizalama sınıfını ekle
-    if (alignmentClass) {
-        dataElement.classList.add(alignmentClass);
-    }
-} else {
-    console.error("Data element not found");
-}
-
-// Tüm hizalama butonlarındaki selected sınıfını kaldır
-const buttons = document.querySelectorAll('.alignment-button');
-buttons.forEach(button => button.classList.remove('selected'));
-
-// Tıklanan butona selected sınıfını ekle
-const selectedButton = document.querySelector(`.alignment-button[data-alignment="${alignment}"]`);
-if (selectedButton) {
-    selectedButton.classList.add('selected');
-}
-
-// Seçilen hizalamayı yerel depolamaya kaydet
-if (save) {
-    localStorage.setItem('selectedAlignment', alignment);
-}
-}
-
-function setAlignmentButtonSelected(alignment) {
-const buttons = document.querySelectorAll('.alignment-button');
-buttons.forEach(button => button.classList.remove('selected'));
-
-const selectedButton = document.querySelector(`.alignment-button[data-alignment="${alignment}"]`);
-if (selectedButton) {
-    selectedButton.classList.add('selected');
-}
-}
-</script>

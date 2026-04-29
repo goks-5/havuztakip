@@ -23,5 +23,8 @@ php artisan view:clear
 
 php artisan up
 
+chown -R www-data:www-data storage bootstrap/cache
+chmod -R 775 storage bootstrap/cache
+
 ## php artisan mysqlVarible:set  
 ## test

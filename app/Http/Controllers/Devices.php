@@ -61,15 +61,36 @@ class Devices extends VoyagerBaseController
     public function addManuelData(Request $request)
     {
         $device = Device::where('company_id', Auth::user()->company_id)->where('id', $request->id)->first();
+        $multiplier = json_decode($device->multiplier, true);
+        $offset = json_decode($device->offset, true);
+
         if ($device) {
             $time = date('Y-m-d H:i', strtotime($request->date));
+            $tags = [];
             foreach ($request->tags as $key => $tag) {
+
+                if (isset($offset[$key]) && !empty($offset[$key])) {
+                    $offsetValue = floatval($offset[$key]);
+                } else {
+                    $offsetValue = 0; 
+                }
+                if (isset($multiplier[$key]) && !empty($multiplier[$key])) {
+                    $multiplierValue = floatval($multiplier[$key]);
+                } else {
+                    $multiplierValue = 1; 
+                }
+                $tag = ($tag * $multiplierValue ) +  $offsetValue;
+
+
                 $deviceData = new DeviceData;
                 $deviceData->device_id = $request->id;
                 $deviceData->data_id = $key;
                 $deviceData->value = $tag;
+                $deviceData->multiplier = $multiplierValue;
+                $deviceData->offset = $offsetValue;
                 $deviceData->created_at = $time;
                 $deviceData->save();
+                $tags[$key] = $tag;
             }
         }
         $device->last_at = $time;
@@ -77,7 +98,7 @@ class Devices extends VoyagerBaseController
         if (!empty($device->last_data)) {
             $lastdata = json_decode($device->last_data, true);
         }
-        $replace = array_replace($lastdata, $request->tags);
+        $replace = array_replace($lastdata, $tags);
         ksort($replace);
         $device->last_data = json_encode($replace);
         $device->save();
@@ -247,15 +268,18 @@ class Devices extends VoyagerBaseController
 
 
     public function addVirtual($id = null)
-    {
-        $this->authorize('virtual', app('App\Device'));
-        $data = array();
-        if (!is_null($id)) {
-            $data['device'] = Device::where('company_id', Auth::user()->company_id)->where('id', $id)->first();
-        }
-        $data['devices'] =  $devices = Device::where('company_id', Auth::user()->company_id)->get();
-        return view('voyager::cihazlar.sanal', $data);
+{
+    $this->authorize('virtual', app('App\Device'));
+    $data = [];
+    if (!is_null($id)) {
+        $data['device'] = Device::where('company_id', Auth::user()->company_id)->where('id', $id)->first();
     }
+
+    $data['devices'] = Device::where('company_id', Auth::user()->company_id)->get();
+    $data['fields'] = DB::table('fields')->pluck('name'); // Sadece 'name' alanını alıyoruz
+
+    return view('voyager::cihazlar.sanal', $data);
+}
 
     public function addDosab($id = null)
     {
@@ -338,25 +362,30 @@ class Devices extends VoyagerBaseController
 
 
     public function saveVirtual(Request $request)
-    {
-
-        $this->authorize('virtual', app('App\Device'));
-        if (isset($request->id)) {
-            $device = Device::where('company_id', Auth::user()->company_id)->where('id', $request->id)->first();
-        } else {
-            $device = new Device;
-            $device->device_id = "VIRTUAL_" . date("ymd") . str_pad(rand(0, 999), 3, "0", STR_PAD_LEFT);
-        }
-        $device->mac = "00:00:00:00:00:00";
-        $device->name = $request->name;
-        $device->tags = $request->tags;
-        $device->formula = $request->formula;
-        $device->type = $request->type;
-        $device->company_id = Auth::user()->company_id;
-        $device->save();
-        return redirect()->route("voyager.cihazlar.index")->with(['message' => "Sanal Makine Eklendi", 'alert-type' => 'success']);
-        // return back()->with(['message' => "Sanal Makine Eklendi", 'alert-type' => 'success']);
+{
+    $this->authorize('virtual', app('App\Device'));
+    if (isset($request->id)) {
+        $device = Device::where('company_id', Auth::user()->company_id)->where('id', $request->id)->first();
+    } else {
+        $device = new Device;
+        $device->device_id = "VIRTUAL_" . date("ymd") . str_pad(rand(0, 999), 3, "0", STR_PAD_LEFT);
     }
+
+    $device->mac = "00:00:00:00:00:00";
+    $device->name = $request->name;
+    $device->tags = $request->tags;
+    $device->formula = $request->formula;
+    $device->type = $request->type;
+    $device->field_name = $request->field_name; // Mevcut alanlar
+    $device->resource_type = $request->resource_type; // Yeni eklenen dropdown alanı
+    $device->company_id = Auth::user()->company_id;
+    $device->save();
+
+    return redirect()->route("voyager.cihazlar.index")->with(['message' => "Sanal Makine Eklendi", 'alert-type' => 'success']);
+}
+
+
+    
     //***************************************
     //                ______
     //               |  ____|
@@ -393,6 +422,9 @@ class Devices extends VoyagerBaseController
             $dataTypeContent = DB::table($dataType->name)->where('id', $id)->first();
         }
 
+         // `fields` verisini veritabanından çekiyoruz
+        $fields = DB::table('fields')->pluck('name')->toArray(); // 'fields' tablosundaki 'name' sütununu alıyoruz
+
         foreach ($dataType->editRows as $key => $row) {
             $dataType->editRows[$key]['col_width'] = isset($row->details->width) ? $row->details->width : 100;
         }
@@ -424,10 +456,16 @@ class Devices extends VoyagerBaseController
             case '00:00:00:00:00:03':
                 $this->authorize('remote',  app('App\Device'));
                 break;
+            case '00:00:00:00:00:04':
+                $this->authorize('virtual',  app('App\Device'));
+                break;
             default:
                 $this->authorize('edit',  app('App\Device'));
                 break;
         }
+
+        // Check permission
+        $this->authorize('edit', app('App\Device'));
 
         // Check if BREAD is Translatable
         $isModelTranslatable = is_bread_translatable($dataTypeContent);
@@ -438,88 +476,71 @@ class Devices extends VoyagerBaseController
             $view = "voyager::$slug.edit-add";
         }
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'fields'));
+
     }
 
     // POST BR(E)AD
-    public function update(Request $request, $id)
-    {
-        $slug = $this->getSlug($request);
+public function update(Request $request, $id)
+{
+    $slug = $this->getSlug($request);
+    $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
-        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-
-        // Compatibility with Model binding.
-        $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
-
-        $model = app($dataType->model_name);
-        if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope' . ucfirst($dataType->scope))) {
-            $model = $model->{$dataType->scope}();
-        }
-        if ($model && in_array(SoftDeletes::class, class_uses($model))) {
-            $data = $model->withTrashed()->findOrFail($id);
-        } else {
-            $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
-        }
-
-        // Check permission
-        switch ($request->mac) {
-            case '00:00:00:00:00:00':
-                $this->authorize('virtual',  app('App\Device'));
-                break;
-            case '00:00:00:00:00:01':
-                $this->authorize('dosab',  app('App\Device'));
-                break;
-            case '00:00:00:00:00:02':
-                $this->authorize('manuel',  app('App\Device'));
-                break;
-            case '00:00:00:00:00:03':
-                $this->authorize('remote',  app('App\Device'));
-                break;
-            default:
-                $this->authorize('edit',  app('App\Device'));
-                break;
-        }
-
-        // Validate fields with ajax
-        $val = $this->validateBread($request->all(), $dataType->editRows, $dataType->name, $id)->validate();
-
-        $dataAll = $request->all();
-        if (!isset($dataAll['company_id']) || $dataAll['company_id'] ==  Auth::user()->company_id) {
-            $dataType->editRows->push((object)[
-                "data_type_id" => 17,
-                "field" => "type",
-                "type" => "query_text",
-                "display_name" => "type",
-                "edit" => 1,
-                "add" => 1,
-                "details" => "{}"
-            ]);
-            $dataType->editRows->push((object)[
-                "data_type_id" => 17,
-                "field" => "tags_last_change",
-                "type" => "text",
-                "display_name" => "Tags Last Change",
-                "edit" => 1,
-                "add" => 1,
-                "details" => "{}"
-            ]);
-            $request->request->add(['tags_last_change' => []]);
-            $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
-        }
-
-        event(new BreadDataUpdated($dataType, $data));
-
-        if (auth()->user()->can('browse', $model)) {
-            $redirect = redirect()->route("voyager.{$dataType->slug}.index");
-        } else {
-            $redirect = redirect()->back();
-        }
-
-        return $redirect->with([
-            'message'    => __('voyager::generic.successfully_updated') . " {$dataType->getTranslatedAttribute('display_name_singular')}",
-            'alert-type' => 'success',
-        ]);
+    // 1) Kaydı ÖNCE yükle
+    $id = $id instanceof \Illuminate\Database\Eloquent\Model ? $id->{$id->getKeyName()} : $id;
+    $model = app($dataType->model_name);
+    if ($dataType->scope && $dataType->scope != '' && method_exists($model, 'scope' . ucfirst($dataType->scope))) {
+        $model = $model->{$dataType->scope}();
     }
+    if ($model && in_array(\Illuminate\Database\Eloquent\SoftDeletes::class, class_uses($model))) {
+        $data = $model->withTrashed()->findOrFail($id);
+    } else {
+        $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
+    }
+
+    // 2) Kullanıcı status'ü gerçekten değiştirdi mi?
+    $dirty = $request->input('_status_dirty') === '1';
+    $computedStatus = $dirty ? ($request->boolean('status') ? 1 : 0) : (int)$data->status;
+
+    // Voyager'ın update mekanizmasına doğru değeri ver
+    $request->merge(['status' => $computedStatus]);
+
+    // 3) (İsteğe bağlı) validasyon
+    $val = $this->validateBread($request->all(), $dataType->editRows, $dataType->name, $id)->validate();
+
+    // 4) BREAD’e status alanını ekle (formda olmadığı senaryolara karşı)
+    $dataType->editRows->push((object)[
+        "data_type_id" => $dataType->id ?? 0,
+        "field" => "status",
+        "type" => "checkbox",
+        "display_name" => "Durum",
+        "edit" => 1,
+        "add" => 1,
+        "details" => "{}"
+    ]);
+
+    // 5) Kayıt
+    $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
+
+    // 6) Emin olmak için statüyü zorla yaz ve kaydet
+    $data->status = $computedStatus;
+    $data->save();
+
+    event(new BreadDataUpdated($dataType, $data));
+
+    if (auth()->user()->can('browse', $model)) {
+        $redirect = redirect()->route("voyager.{$dataType->slug}.index");
+    } else {
+        $redirect = redirect()->back();
+    }
+
+    return $redirect->with([
+        'message'    => __('voyager::generic.successfully_updated') . " {$dataType->getTranslatedAttribute('display_name_singular')}",
+        'alert-type' => 'success',
+    ]);
+}
+
+    
     //***************************************
     //
     //                   /\
@@ -553,6 +574,9 @@ class Devices extends VoyagerBaseController
             case '00:00:00:00:00:03':
                 $this->authorize('remote',  app('App\Device'));
                 break;
+                case '00:00:00:00:00:04':
+                    $this->authorize('virtual',  app('App\Device'));
+                    break;
             default:
                 $this->authorize('add',  app('App\Device'));
                 break;
@@ -609,6 +633,9 @@ class Devices extends VoyagerBaseController
             case '00:00:00:00:00:03':
                 $this->authorize('remote',  app('App\Device'));
                 break;
+                case '00:00:00:00:00:04':
+                    $this->authorize('virtual',  app('App\Device'));
+                    break;
             default:
                 $this->authorize('add',  app('App\Device'));
                 break;
@@ -690,6 +717,9 @@ class Devices extends VoyagerBaseController
             case '00:00:00:00:00:03':
                 $this->authorize('remote',  app('App\Device'));
                 break;
+                case '00:00:00:00:00:04':
+                    $this->authorize('virtual',  app('App\Device'));
+                    break;
             default:
                 $this->authorize('delete',  app('App\Device'));
                 break;

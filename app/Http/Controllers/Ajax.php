@@ -49,64 +49,59 @@ class Ajax extends Controller
             return false;
         }
     }
-    public function deviceOnline()
+   public function deviceOnline()
     {
         $this->authorize('browse_admin');
+
         $devices = DB::table('devices')
             ->where('company_id', Auth::user()->company_id)
-            ->get(['id', 'mac', 'name', 'tags', 'last_data', 'last_at', 'tags_last_change']);
-        $timeout1 =  setting('device.ofline') * 60;
-        $timeout2 =  setting('device.oflinesayac');
-        $timeout3 =  setting('device.tag') * 60;
-        $cikti["ofline"] = 0;
-        $cikti['deviceCount'] = count($devices);
-        $cikti['pointCount'] = 0;
-        $cikti['oflineCount'] = 0;
-        $cikti['oflineDevices'] =  array();
-        $cikti['changeTagsCount'] =  0;
-        $cikti['changeTags'] =  array();
+            ->whereNull('deleted_at')
+            ->get(['id', 'mac', 'name', 'tags', 'last_data', 'last_at', 'status']);
+
+        $timeout1 = setting('device.ofline') * 60;
+        $timeout2 = setting('device.oflinesayac');
+
+        $cikti = [
+            "ofline"        => 0,
+            "deviceCount"   => count($devices),
+            "pointCount"    => 0,
+            "oflineCount"   => 0,
+            "passiveCount"  => 0,
+            "oflineDevices" => [],
+            "passiveDevices"=> []
+        ];
 
         foreach ($devices as $device) {
             $tags = [];
-            $changeTags = [];
+
+            // Normal tagler (0–99)
             if (!is_null($device->tags)) {
                 $tags = array_filter(json_decode($device->tags, true), function ($k) {
-                    return $k < '1000';
+                    return $k < 100;
                 }, ARRAY_FILTER_USE_KEY);
             }
 
+            $cikti['pointCount'] += count($tags);
 
+            // MAC adresine göre timeout seçimi
+            $timeout = ($device->mac == '00:00:00:00:00:01') ? $timeout2 : $timeout1;
 
-            $cikti['pointCount']  += count($tags);
-            if ($device->mac == '00:00:00:00:00:01') {
-                $timeout = $timeout2;
-            } else {
-                $timeout = $timeout1;
-            }
-            if (strtotime($device->last_at) + $timeout < strtotime('now') && $device->mac != '00:00:00:00:00:02') {
+            $isOffline = strtotime($device->last_at) + $timeout < strtotime('now') && $device->mac != '00:00:00:00:00:02';
+            $isPassive = $device->status == 0;
+
+            if ($isOffline) {
                 ++$cikti['oflineCount'];
                 $cikti['oflineDevices'][] = $device;
                 $cikti["ofline"] = 1;
             }
-            if (!is_null($device->tags)) {
-                $changeTags = array_filter(json_decode($device->tags, true), function ($k) {
-                    return $k >= '1000';
-                }, ARRAY_FILTER_USE_KEY);
-            }
-            $changeAt = json_decode($device->tags_last_change, true);
-            if (!is_array($changeAt)) {
-                $changeAt = array();
-            }
-            $changeTags = array_replace($changeTags, $changeAt);
-            foreach ($changeTags as $tagkey => $value) {
-                if (strtotime($value) + $timeout3 < strtotime('now')) {
-                    ++$cikti['changeTagsCount'];
-                    $cikti['changeTags'][] = ['name' => $device->name, 'tag' => $tags[$tagkey - 1000], 'last_change' => $value];
-                    $cikti["ofline"] = 1;
-                }
+
+            if ($isPassive) {
+                ++$cikti['passiveCount'];
+                $cikti['passiveDevices'][] = $device;
             }
         }
-        return json_encode($cikti);
+
+        return response()->json($cikti);
     }
 
     public function DeviceList()
@@ -600,13 +595,34 @@ class Ajax extends Controller
             $settings = json_decode($tool->settings, true);
             $device = Device::where('company_id', Auth::user()->company_id)->where('id', $settings['device'])->first();
             if ($device) {
+                $multiplier = json_decode($device->multiplier, true);
+                $offset = json_decode($device->offset, true);
+               
+                $index = $settings['device_index'];
+               
                 $value = $request->status == 'on' ? $settings['onValue'] : $settings['offValue'];
+
+                if (isset($offset[$index]) && !empty($offset[$index])) {
+                    $offsetValue = floatval($offset[$index]);
+                } else {
+                    $offsetValue = 0; 
+                }
+                if (isset($multiplier[$index]) && !empty($multiplier[$index])) {
+                    $multiplierValue = floatval($multiplier[$index]);
+                } else {
+                    $multiplierValue = 1; 
+                }
+
+                $value = ($value  * $multiplierValue ) +  $offsetValue;
+     
                 $time = date('Y-m-d H:i');
                 $deviceData = new DeviceData;
                 $deviceData->device_id = $settings['device'];
                 $deviceData->data_id = $settings['device_index'];
                 $deviceData->value = $value;
                 $deviceData->created_at = $time;
+                $deviceData->multiplier = $multiplierValue;
+                $deviceData->offset = $offsetValue;
                 $deviceData->save();
                 $device->last_at = $time;
                 $lastdata = array();

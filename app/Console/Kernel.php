@@ -19,6 +19,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         \App\Console\Commands\sendReportsMail::class,
+        \App\Console\Commands\SendInfoCircleMail::class,
     ];
 
     /**
@@ -30,19 +31,13 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         try {
-            $schedule->call(function () {
-                DeviceData::deleteOldData(93);
-            })->everyThirtyMinutes();
+            if ((float)date("i") < 7) {
+                $schedule->call(function () {
+                    Device::fillHourly();
+                })->everyMinute();
+            }
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
-        }
-
-        try {
-            $schedule->call(function () {
-                Device::fillHourly();
-            })->hourly();
-        } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
         try {
@@ -52,16 +47,15 @@ class Kernel extends ConsoleKernel
                 })->everyFiveMinutes();
             }
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
         try {
             $schedule->call(function () {
                 Device::virtualData();
-                Device::remoteData();
             })->everyMinute();
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
 
@@ -70,7 +64,7 @@ class Kernel extends ConsoleKernel
                 Triger::check();
             })->everyMinute();
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
         try {
@@ -78,11 +72,11 @@ class Kernel extends ConsoleKernel
                 Device::diffData();
             })->everyMinute();
         } catch (\Throwable $th) {
-            log::error($th->getMessage(),$th->getTrace());
+            log::error($th->getMessage(), $th->getTrace());
         }
 
         $schedule->command('mail:reports')
-        ->everyFifteenMinutes();
+            ->everyFifteenMinutes();
 
         $schedule->call(function () {
             $root_path = base_path();
@@ -91,6 +85,14 @@ class Kernel extends ConsoleKernel
                 Log::info("deploy : $buffer");
             });
         })->dailyAt('02:44');
+
+        $schedule->command('mail:info-circle --to=alparslan@tateknik.com')
+        ->dailyAt('09:00')
+        ->timezone('Europe/Istanbul')
+        ->appendOutputTo(storage_path('logs/info-circle.log'));
+
+        $schedule->command('check:device-limits')->hourly();
+
     }
 
     /**

@@ -7,6 +7,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Fault extends Model
 {
+    protected $fillable = [
+        'equipment_id',
+        'fault_type',
+        'fault_code',
+        'fault_comment',
+        'reporting_user',
+        'status',
+        'company_id'
+    ];
+
     protected $casts = [
         'accepted_at' => 'date',
     ];

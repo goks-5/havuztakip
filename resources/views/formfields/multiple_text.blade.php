@@ -1,3 +1,9 @@
+<div class="form-group col-md-12">
+    <select class="form-control" id="field_name" name="field_name">
+        <option value="">Bölüm Seçiniz</option>
+    </select>
+</div>
+
 <input type="hidden" id="form-{{ $row->field }}" name="{{ $row->field }}"
     value="{{ old($row->field, $dataTypeContent->{$row->field} ?? ($options->default ?? '')) }}">
     <input type="hidden" id="form-type" name="type" value="{{ old('type',$dataTypeContent->type ?? '') }}">
@@ -7,30 +13,27 @@
 <div class='con_{{ $row->field }}'>
     <div class="form-group mtextrow">
         <div class="row">
-            <div class="col-sm-2">
+            <div class="col-sm-3">
                 <input type="text" data-name="" data-index="0" class="form-control ginput multiple_{{ $row->field }}"
                     name="__{{ $row->field }}[0]"
                     placeholder="0. {{ old($row->field, $options->placeholder ?? $row->getTranslatedAttribute('display_name')) }}">
             </div>
 
-
-            <div class="col-sm-1">
+            <div class="col-sm-3">
                 <input type="number" class="form-control multiplier"
                     step="0.000001"
                     name="__multiplier[0]"
                     placeholder="Çarpan (Multiplier)">
             </div>
 
-            <div class="col-sm-1">
+            <div class="col-sm-3">
                 <input type="number" class="form-control offset"
                 step="0.000001"
                 name="__offset[0]"
                     placeholder="OffSet">
             </div>
 
-
-
-            <div class="col-sm-2">
+            <div class="col-sm-3">
                 <select class="form-control type" name="__type[0]" id="type_0">
                     <option value='diff'>Fark Değer</option>
                     <option value='last'>Son Değer</option>
@@ -67,6 +70,15 @@
                 </select>
             </div>
 
+            <div class="form-group col-md-3">
+                <select name="resource_type" id="resource_type" class="form-control">
+                    <option value="">Veri Tipi Seçiniz</option>
+                    <option value="elektrik">Elektrik</option>
+                    <option value="su">Su</option>
+                    <option value="dogalgaz">Doğalgaz</option>
+                    <option value="metraj">Metraj</option>
+                </select>
+            </div>
 
             <div class="col-sm-1">
                 <div class="form-check">
@@ -103,14 +115,14 @@
                     <label class="form-check-label" for="{{ $row->field }}_500">Yıllık</label>
                 </div>
             </div>
-            <div class="col-sm-1">
-                <div class="form-check">
-                    <input class="form-check-input  ginput multiple_{{ $row->field }}" type="checkbox" data-index="1000"
-                        data-name=" Son Değişim" value="" id="{{ $row->field }}_1000"
-                        name="__{{ $row->field }}[1000]">
-                    <label class="form-check-label" for="{{ $row->field }}_1000">Değişim İzle</label>
-                </div>
+            <div class="col-sm-3">
+            <div class="form-check">
+                <input class="form-check-input  ginput multiple_{{ $row->field }}" type="checkbox" data-index="1000"
+                    data-name=" Son Değişim" value="" id="{{ $row->field }}_1000"
+                    name="__{{ $row->field }}[1000]">
+                <label class="form-check-label" for="{{ $row->field }}_1000">Değişim İzle</label>
             </div>
+        </div>
         </div>
     </div>
 </div>
@@ -124,6 +136,34 @@
 </div>
 @push('javascript')
     <script>
+ document.addEventListener('DOMContentLoaded', function () {
+    fetch('/get-field-list') // Burada rota adını değiştirdik
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('HTTP error! status: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            let fieldSelect = document.getElementById('field_name');
+            fieldSelect.innerHTML = ""; // Önce seçenekleri temizle
+            data.forEach(field => {
+                let option = document.createElement('option');
+                option.value = field.id; // ID değerini value olarak kullan
+                option.textContent = field.name; // Görünen metin alanı
+                fieldSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Bölüm bilgileri yüklenirken bir hata oluştu:', error);
+            let fieldSelect = document.getElementById('field_name');
+            let errorOption = document.createElement('option');
+            errorOption.value = "";
+            errorOption.textContent = "Bölüm bilgisi bulunamadı";
+            fieldSelect.appendChild(errorOption);
+        });
+});
+
         $(document).ready(function() {
             var $row = $('.mtextrow');
 

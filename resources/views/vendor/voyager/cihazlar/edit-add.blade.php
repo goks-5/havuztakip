@@ -7,6 +7,8 @@
 
 @section('css')
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 @stop
 
 @section('page_title', __('voyager::generic.'.($edit ? 'edit' : 'add')).' '.$dataType->getTranslatedAttribute('display_name_singular'))
@@ -48,52 +50,130 @@
                                         @endforeach
                                     </ul>
                                 </div>
-                            @endif
+                            @endif                        
 
-                            <!-- Adding / Editing -->
-                            @php
-                                $dataTypeRows = $dataType->{($edit ? 'editRows' : 'addRows' )};
-                            @endphp
+                          <!-- Adding / Editing -->
+@php
+    $dataTypeRows = $dataType->{($edit ? 'editRows' : 'addRows' )};
+@endphp
 
-                            @foreach($dataTypeRows as $row)
-                            @if ($row->field != "type")
-                                 <!-- GET THE DISPLAY OPTIONS -->
-                                 @php
-                                 $display_options = $row->details->display ?? NULL;
-                                 if ($dataTypeContent->{$row->field.'_'.($edit ? 'edit' : 'add')}) {
-                                     $dataTypeContent->{$row->field} = $dataTypeContent->{$row->field.'_'.($edit ? 'edit' : 'add')};
-                                 }
-                             @endphp
-                             @if (isset($row->details->legend) && isset($row->details->legend->text))
-                                 <legend class="text-{{ $row->details->legend->align ?? 'center' }}" style="background-color: {{ $row->details->legend->bgcolor ?? '#f0f0f0' }};padding: 5px;">{{ $row->details->legend->text }}</legend>
-                             @endif
+@foreach($dataTypeRows as $row)
+    @if ($row->field != "type")
+        <!-- GET THE DISPLAY OPTIONS -->
+        @php
+            $display_options = $row->details->display ?? NULL;
+            if ($dataTypeContent->{$row->field.'_'.($edit ? 'edit' : 'add')}) {
+                $dataTypeContent->{$row->field} = $dataTypeContent->{$row->field.'_'.($edit ? 'edit' : 'add')};
+            }
+        @endphp                        
 
-                             <div class="form-group @if($row->type == 'hidden') hidden @endif col-md-{{ $display_options->width ?? 12 }} {{ $errors->has($row->field) ? 'has-error' : '' }}" @if(isset($display_options->id)){{ "id=$display_options->id" }}@endif>
-                                 {{ $row->slugify }}
-                                 <label class="control-label" for="name">{{ $row->getTranslatedAttribute('display_name') }}</label>
-                                 @include('voyager::multilingual.input-hidden-bread-edit-add')
-                                 @if (isset($row->details->view))
-                                     @include($row->details->view, ['row' => $row, 'dataType' => $dataType, 'dataTypeContent' => $dataTypeContent, 'content' => $dataTypeContent->{$row->field}, 'action' => ($edit ? 'edit' : 'add')])
-                                 @elseif ($row->type == 'relationship')
-                                     @include('voyager::formfields.relationship', ['options' => $row->details])
-                                 @else
-                                     {!! app('voyager')->formField($row, $dataType, $dataTypeContent) !!}
-                                 @endif
+        @if (isset($row->details->legend) && isset($row->details->legend->text))
+            <legend class="text-{{ $row->details->legend->align ?? 'center' }}" 
+                    style="background-color: {{ $row->details->legend->bgcolor ?? '#f0f0f0' }};padding: 5px;">
+                {{ $row->details->legend->text }}
+            </legend>
+        @endif
 
-                                 @foreach (app('voyager')->afterFormFields($row, $dataType, $dataTypeContent) as $after)
-                                     {!! $after->handle($row, $dataType, $dataTypeContent) !!}
-                                 @endforeach
-                                 @if ($errors->has($row->field))
-                                     @foreach ($errors->get($row->field) as $error)
-                                         <span class="help-block">{{ $error }}</span>
-                                     @endforeach
-                                 @endif
-                             </div>
-                            @endif
-                               
-                            @endforeach
+        <div class="form-group @if($row->type == 'hidden') hidden @endif 
+             col-md-{{ $display_options->width ?? 12 }} {{ $errors->has($row->field) ? 'has-error' : '' }}"
+             @if(isset($display_options->id)){{ "id=$display_options->id" }}@endif>
+             
+            {{ $row->slugify }}
+            <label class="control-label" for="name">{{ $row->getTranslatedAttribute('display_name') }}</label>
+            @include('voyager::multilingual.input-hidden-bread-edit-add')
 
-                        </div><!-- panel-body -->
+            @if (isset($row->details->view))
+                @include($row->details->view, [
+                    'row' => $row, 
+                    'dataType' => $dataType, 
+                    'dataTypeContent' => $dataTypeContent, 
+                    'content' => $dataTypeContent->{$row->field}, 
+                    'action' => ($edit ? 'edit' : 'add')
+                ])
+            @elseif ($row->type == 'relationship')
+                @include('voyager::formfields.relationship', ['options' => $row->details])
+            @else
+                {!! app('voyager')->formField($row, $dataType, $dataTypeContent) !!}
+            @endif
+
+            @foreach (app('voyager')->afterFormFields($row, $dataType, $dataTypeContent) as $after)
+                {!! $after->handle($row, $dataType, $dataTypeContent) !!}
+            @endforeach
+
+            @if ($errors->has($row->field))
+                @foreach ($errors->get($row->field) as $error)
+                    <span class="help-block">{{ $error }}</span>
+                @endforeach
+            @endif
+        </div>
+
+        {{-- Eğer alan device_id ise, hemen altına Durum toggle ekle --}}
+        @if($row->field == "device_id")
+        <div class="form-group col-md-12">
+            <label for="status">Cihaz Durumu</label><br>
+
+            {{-- Toggle --}}
+            <input type="hidden" name="_status_dirty" id="_status_dirty" value="0">
+            <input type="checkbox" name="status" id="status" class="toggleswitch"
+                data-on='<i class="fa-solid fa-cogs"></i>'
+                data-off='<i class="fa-solid fa-triangle-exclamation"></i>'
+                data-onstyle="success" data-offstyle="danger"
+                {{ old('status', $dataTypeContent->status ?? 0) ? 'checked' : '' }}>
+
+            {{-- Kilit butonu --}}
+            <button type="button" id="lockToggle" class="btn btn-lg btn-dark ml-3">
+                <i class="fa-solid fa-lock"></i>
+            </button>
+        </div>
+
+        {{-- Modal --}}
+        <div class="modal fade" id="statusConfirmModal" tabindex="-1" role="dialog" aria-labelledby="statusConfirmLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="statusConfirmLabel">
+                    <i class="fa-solid fa-circle-info"></i> Cihaz Durumu Onayı
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Kapat">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p class="mb-3">
+                    <span class="text-success font-weight-bold">
+                        <i class="fa-solid fa-cogs"></i> Aktif (Yeşil):
+                    </span> Cihazın verileri <u>sisteme kaydedilmeye devam edecektir</u>.
+                </p>
+                <p class="mb-3">
+                    <span class="text-danger font-weight-bold">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Pasif (Kırmızı):
+                    </span> Cihazın verileri <u>sisteme kaydedilmeyecektir</u>.
+                </p>
+                <hr>
+                <p class="text-dark">
+                    Bu durumu onaylayarak cihaz üzerinde düzenleme yapmayı kabul ediyor musunuz?
+                </p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="modalNo" class="btn btn-outline-secondary">
+                    <i class="fa-solid fa-times"></i> Hayır
+                </button>
+                <button type="button" id="modalYes" class="btn btn-success">
+                    <i class="fa-solid fa-check"></i> Evet
+                </button>
+            </div>
+            </div>
+        </div>
+        </div>
+
+        @endif
+
+        @endif
+        @endforeach
+
+        </div><!-- panel-body -->
 
                         <div class="panel-footer">
                             @section('submit-buttons')
@@ -208,4 +288,51 @@
             $('[data-toggle="tooltip"]').tooltip();
         });
     </script>
+
+    <script>
+    $(document).ready(function () {
+        // Toggle init
+        $('.toggleswitch').bootstrapToggle();
+
+        // İkonları düzenle
+        $('.toggle').each(function () {
+            $(this).find('.toggle-on').html('<i class="fa-solid fa-cogs"></i>');
+            $(this).find('.toggle-off').html('<i class="fa-solid fa-triangle-exclamation"></i>');
+        });
+
+        // Başlangıçta toggle kilitli (değiştirilemez)
+        $("#status").prop("disabled", true);
+
+        let isLocked = true; // varsayılan kilitli
+
+        // Kilit butonuna tıklanınca modal aç
+        $("#lockToggle").on("click", function () {
+            $("#statusConfirmModal").modal("show");
+        });
+
+          // Kullanıcı gerçekten toggle'ı değiştirdi mi?
+  $("#status").on("change", function () {
+      $("#_status_dirty").val("1");
+  });
+
+  // Kilidi açmak sadece input'u aktif eder; dirty bayrağını dokunma.
+  $("#modalYes").on("click", function () {
+      $("#statusConfirmModal").modal("hide");
+      $("#status").prop("disabled", false);
+      $("#lockToggle i").removeClass("fa-lock").addClass("fa-unlock");
+      // _status_dirty burada DEĞİŞMEZ (0 kalır); kullanıcı toggle'ı çevirirse change event 1 yapacak.
+  });
+
+  $("#modalNo").on("click", function () {
+      $("#statusConfirmModal").modal("hide");
+      $("#status").prop("disabled", true);
+      $("#lockToggle i").removeClass("fa-unlock").addClass("fa-lock");
+      // Güvenli tarafta kalmak için dirty'i sıfırla
+      $("#_status_dirty").val("0");
+  });
+
+    });
+    </script>
+
+
 @stop
